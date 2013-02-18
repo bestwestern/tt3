@@ -18,9 +18,12 @@ var solution;
         }
         Sol.prototype.udregn = function () {
             for(var i = 0, len = hardconstraints.length; i < len; i++) {
-                var c = hardconstraints[i];
-                if(c instanceof instans.AssignTimeConstraint) {
-                    alert('h');
+                var constr = hardconstraints[i];
+                if(constr instanceof instans.AssignTimeConstraint) {
+                    for(var i = 0, len = constr.appliestogre.length; i < len; i++) {
+                        var eve = constr.appliestogre[i];
+                        alert(eve.id);
+                    }
                 }
             }
         };
