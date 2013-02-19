@@ -3,6 +3,8 @@
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+/// <reference path="solution.ts" />
+/// <reference path="hoved.ts" />
 var instans;
 (function (instans) {
     function sum(afvigelser) {
@@ -12,6 +14,7 @@ var instans;
         }
         return s;
     }
+    //costfunction
     var AssignResourceConstraint = (function () {
         function AssignResourceConstraint(id, name, weight, costfunction, role) {
             this.id = id;
@@ -20,7 +23,7 @@ var instans;
             this.role = role;
             this.appliestogre = [];
             this.appliestoev = [];
-            this.appliestoma = [];
+            //   this.appliestoma = [];
             switch(costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
@@ -44,6 +47,22 @@ var instans;
         return AssignTimeConstraint;
     })();
     instans.AssignTimeConstraint = AssignTimeConstraint;    
+    var PreferResourcesConstraint = (function () {
+        function PreferResourcesConstraint(id, name, weight, costfunction) {
+            this.id = id;
+            this.name = name;
+            this.weight = weight;
+            this.appliestogre = [];
+            this.appliestoev = [];
+            this.appliestogrr = [];
+            this.appliestores = [];
+            switch(costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+            }
+        }
+        return PreferResourcesConstraint;
+    })();    
     var PreferTimesConstraint = (function () {
         function PreferTimesConstraint(id, name, weight, costfunction) {
             this.id = id;
@@ -177,7 +196,10 @@ var instans;
             this.eventresourcegrupper = [];
             this.eventresourcer = [];
             this.eventmangler = [];
-        }
+            /*  if (duration >1) {
+            alert('bingo');
+            }*/
+                    }
         return AEvent;
     })();
     instans.AEvent = AEvent;    
@@ -194,6 +216,7 @@ var instans;
     })();
     instans.Mangel = Mangel;    
     function readinstance(nobj) {
+        //bør lave tjek på resgroup om array eller ej
         hardconstraints = [];
         softconstraints = [];
         timer = [];
@@ -264,6 +287,8 @@ var instans;
                 for(var key in tmpg) {
                     var k = tmpg[key];
                     if(k["Reference"]) {
+                        //hvis der findes reference så er der flere og de bliver loopet
+                        //hvis ikke er tidsgruppen k
                         k = k["Reference"];
                     }
                     var tmg = tidsgrupper[gruppeid.indexOf(k)];
@@ -310,6 +335,7 @@ var instans;
         }
         tmp = res["Resource"];
         for(var key in tmp) {
+            //vil fejl ved kun 1 resource
             var curres = tmp[key];
             var nyres = new Resource(curres["Name"], curres["Id"], resourcetyper[typeid.indexOf(curres["ResourceType"]["Reference"])]);
             for(var key2 in curres["ResourceGroups"]["ResourceGroup"]) {
@@ -333,7 +359,9 @@ var instans;
             }
             resourcer.push(nyres);
             resid.push(nyres.id);
-        }
+            /* resourcegrupper.push(new ResourceGroup(curgr["Id"], curgr["Name"],
+            resourcetyper[typeid.indexOf(curgr["ResourceType"]["Reference"])]));*/
+                    }
         var ev = nobj["Instances"]["Instance"]["Events"];
         var evgruppeid = [];
         if(ev["EventGroups"]) {
@@ -415,10 +443,10 @@ var instans;
         for(var key in con) {
             if(con[key] instanceof Array) {
                 for(var i = 0, len = con[key].length; i < len; i++) {
-                    lavcon(con[key][i], key, evgruppeid, evid);
+                    lavcon(con[key][i], key, evgruppeid, evid, resid, grupid);
                 }
             } else {
-                lavcon(con[key], key, evgruppeid, evid);
+                lavcon(con[key], key, evgruppeid, evid, resid, grupid);
             }
         }
     }
@@ -426,8 +454,10 @@ var instans;
     function readxml(url) {
         var xmlhttp;
         if(XMLHttpRequest) {
+            // code for IE7+, Firefox, Chrome, Opera, Safari
             xmlhttp = new XMLHttpRequest();
         } else {
+            // code for IE6, IE5
             xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
         }
         xmlhttp.open("GET", url, false);
@@ -444,6 +474,7 @@ var instans;
         function XML2jsobj(node) {
             var data = {
             };
+            // append a value
             function Add(name, value) {
                 if(data[name]) {
                     if(data[name].constructor != Array) {
@@ -457,15 +488,19 @@ var instans;
                 }
             }
             ;
-            var c, cn;
+            // element attributes
+                        var c, cn;
             for(c = 0; cn = node.attributes[c]; c++) {
                 Add(cn.name, cn.value);
             }
+            // child elements
             for(c = 0; cn = node.childNodes[c]; c++) {
                 if(cn.nodeType == 1) {
                     if(cn.childNodes.length == 1 && cn.firstChild.nodeType == 3) {
+                        // text value
                         Add(cn.nodeName, cn.firstChild.nodeValue);
                     } else {
+                        // sub-object
                         Add(cn.nodeName, XML2jsobj(cn));
                     }
                 }
@@ -491,11 +526,13 @@ var instans;
                     alert('fejlx v res event');
                 }
             } else {
+                //var fddfdfsk = nobj["jk"]["jk"];
                 alert('fejl v res event');
             }
         }
     }
-    function lavcon(constraint, type, evgruppeid, evid) {
+    function lavcon(constraint, type, evgruppeid, evid, resid, grupid) {
+        //var nycon: Constraint;
         var na = constraint["Name"];
         var id = constraint["Id"];
         var we = constraint["Weight"];
@@ -511,6 +548,7 @@ var instans;
                 var nycon = new AssignTimeConstraint(id, na, we, co);
                 break;
             case "LimitBusyTimesConstraint":
+                //MANFLWE
                 break;
             case "PreferTimesConstraint":
                 var nycon = new PreferTimesConstraint(id, na, we, co);
@@ -518,12 +556,17 @@ var instans;
             case "SpreadEventsConstraint":
                 var nycon = new SpreadEventsConstraint(id, na, we, co);
                 break;
+            case "PreferResourcesConstraint":
+                var nycon = new PreferResourcesConstraint(id, na, we, co);
+                break;
             default:
+                // alert constraint ikke understøttet    var fddfdfsk = constraint["jk"]["jk"];
                 break;
         }
         if(nycon) {
             if(constraint["AppliesTo"]["Events"]) {
                 var appliesto = constraint["AppliesTo"];
+                //       if ("EventGroups" in appliesto) //if array
                 if(appliesto["Events"]["Event"] instanceof Array) {
                     for(var key in appliesto["Events"]["Event"]) {
                         nycon.appliestogre.push(eventgrupper[evid.indexOf(appliesto["Events"]["Event"][key]["Reference"])]);
@@ -554,6 +597,37 @@ var instans;
                     }
                 }
             }
+            if(constraint["Resource"]) {
+            }
+            if(constraint["ResourceGroups"]) {
+                var appliesto = constraint["ResourceGroups"];
+                if(appliesto["ResourceGroup"] instanceof Array) {
+                    for(var key in appliesto["ResourceGroup"]) {
+                        var egr = resourcegrupper[grupid.indexOf(appliesto["ResourceGroup"][key]["Reference"])];
+                        nycon.appliestogrr.push(egr);
+                        /*                        for (var i = 0, len = gr.events.length; i < len; i++)
+                        if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
+                        nycon.appliestoev.push(gr.events[i]);*/
+                                            }
+                } else {
+                    var egr = resourcegrupper[grupid.indexOf(appliesto["ResourceGroup"]["Reference"])];
+                    nycon.appliestogrr.push(egr);
+                }
+            }
+            /*              }
+            }
+            /*if (nycon instanceof AssignResourceConstraint) {
+            var ac: AssignResourceConstraint = <AssignResourceConstraint> nycon;
+            for (var i = 0, len = ac.appliestoev.length; i < len; i++) {
+            var ev = ac.appliestoev[i];
+            for (var j = 0; j < ev.eventmangler.length; j++) {
+            var evma = ev.eventmangler[j];
+            if (evma.role==ro)
+            ac.appliestoma.push(evma);
+            }
+            }
+            nycon = ac;
+            }*/
             if(ha) {
                 hardconstraints.push(nycon);
             } else {
@@ -562,3 +636,4 @@ var instans;
         }
     }
 })(instans || (instans = {}));
+//@ sourceMappingURL=instans.js.map

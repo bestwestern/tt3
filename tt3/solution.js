@@ -28,6 +28,7 @@ var solution;
                 var constrafvigelser = [];
                 var constrstraf = 0;
                 if(constr instanceof instans.AssignTimeConstraint) {
+                    //     var constr: instans.AssignTimeConstraint = <instans.AssignTimeConstraint> constr;
                     for(var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
                         var even = constr.appliestoev[i];
                         var eventafvigelse = 0;
@@ -62,7 +63,8 @@ var solution;
                     }
                 }
                 hardafv += constr.costfunction(constrafvigelser) * constr.weight;
-            }
+                //       alert(hardafv.toString());
+                            }
         };
         return Sol;
     })();
@@ -82,3 +84,4 @@ var solution;
     })();
     solution.SolEvent = SolEvent;    
 })(solution || (solution = {}));
+//@ sourceMappingURL=solution.js.map

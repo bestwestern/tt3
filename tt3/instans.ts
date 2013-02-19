@@ -8,12 +8,14 @@ module instans {
             s += afvigelser[i];
         return s;
     }
-    export interface Constraint {
+    export interface Constraint {//behøver ikke slette de ekstra appliesto - bliver ikke anvendt fordi de ikke er i construct
         id: string;
         name: string;
         weight: number;
         appliestogre: EventGroup[];
         appliestoev: AEvent[];
+        appliestogrr: ResourceGroup[];
+        appliestores: Resource[];
         role: string;
         costfunction: (afv: number[]) => number;
         //costfunction
@@ -21,12 +23,14 @@ module instans {
     export class AssignResourceConstraint implements Constraint {
         appliestogre: EventGroup[];
         appliestoev: AEvent[];
-        appliestoma: Mangel[];
+        appliestogrr: ResourceGroup[];
+        appliestores: Resource[];
+        //    appliestoma: Mangel[];
         costfunction: (afv: number[]) => number;
         constructor(public id: string, public name: string, public weight: number, costfunction: string, public role: string) {
             this.appliestogre = [];
             this.appliestoev = [];
-            this.appliestoma = [];
+            //   this.appliestoma = [];
             switch (costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
@@ -38,6 +42,8 @@ module instans {
     export class AssignTimeConstraint implements Constraint {
         appliestogre: EventGroup[];
         appliestoev: AEvent[];
+        appliestogrr: ResourceGroup[];
+        appliestores: Resource[];
         role: string;
         costfunction: (afv: number[]) => number;
         constructor(public id: string, public name: string, public weight: number, costfunction: string) {
@@ -51,9 +57,30 @@ module instans {
         }
     }
 
+    class PreferResourcesConstraint implements Constraint {
+        appliestogre: EventGroup[];
+        appliestoev: AEvent[];
+        appliestogrr: ResourceGroup[];
+        appliestores: Resource[];
+        role: string;
+        costfunction: (afv: number[]) => number;
+        constructor(public id: string, public name: string, public weight: number, costfunction: string) {
+            this.appliestogre = [];
+            this.appliestoev = [];
+            this.appliestogrr = [];
+            this.appliestores = [];
+            switch (costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+            }
+        }
+    }
     class PreferTimesConstraint implements Constraint {
         appliestogre: EventGroup[];
         appliestoev: AEvent[];
+        appliestogrr: ResourceGroup[];
+        appliestores: Resource[];
+
         role: string;
         costfunction: (afv: number[]) => number;
         constructor(public id: string, public name: string, public weight: number, costfunction: string) {
@@ -69,6 +96,9 @@ module instans {
     class SpreadEventsConstraint implements Constraint {
         appliestogre: EventGroup[];
         appliestoev: AEvent[];
+        appliestogrr: ResourceGroup[];
+        appliestores: Resource[];
+
         role: string;
         costfunction: (afv: number[]) => number;
 
@@ -391,9 +421,9 @@ module instans {
         for (var key in con)
             if (con[key] instanceof Array)
                 for (var i = 0, len = con[key].length; i < len; i++)
-                    lavcon(con[key][i], key, evgruppeid, evid)
+                    lavcon(con[key][i], key, evgruppeid, evid, resid, grupid)
             else
-                lavcon(con[key], key, evgruppeid, evid)
+                lavcon(con[key], key, evgruppeid, evid, resid, grupid)
     }
     export function readxml(url) {
 
@@ -479,7 +509,7 @@ module instans {
         }
 
     }
-    function lavcon(constraint: Object, type: string, evgruppeid: string[], evid: string[]) {
+    function lavcon(constraint: Object, type: string, evgruppeid: string[], evid: string[], resid: string[], grupid: string[]) {
         //var nycon: Constraint;
         var na = constraint["Name"];
         var id = constraint["Id"];
@@ -502,6 +532,9 @@ module instans {
                 break;
             case "SpreadEventsConstraint":
                 var nycon = new SpreadEventsConstraint(id, na, we, co);
+                break;
+            case "PreferResourcesConstraint":
+                var nycon = new PreferResourcesConstraint(id, na, we, co);
                 break;
 
 
@@ -540,18 +573,38 @@ module instans {
                             nycon.appliestoev.push(gr.events[i]);
                 }
             }
-            /*if (nycon instanceof AssignResourceConstraint) {
-                var ac: AssignResourceConstraint = <AssignResourceConstraint> nycon;
-                for (var i = 0, len = ac.appliestoev.length; i < len; i++) {
-                    var ev = ac.appliestoev[i];
-                    for (var j = 0; j < ev.eventmangler.length; j++) {
-                        var evma = ev.eventmangler[j];
-                        if (evma.role==ro)
-                            ac.appliestoma.push(evma);
-                        }
+            if (constraint["Resource"]) {
+                //implemter
+            }
+            if (constraint["ResourceGroups"]) {
+                var appliesto = constraint["ResourceGroups"];
+                if (appliesto["ResourceGroup"] instanceof Array)
+                    for (var key in appliesto["ResourceGroup"]) {
+                        var egr: ResourceGroup = resourcegrupper[grupid.indexOf(appliesto["ResourceGroup"][key]["Reference"])];
+                        nycon.appliestogrr.push(egr);
+                        /*                        for (var i = 0, len = gr.events.length; i < len; i++)
+                                                    if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
+                                                        nycon.appliestoev.push(gr.events[i]);*/
+                    }
+                else {
+                    var egr: ResourceGroup = resourcegrupper[grupid.indexOf(appliesto["ResourceGroup"]["Reference"])];
+                    nycon.appliestogrr.push(egr);
                 }
-                nycon = ac;
-                }*/
+            }
+            /*              }
+                        }
+                        /*if (nycon instanceof AssignResourceConstraint) {
+                            var ac: AssignResourceConstraint = <AssignResourceConstraint> nycon;
+                            for (var i = 0, len = ac.appliestoev.length; i < len; i++) {
+                                var ev = ac.appliestoev[i];
+                                for (var j = 0; j < ev.eventmangler.length; j++) {
+                                    var evma = ev.eventmangler[j];
+                                    if (evma.role==ro)
+                                        ac.appliestoma.push(evma);
+                                    }
+                            }
+                            nycon = ac;
+                            }*/
             if (ha)
                 hardconstraints.push(nycon);
             else
