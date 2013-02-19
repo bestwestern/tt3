@@ -21,7 +21,7 @@ module solution {
         udregn() {
             for (var i = 0, len = hardconstraints.length; i < len; i++) {
                 var constr = hardconstraints[i];
-                if (constr instanceof instans.AssignTimeConstraint) {
+                if (constr instanceof instans.A ssignTimeConstraint) {
                     for (var i = 0, len = constr.appliestogre.length; i < len; i++) {
                         var eve = constr.appliestogre[i];
                         alert(eve.id);

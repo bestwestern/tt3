@@ -305,8 +305,11 @@ module instans {
             var nyev = new AEvent(curev["Id"], curev["Name"], curev["Duration"]);
             for (var key2 in curev["Course"]) {
                 var evg = curev["Course"][key2];
-                if (evgruppeid.indexOf(evg) > -1)
-                    nyev.eventeventgrupper.push(eventgrupper[evgruppeid.indexOf(evg)]);
+                if (evgruppeid.indexOf(evg) > -1) {
+                    var evgr = eventgrupper[evgruppeid.indexOf(evg)];
+                    nyev.eventeventgrupper.push(evgr);
+                    evgr.events.push(nyev);
+                     }
                 else
                     alert('fejl ved indlæsning af event ' + curev["Name"]);
             }
