@@ -76,12 +76,13 @@ module instans {
     }
 
     export class EventGroup extends Entity {
-        constructor(name: string, id: string) { super(id, name) }
+        events: AEvent[];
+        constructor(name: string, id: string) { super(id, name); this.events = []; }
     }
     export class Course extends EventGroup {
         constructor(name: string, id: string) { super(id, name) }
     }
-     export class ResourceType extends Entity {
+    export class ResourceType extends Entity {
         resourcegroups: ResourceGroup[];
         constructor(name: string, id: string) {
             super(id, name);
@@ -115,7 +116,7 @@ module instans {
     export class Mangel {
         constructor(public role: string, public resourcetype: ResourceType, public workload?: number) {
             if (role === null || resourcetype === null)
-                alert('fejl ved indlæsning af mangel ' + role + ',' + resourcetype.name);
+                alert('fejl ved indlæsningh af mangel ' + role + ',' + resourcetype.name);
         }
     }
     export function readinstance(nobj: Object) {//bør lave tjek på resgroup om array eller ej
@@ -189,9 +190,9 @@ module instans {
                 var tmpg = curtime["TimeGroups"]["TimeGroup"];
                 for (var key in tmpg) {
                     var k = tmpg[key];
-                    if (k["Reference"]) {
+                    if (k["Reference"]) {//hvis der findes reference så er der flere og de bliver loopet
+                        //hvis ikke er tidsgruppen k
                         k = k["Reference"];
-                        //  alert('Timegroup reference!' + nytime.id);
                     }
                     var tmg = tidsgrupper[gruppeid.indexOf(k)];
                     nytime.timegroups.push(tmg);
@@ -206,15 +207,30 @@ module instans {
         var grupid: string[] = [];
         if (res["ResourceTypes"]) {
             tmp = res["ResourceTypes"]["ResourceType"];
-            for (var key in tmp) {
-                resourcetyper.push(new ResourceType(tmp[key]["Name"], tmp[key]["Id"]));
-                typeid.push(tmp[key]["Id"]);
+            if (tmp instanceof Array)
+                for (var key in tmp) {
+                    resourcetyper.push(new ResourceType(tmp[key]["Name"], tmp[key]["Id"]));
+                    typeid.push(tmp[key]["Id"]);
+                }
+            else {
+                resourcetyper.push(new ResourceType(tmp["Name"], tmp["Id"]));
+                typeid.push(tmp["Id"]);
             }
+
         }
         if (res["ResourceGroups"]) {
             tmp = res["ResourceGroups"]["ResourceGroup"];
-            for (var key in tmp) {
-                var curgr = tmp[key];
+            if (tmp instanceof Array)
+                for (var key in tmp) {
+                    var curgr = tmp[key];
+                    var restyp = resourcetyper[typeid.indexOf(curgr["ResourceType"]["Reference"])];
+                    var resgr = new ResourceGroup(curgr["Id"], curgr["Name"], restyp);
+                    resourcegrupper.push(resgr);
+                    restyp.resourcegroups.push(resgr);
+                    grupid.push(curgr["Id"]);
+                }
+            else {
+                var curgr = tmp;
                 var restyp = resourcetyper[typeid.indexOf(curgr["ResourceType"]["Reference"])];
                 var resgr = new ResourceGroup(curgr["Id"], curgr["Name"], restyp);
                 resourcegrupper.push(resgr);
@@ -223,15 +239,14 @@ module instans {
             }
         }
         tmp = res["Resource"];
-        for (var key in tmp) {
+        for (var key in tmp) {//vil fejl ved kun 1 resource
             var curres = tmp[key];
             var nyres = new Resource(curres["Name"], curres["Id"],
                 resourcetyper[typeid.indexOf(curres["ResourceType"]["Reference"])]);
             for (var key2 in curres["ResourceGroups"]["ResourceGroup"]) {
                 k = curres["ResourceGroups"]["ResourceGroup"][key2];
                 if (resgr = resourcegrupper[grupid.indexOf(k)]) {
-
-                    if (resgr === null)
+                    if (resgr === undefined)
                         alert('fejl ved ' + curres["Id"]);
                     else {
                         resgr.resourcer.push(nyres);
@@ -239,20 +254,9 @@ module instans {
                     }
 
                 }
-                    /*   if (k instanceof Array)
-                           for (var key3 in k) {
-                               alert('arr' + nyres.name);
-                               var resgr = resourcegrupper[grupid.indexOf(k[key3])];
-                               if (resgr === null)
-                                   alert('fejl ved ' + curres["Id"]);
-                               else {
-                                   resgr.resourcer.push(nyres);
-                                   nyres.resourcegroups.push(resgr);
-                               }
-                           }*/
-                else {
+                      else {
                     var resgr = resourcegrupper[grupid.indexOf(k["Reference"])];
-                    if (resgr === null)
+                    if (resgr ===undefined)
                         alert('fejl ved ' + curres["Id"]);
                     else {
                         resgr.resourcer.push(nyres);
@@ -305,7 +309,6 @@ module instans {
                     nyev.eventeventgrupper.push(eventgrupper[evgruppeid.indexOf(evg)]);
                 else
                     alert('fejl ved indlæsning af event ' + curev["Name"]);
-                //            nyev.eventeventgrupper.push(eventgrupper[evgruppeid.indexOf(curev[key2])]);
             }
             if (curev["EventGroups"]) {
                 evgru = curev["EventGroups"];
@@ -319,8 +322,11 @@ module instans {
                         kk = evgruppeid.indexOf(k);
                     if (kk == -1)
                         alert('fejl3 ved indlæsning af evengroups for event ' + curev["Name"]);
-                    else
-                        nyev.eventeventgrupper.push(eventgrupper[kk]);
+                    else {
+                        var evgr = eventgrupper[kk];
+                        nyev.eventeventgrupper.push(evgr);
+                        evgr.events.push(nyev);
+                    }
                 }
             }
             if ("Resources" in curev) {

@@ -16,6 +16,7 @@ window.onload = function () {
     else
     alert('not');*/
     var filenames = [
+        "test", 
         "NetherlandsKottenpark2009", 
         "ArtificialORLibrary-hdtt6", 
         "ArtificialSudoku4x4", 
@@ -32,11 +33,11 @@ window.onload = function () {
         "SouthAfricaLewitt2009", 
         "SpainSchool"
     ];
-    instans.readxml("XML/" + filenames[6] + ".xml");
-    /*for (var i = 0; i < filenames.length; i++) {
-    instans.readxml("XML/" + filenames[i] + ".xml");
-    alert(events.length.toString());
-    }*/
+    //  instans.readxml("XML/" + filenames[6] + ".xml");
+    for(var i = 0; i < filenames.length; i++) {
+        instans.readxml("XML/" + filenames[i] + ".xml");
+        alert(filenames[i] + ':' + events.length.toString());
+    }
     var sol1 = new solution.Sol();
     sol1.udregn();
     //alert(sol1.solevents.length.toString());

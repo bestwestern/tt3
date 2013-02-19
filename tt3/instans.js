@@ -106,6 +106,7 @@ var instans;
         __extends(EventGroup, _super);
         function EventGroup(name, id) {
                 _super.call(this, id, name);
+            this.events = [];
         }
         return EventGroup;
     })(Entity);
@@ -168,7 +169,7 @@ var instans;
             this.resourcetype = resourcetype;
             this.workload = workload;
             if(role === null || resourcetype === null) {
-                alert('fejl ved indlæsning af mangel ' + role + ',' + resourcetype.name);
+                alert('fejl ved indlæsningh af mangel ' + role + ',' + resourcetype.name);
             }
         }
         return Mangel;
@@ -246,9 +247,10 @@ var instans;
                 for(var key in tmpg) {
                     var k = tmpg[key];
                     if(k["Reference"]) {
+                        //hvis der findes reference så er der flere og de bliver loopet
+                        //hvis ikke er tidsgruppen k
                         k = k["Reference"];
-                        //  alert('Timegroup reference!' + nytime.id);
-                                            }
+                    }
                     var tmg = tidsgrupper[gruppeid.indexOf(k)];
                     nytime.timegroups.push(tmg);
                     tmg.timer.push(nytime);
@@ -261,15 +263,29 @@ var instans;
         var grupid = [];
         if(res["ResourceTypes"]) {
             tmp = res["ResourceTypes"]["ResourceType"];
-            for(var key in tmp) {
-                resourcetyper.push(new ResourceType(tmp[key]["Name"], tmp[key]["Id"]));
-                typeid.push(tmp[key]["Id"]);
+            if(tmp instanceof Array) {
+                for(var key in tmp) {
+                    resourcetyper.push(new ResourceType(tmp[key]["Name"], tmp[key]["Id"]));
+                    typeid.push(tmp[key]["Id"]);
+                }
+            } else {
+                resourcetyper.push(new ResourceType(tmp["Name"], tmp["Id"]));
+                typeid.push(tmp["Id"]);
             }
         }
         if(res["ResourceGroups"]) {
             tmp = res["ResourceGroups"]["ResourceGroup"];
-            for(var key in tmp) {
-                var curgr = tmp[key];
+            if(tmp instanceof Array) {
+                for(var key in tmp) {
+                    var curgr = tmp[key];
+                    var restyp = resourcetyper[typeid.indexOf(curgr["ResourceType"]["Reference"])];
+                    var resgr = new ResourceGroup(curgr["Id"], curgr["Name"], restyp);
+                    resourcegrupper.push(resgr);
+                    restyp.resourcegroups.push(resgr);
+                    grupid.push(curgr["Id"]);
+                }
+            } else {
+                var curgr = tmp;
                 var restyp = resourcetyper[typeid.indexOf(curgr["ResourceType"]["Reference"])];
                 var resgr = new ResourceGroup(curgr["Id"], curgr["Name"], restyp);
                 resourcegrupper.push(resgr);
@@ -279,31 +295,21 @@ var instans;
         }
         tmp = res["Resource"];
         for(var key in tmp) {
+            //vil fejl ved kun 1 resource
             var curres = tmp[key];
             var nyres = new Resource(curres["Name"], curres["Id"], resourcetyper[typeid.indexOf(curres["ResourceType"]["Reference"])]);
             for(var key2 in curres["ResourceGroups"]["ResourceGroup"]) {
                 k = curres["ResourceGroups"]["ResourceGroup"][key2];
                 if(resgr = resourcegrupper[grupid.indexOf(k)]) {
-                    if(resgr === null) {
+                    if(resgr === undefined) {
                         alert('fejl ved ' + curres["Id"]);
                     } else {
                         resgr.resourcer.push(nyres);
                         nyres.resourcegroups.push(resgr);
                     }
-                } else/*   if (k instanceof Array)
-                for (var key3 in k) {
-                alert('arr' + nyres.name);
-                var resgr = resourcegrupper[grupid.indexOf(k[key3])];
-                if (resgr === null)
-                alert('fejl ved ' + curres["Id"]);
-                else {
-                resgr.resourcer.push(nyres);
-                nyres.resourcegroups.push(resgr);
-                }
-                }*/
-                 {
+                } else {
                     var resgr = resourcegrupper[grupid.indexOf(k["Reference"])];
-                    if(resgr === null) {
+                    if(resgr === undefined) {
                         alert('fejl ved ' + curres["Id"]);
                     } else {
                         resgr.resourcer.push(nyres);
@@ -356,8 +362,7 @@ var instans;
                 } else {
                     alert('fejl ved indlæsning af event ' + curev["Name"]);
                 }
-                //            nyev.eventeventgrupper.push(eventgrupper[evgruppeid.indexOf(curev[key2])]);
-                            }
+            }
             if(curev["EventGroups"]) {
                 evgru = curev["EventGroups"];
                 if(evgru["EventGroup"]) {
@@ -372,7 +377,9 @@ var instans;
                     if(kk == -1) {
                         alert('fejl3 ved indlæsning af evengroups for event ' + curev["Name"]);
                     } else {
-                        nyev.eventeventgrupper.push(eventgrupper[kk]);
+                        var evgr = eventgrupper[kk];
+                        nyev.eventeventgrupper.push(evgr);
+                        evgr.events.push(nyev);
                     }
                 }
             }
