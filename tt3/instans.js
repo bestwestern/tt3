@@ -3,20 +3,28 @@
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-/// <reference path="solution.ts" />
-/// <reference path="hoved.ts" />
 var instans;
 (function (instans) {
-    //costfunction
+    function sum(afvigelser) {
+        var s = 0;
+        for(var i = 0, len = afvigelser.length; i < len; i++) {
+            s += afvigelser[i];
+        }
+        return s;
+    }
     var AssignResourceConstraint = (function () {
         function AssignResourceConstraint(id, name, weight, costfunction, role) {
             this.id = id;
             this.name = name;
             this.weight = weight;
-            this.costfunction = costfunction;
             this.role = role;
             this.appliestogre = [];
             this.appliestoev = [];
+            this.appliestoma = [];
+            switch(costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+            }
         }
         return AssignResourceConstraint;
     })();
@@ -26,9 +34,12 @@ var instans;
             this.id = id;
             this.name = name;
             this.weight = weight;
-            this.costfunction = costfunction;
             this.appliestogre = [];
             this.appliestoev = [];
+            switch(costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+            }
         }
         return AssignTimeConstraint;
     })();
@@ -38,9 +49,12 @@ var instans;
             this.id = id;
             this.name = name;
             this.weight = weight;
-            this.costfunction = costfunction;
             this.appliestogre = [];
             this.appliestoev = [];
+            switch(costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+            }
         }
         return PreferTimesConstraint;
     })();    
@@ -49,9 +63,12 @@ var instans;
             this.id = id;
             this.name = name;
             this.weight = weight;
-            this.costfunction = costfunction;
             this.appliestogre = [];
-            this.appliestoev = null;
+            this.appliestoev = [];
+            switch(costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+            }
         }
         return SpreadEventsConstraint;
     })();    
@@ -149,12 +166,13 @@ var instans;
     })(Entity);
     instans.Resource = Resource;    
     var AEvent = (function () {
-        function AEvent(id, name, duration, workload, time) {
+        function AEvent(id, name, duration, workload, preasigntime) {
             this.id = id;
             this.name = name;
             this.duration = duration;
             this.workload = workload;
-            this.time = time;
+            this.preasigntime = preasigntime;
+            this.solevent = [];
             this.eventeventgrupper = [];
             this.eventresourcegrupper = [];
             this.eventresourcer = [];
@@ -176,7 +194,6 @@ var instans;
     })();
     instans.Mangel = Mangel;    
     function readinstance(nobj) {
-        //bør lave tjek på resgroup om array eller ej
         hardconstraints = [];
         softconstraints = [];
         timer = [];
@@ -247,8 +264,6 @@ var instans;
                 for(var key in tmpg) {
                     var k = tmpg[key];
                     if(k["Reference"]) {
-                        //hvis der findes reference så er der flere og de bliver loopet
-                        //hvis ikke er tidsgruppen k
                         k = k["Reference"];
                     }
                     var tmg = tidsgrupper[gruppeid.indexOf(k)];
@@ -295,7 +310,6 @@ var instans;
         }
         tmp = res["Resource"];
         for(var key in tmp) {
-            //vil fejl ved kun 1 resource
             var curres = tmp[key];
             var nyres = new Resource(curres["Name"], curres["Id"], resourcetyper[typeid.indexOf(curres["ResourceType"]["Reference"])]);
             for(var key2 in curres["ResourceGroups"]["ResourceGroup"]) {
@@ -319,9 +333,7 @@ var instans;
             }
             resourcer.push(nyres);
             resid.push(nyres.id);
-            /* resourcegrupper.push(new ResourceGroup(curgr["Id"], curgr["Name"],
-            resourcetyper[typeid.indexOf(curgr["ResourceType"]["Reference"])]));*/
-                    }
+        }
         var ev = nobj["Instances"]["Instance"]["Events"];
         var evgruppeid = [];
         if(ev["EventGroups"]) {
@@ -414,10 +426,8 @@ var instans;
     function readxml(url) {
         var xmlhttp;
         if(XMLHttpRequest) {
-            // code for IE7+, Firefox, Chrome, Opera, Safari
             xmlhttp = new XMLHttpRequest();
         } else {
-            // code for IE6, IE5
             xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
         }
         xmlhttp.open("GET", url, false);
@@ -434,7 +444,6 @@ var instans;
         function XML2jsobj(node) {
             var data = {
             };
-            // append a value
             function Add(name, value) {
                 if(data[name]) {
                     if(data[name].constructor != Array) {
@@ -448,19 +457,15 @@ var instans;
                 }
             }
             ;
-            // element attributes
-                        var c, cn;
+            var c, cn;
             for(c = 0; cn = node.attributes[c]; c++) {
                 Add(cn.name, cn.value);
             }
-            // child elements
             for(c = 0; cn = node.childNodes[c]; c++) {
                 if(cn.nodeType == 1) {
                     if(cn.childNodes.length == 1 && cn.firstChild.nodeType == 3) {
-                        // text value
                         Add(cn.nodeName, cn.firstChild.nodeValue);
                     } else {
-                        // sub-object
                         Add(cn.nodeName, XML2jsobj(cn));
                     }
                 }
@@ -486,13 +491,11 @@ var instans;
                     alert('fejlx v res event');
                 }
             } else {
-                //var fddfdfsk = nobj["jk"]["jk"];
                 alert('fejl v res event');
             }
         }
     }
     function lavcon(constraint, type, evgruppeid, evid) {
-        //var nycon: Constraint;
         var na = constraint["Name"];
         var id = constraint["Id"];
         var we = constraint["Weight"];
@@ -508,7 +511,6 @@ var instans;
                 var nycon = new AssignTimeConstraint(id, na, we, co);
                 break;
             case "LimitBusyTimesConstraint":
-                //MANFLWE
                 break;
             case "PreferTimesConstraint":
                 var nycon = new PreferTimesConstraint(id, na, we, co);
@@ -517,13 +519,11 @@ var instans;
                 var nycon = new SpreadEventsConstraint(id, na, we, co);
                 break;
             default:
-                // alert constraint ikke understøttet    var fddfdfsk = constraint["jk"]["jk"];
                 break;
         }
         if(nycon) {
             if(constraint["AppliesTo"]["Events"]) {
                 var appliesto = constraint["AppliesTo"];
-                //       if ("EventGroups" in appliesto) //if array
                 if(appliesto["Events"]["Event"] instanceof Array) {
                     for(var key in appliesto["Events"]["Event"]) {
                         nycon.appliestogre.push(eventgrupper[evid.indexOf(appliesto["Events"]["Event"][key]["Reference"])]);
@@ -534,13 +534,24 @@ var instans;
             }
             if(constraint["AppliesTo"]["EventGroups"]) {
                 var appliesto = constraint["AppliesTo"];
-                // if ("EventGroups" in appliesto) //if array
                 if(appliesto["EventGroups"]["EventGroup"] instanceof Array) {
                     for(var key in appliesto["EventGroups"]["EventGroup"]) {
-                        nycon.appliestogre.push(eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"][key]["Reference"])]);
+                        var gr = eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"][key]["Reference"])];
+                        nycon.appliestogre.push(gr);
+                        for(var i = 0, len = gr.events.length; i < len; i++) {
+                            if(nycon.appliestoev.indexOf(gr.events[i]) == -1) {
+                                nycon.appliestoev.push(gr.events[i]);
+                            }
+                        }
                     }
                 } else {
-                    nycon.appliestogre.push(eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"]["Reference"])]);
+                    var gr = eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"]["Reference"])];
+                    nycon.appliestogre.push(gr);
+                    for(var i = 0, len = gr.events.length; i < len; i++) {
+                        if(nycon.appliestoev.indexOf(gr.events[i]) == -1) {
+                            nycon.appliestoev.push(gr.events[i]);
+                        }
+                    }
                 }
             }
             if(ha) {
@@ -551,4 +562,3 @@ var instans;
         }
     }
 })(instans || (instans = {}));
-//@ sourceMappingURL=instans.js.map

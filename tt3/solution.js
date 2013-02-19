@@ -1,7 +1,12 @@
-/// <reference path="instans.ts" />
-/// <reference path="hoved.ts" />
 var solution;
 (function (solution) {
+    var SolResource = (function () {
+        function SolResource(mangel) {
+            this.mangel = mangel;
+        }
+        return SolResource;
+    })();
+    solution.SolResource = SolResource;    
     var Sol = (function () {
         function Sol() {
             this.solevents = [];
@@ -17,14 +22,46 @@ var solution;
             }
         }
         Sol.prototype.udregn = function () {
-            for(var i = 0, len = hardconstraints.length; i < len; i++) {
-                var constr = hardconstraints[i];
+            var hardafv = 0;
+            for(var c = 0, lencon = hardconstraints.length; c < lencon; c++) {
+                var constr = hardconstraints[c];
+                var constrafvigelser = [];
+                var constrstraf = 0;
                 if(constr instanceof instans.AssignTimeConstraint) {
-                    for(var i = 0, len = constr.appliestogre.length; i < len; i++) {
-                        var eve = constr.appliestogre[i];
-                        alert(eve.id);
+                    for(var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
+                        var even = constr.appliestoev[i];
+                        var eventafvigelse = 0;
+                        for(var j = 0, eventdura = even.duration; j < eventdura; j++) {
+                            if(!even.solevent[j].sTime != undefined) {
+                                eventafvigelse++;
+                            }
+                        }
+                        if(eventafvigelse > 0) {
+                            constrafvigelser.push(eventafvigelse);
+                        }
+                    }
+                } else if(constr instanceof instans.AssignResourceConstraint) {
+                    for(var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
+                        var even = constr.appliestoev[i];
+                        var eventafvigelse = 0;
+                        for(var j = 0, eventdura = even.duration; j < eventdura; j++) {
+                            var soleven = even.solevent[j];
+                            for(var k = 0, eventmangllen = soleven.resourcer.length; k < eventmangllen; k++) {
+                                if(soleven.resourcer[k].resourceref == null) {
+                                    if(soleven.resourcer[k].mangel.role == constr.role) {
+                                        eventafvigelse++;
+                                    }
+                                } else {
+                                    alert('jk');
+                                }
+                            }
+                        }
+                        if(eventafvigelse > 0) {
+                            constrafvigelser.push(eventafvigelse);
+                        }
                     }
                 }
+                hardafv += constr.costfunction(constrafvigelser) * constr.weight;
             }
         };
         return Sol;
@@ -35,11 +72,13 @@ var solution;
             if (typeof sResourcer === "undefined") { sResourcer = []; }
             this.sEvent = sEvent;
             this.sTime = sTime;
-            this.resourcerole = {
-            };
+            this.resourcer = [];
+            for(var i = 0, len = sEvent.eventmangler.length; i < len; i++) {
+                this.resourcer.push(new SolResource(sEvent.eventmangler[i]));
+            }
+            sEvent.solevent.push(this);
         }
         return SolEvent;
     })();
     solution.SolEvent = SolEvent;    
 })(solution || (solution = {}));
-//@ sourceMappingURL=solution.js.map

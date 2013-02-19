@@ -2,48 +2,84 @@
 /// <reference path="hoved.ts" />
 
 module instans {
+    function sum(afvigelser: number[]) {
+        var s = 0;
+        for (var i = 0, len = afvigelser.length; i < len; i++)
+            s += afvigelser[i];
+        return s;
+    }
     export interface Constraint {
         id: string;
         name: string;
         weight: number;
-        costfunction: string;
         appliestogre: EventGroup[];
         appliestoev: AEvent[];
+        role: string;
+        costfunction: (afv: number[]) => number;
         //costfunction
     }
     export class AssignResourceConstraint implements Constraint {
         appliestogre: EventGroup[];
         appliestoev: AEvent[];
-        constructor(public id: string, public name: string, public weight: number, public costfunction: string, public role: string) {
+        appliestoma: Mangel[];
+        costfunction: (afv: number[]) => number;
+        constructor(public id: string, public name: string, public weight: number, costfunction: string, public role: string) {
             this.appliestogre = [];
             this.appliestoev = [];
+            this.appliestoma = [];
+            switch (costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+
+            }
         }
     }
 
     export class AssignTimeConstraint implements Constraint {
         appliestogre: EventGroup[];
         appliestoev: AEvent[];
-        constructor(public id: string, public name: string, public weight: number, public costfunction: string) {
+        role: string;
+        costfunction: (afv: number[]) => number;
+        constructor(public id: string, public name: string, public weight: number, costfunction: string) {
             this.appliestogre = [];
             this.appliestoev = [];
+            switch (costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+
+            }
         }
     }
 
     class PreferTimesConstraint implements Constraint {
         appliestogre: EventGroup[];
         appliestoev: AEvent[];
-        constructor(public id: string, public name: string, public weight: number, public costfunction: string) {
+        role: string;
+        costfunction: (afv: number[]) => number;
+        constructor(public id: string, public name: string, public weight: number, costfunction: string) {
             this.appliestogre = [];
             this.appliestoev = [];
+            switch (costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+
+            }
         }
     }
     class SpreadEventsConstraint implements Constraint {
         appliestogre: EventGroup[];
         appliestoev: AEvent[];
+        role: string;
+        costfunction: (afv: number[]) => number;
 
-        constructor(public id: string, public name: string, public weight: number, public costfunction: string) {
+        constructor(public id: string, public name: string, public weight: number, costfunction: string) {
             this.appliestogre = [];
-            this.appliestoev = null;
+            this.appliestoev = [];
+            switch (costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+
+            }
         }
     }
 
@@ -105,12 +141,17 @@ module instans {
         eventmangler: Mangel[];
         eventresourcegrupper: ResourceGroup[];
         eventeventgrupper: EventGroup[];
+        solevent: solution.SolEvent[];
         constructor(public id: string, public name: string, public duration: number, public workload?: number,
-            public time?: Time) {
+            public preasigntime?: Time) {
+            this.solevent = [];
             this.eventeventgrupper = [];
             this.eventresourcegrupper = [];
             this.eventresourcer = [];
             this.eventmangler = [];
+            /*  if (duration >1) {
+                  alert('bingo');
+              }*/
         }
     }
     export class Mangel {
@@ -254,9 +295,9 @@ module instans {
                     }
 
                 }
-                      else {
+                else {
                     var resgr = resourcegrupper[grupid.indexOf(k["Reference"])];
-                    if (resgr ===undefined)
+                    if (resgr === undefined)
                         alert('fejl ved ' + curres["Id"]);
                     else {
                         resgr.resourcer.push(nyres);
@@ -309,7 +350,7 @@ module instans {
                     var evgr = eventgrupper[evgruppeid.indexOf(evg)];
                     nyev.eventeventgrupper.push(evgr);
                     evgr.events.push(nyev);
-                     }
+                }
                 else
                     alert('fejl ved indlæsning af event ' + curev["Name"]);
             }
@@ -483,13 +524,34 @@ module instans {
             }
             if (constraint["AppliesTo"]["EventGroups"]) {
                 var appliesto = constraint["AppliesTo"];
-                // if ("EventGroups" in appliesto) //if array
                 if (appliesto["EventGroups"]["EventGroup"] instanceof Array)
-                    for (var key in appliesto["EventGroups"]["EventGroup"])
-                        nycon.appliestogre.push(eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"][key]["Reference"])]);
-                else
-                    nycon.appliestogre.push(eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"]["Reference"])]);
+                    for (var key in appliesto["EventGroups"]["EventGroup"]) {
+                        var gr = eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"][key]["Reference"])];
+                        nycon.appliestogre.push(gr);
+                        for (var i = 0, len = gr.events.length; i < len; i++)
+                            if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
+                                nycon.appliestoev.push(gr.events[i]);
+                    }
+                else {
+                    var gr = eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"]["Reference"])];
+                    nycon.appliestogre.push(gr);
+                    for (var i = 0, len = gr.events.length; i < len; i++)
+                        if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
+                            nycon.appliestoev.push(gr.events[i]);
+                }
             }
+            /*if (nycon instanceof AssignResourceConstraint) {
+                var ac: AssignResourceConstraint = <AssignResourceConstraint> nycon;
+                for (var i = 0, len = ac.appliestoev.length; i < len; i++) {
+                    var ev = ac.appliestoev[i];
+                    for (var j = 0; j < ev.eventmangler.length; j++) {
+                        var evma = ev.eventmangler[j];
+                        if (evma.role==ro)
+                            ac.appliestoma.push(evma);
+                        }
+                }
+                nycon = ac;
+                }*/
             if (ha)
                 hardconstraints.push(nycon);
             else

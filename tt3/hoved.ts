@@ -37,11 +37,12 @@ window.onload = () => {
     "SouthAfricaLewitt2009",
     "SpainSchool"
     ];
-    instans.readxml("XML/" + filenames[0] + ".xml");
-  /*  for (var i = 0; i < filenames.length; i++) {
-        instans.readxml("XML/" + filenames[i] + ".xml");
-        alert(filenames[i] + ':' + events.length.toString());
-    }*/
+    instans.readxml("XML/" + filenames[1] + ".xml");
+     for (var i = 0; i < filenames.length; i++) {
+         instans.readxml("XML/" + filenames[i] + ".xml");
+         var sol1: solution.Sol = new solution.Sol();         
+         sol1.udregn();
+     }
     var sol1: solution.Sol = new solution.Sol();
     sol1.udregn();
     //alert(sol1.solevents.length.toString());
