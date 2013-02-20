@@ -6,7 +6,7 @@ test ved indsættelse af event i appliestoevent, som allerede findes i en gruppe
 Lav resource angivelse og: test ved angivelse af resource i preferresource (ikke resourcegr)
 bør solutionevent pege på forældreevent*/
 var timer;
-//var solevents: solution.SolEvent[];
+var sol1;
 var tidsgrupper;
 var resourcetyper;
 var resourcegrupper;
@@ -38,20 +38,36 @@ window.onload = function () {
         "SouthAfricaLewitt2009", 
         "SpainSchool"
     ];
-    instans.readxml("XML/" + filenames[0] + ".xml");
-    /*     for (var i = 0; i < filenames.length; i++) {
+    instans.readxml("XML/" + filenames[1] + ".xml");
+    /*      for (var i = 0; i < filenames.length; i++) {
     instans.readxml("XML/" + filenames[i] + ".xml");
     var sol1: solution.Sol = new solution.Sol();
-    sol1.udregn();
+    
+    //          sol1.udregn();
     }*/
-    var sol1 = new solution.Sol();
+    sol1 = new solution.Sol();
     // sol1.solevents[1].resourcer[0].resourceref = resourcer[190];
     sol1.udregn();
-    $('#content').html(lavtablerowhtml(sol1));
     $('#content').html(lavtablerowhtml(sol1));
     //alert(sol1.solevents.length.toString());
     //  var k = new Course('jk', null);
     };
+function resvalg(selection, rolle, soleventindex) {
+    var solevent = sol1.solevents[soleventindex];
+    for(var i = 0, len = solevent.resourcer.length; i < len; i++) {
+        if(solevent.resourcer[i].mangel.role == rolle) {
+            break;
+        }
+    }
+    var selid = selection.options[selection.selectedIndex].value;
+    for(var j = 0, len = resourcer.length; j < len; j++) {
+        if(resourcer[j].id == selid) {
+            break;
+        }
+    }
+    solevent.resourcer[i].resourceref = resourcer[j];
+    // $('#content').html(lavtablerowhtml(sol1));
+    }
 function lavtablerowhtml(solin) {
     var htmltxt = "<table><thead><tr><td>Event</td><td>Time</td>";
     var solevents = solin.solevents;
@@ -91,7 +107,7 @@ function lavtablerowhtml(solin) {
                 var restype = ievent.eventmangler[k].resourcetype.id;
                 if(restypedropdown[restype] === undefined) {
                     var resids = [];
-                    var selecthtml = "<select><option value='EJVALGT'>Not chosen</option>";
+                    var selecthtml = "<option value='EJVALGT'>Not chosen</option>";
                     var resgrs = ievent.eventmangler[k].resourcetype.resourcegroups;
                     for(var l = 0, antgr = resgrs.length; l < antgr; l++) {
                         var resgr = resgrs[l].resourcer;
@@ -116,7 +132,7 @@ function lavtablerowhtml(solin) {
                     } else {
                     }
                 }
-                htmltxt += "<td>" + drop + "</td>";
+                htmltxt += "<td> <select onchange='resvalg(this,\"" + colrole + "\",\"" + i + "\")'>" + drop + "</td>";
             } else {
                 htmltxt += "<td></td>";
             }
