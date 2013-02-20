@@ -3,8 +3,6 @@
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-/// <reference path="solution.ts" />
-/// <reference path="hoved.ts" />
 var instans;
 (function (instans) {
     function sum(afvigelser) {

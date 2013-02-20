@@ -1,5 +1,6 @@
 ﻿/// <reference path="solution.ts" />
 /// <reference path="instans.ts" />
+/// <reference path="jquery.d.ts" />
 var timer;
 var solevents;
 var tidsgrupper;

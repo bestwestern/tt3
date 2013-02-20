@@ -1,5 +1,6 @@
 /// <reference path="solution.ts" />
 /// <reference path="instans.ts" />
+/// <reference path="jquery.d.ts" />
 var timer: instans.Time[];
 var solevents: solution.SolEvent[];
 var tidsgrupper: instans.TimeGroup[];
