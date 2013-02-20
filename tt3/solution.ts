@@ -18,7 +18,7 @@ module solution {
             for (var i = 0, len = events.length; i < len; i++)
                 for (var j = 0, eventlen = events[i].duration; j < eventlen; j++) {
                     var curevent = events[i];
-                    this.solevents.push(new SolEvent(curevent));
+                    this.solevents.push(new SolEvent(curevent,j));
                 }
         }
         udregn() {
@@ -54,7 +54,7 @@ module solution {
                                         }
                                     }
                                     else {
-                                        alert('jk');
+                                       // alert('jk');
                                     }
                                 }
                             }
@@ -70,8 +70,9 @@ module solution {
     }
     export class SolEvent {
         resourcer: SolResource[];
-        constructor(public sEvent: instans.AEvent,
-            public sTime?: instans.Time, sResourcer?: instans.Resource[] = []) {
+        
+        constructor(public sEvent: instans.AEvent, public durationindeks: number,
+            public sTime?: instans.Time,  sResourcer?: instans.Resource[] = []) {
             this.resourcer = [];
             for (var i = 0, len = sEvent.eventmangler.length; i < len; i++)
                 this.resourcer.push(new SolResource(sEvent.eventmangler[i]));

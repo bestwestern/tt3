@@ -17,7 +17,7 @@ var solution;
             for(var i = 0, len = events.length; i < len; i++) {
                 for(var j = 0, eventlen = events[i].duration; j < eventlen; j++) {
                     var curevent = events[i];
-                    this.solevents.push(new SolEvent(curevent));
+                    this.solevents.push(new SolEvent(curevent, j));
                 }
             }
         }
@@ -53,7 +53,6 @@ var solution;
                                         eventafvigelse++;
                                     }
                                 } else {
-                                    alert('jk');
                                 }
                             }
                         }
@@ -70,9 +69,10 @@ var solution;
     })();
     solution.Sol = Sol;    
     var SolEvent = (function () {
-        function SolEvent(sEvent, sTime, sResourcer) {
+        function SolEvent(sEvent, durationindeks, sTime, sResourcer) {
             if (typeof sResourcer === "undefined") { sResourcer = []; }
             this.sEvent = sEvent;
+            this.durationindeks = durationindeks;
             this.sTime = sTime;
             this.resourcer = [];
             for(var i = 0, len = sEvent.eventmangler.length; i < len; i++) {
