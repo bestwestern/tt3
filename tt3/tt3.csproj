@@ -26,6 +26,15 @@
     <Content Include="instans.min.js">
       <DependentUpon>instans.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="jquery.d.ts" />
+    <Content Include="jquery.d.js">
+      <DependentUpon>jquery.d.ts</DependentUpon>
+    </Content>
+    <Content Include="knockout-2.2.1.js" />
+    <TypeScriptCompile Include="knockout.d.ts" />
+    <Content Include="knockout.d.js">
+      <DependentUpon>knockout.d.ts</DependentUpon>
+    </Content>
     <Content Include="solution.min.js">
       <DependentUpon>solution.ts</DependentUpon>
     </Content>

@@ -1,6 +1,5 @@
 /// <reference path="solution.ts" />
 /// <reference path="hoved.ts" />
-
 module instans {
     function sum(afvigelser: number[]) {
         var s = 0;

@@ -3,12 +3,14 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>TypeScript HTML App</title>
+    <title>Timetabling</title>
     <link rel="stylesheet" href="app.css" type="text/css" />
     <script src="instans.js"></script>
     <script src="solution.js"></script>
     <script src="hoved.js"></script>
-     <script>
+    <script src="knockout-2.2.1.js"></script>
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script>
 
         /* var k = { "jk": 4, "jkll": 43 };
          var z = {};
@@ -16,12 +18,36 @@
          var k2 = { "j": 3 };
          alert(z[k]);
          alert(z[k2]);*/
-         
+
     </script>
 </head>
 <body>
-    <h1>TypeScript HTML App</h1>
-   
-    <div id="content"></div>
+    <h1>Timetabling</h1>
+    <!--   The name is <span data-bind="text: solevents.navn"></span>-->
+    <span id="nb" />
+    <div id="content">
+        <table>
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Tid</th>
+                    <th>Resources</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody data-bind="foreach: solevents">
+                <tr>
+                    <td>
+                        <span data-bind="text: navn" /></td>
+                    <td>
+                        <select data-bind="options: $root.tidnavne"></select></td>
+
+                </tr>
+
+
+            </tbody>
+        </table>
+
+    </div>
 </body>
 </html>
