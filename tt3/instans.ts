@@ -184,9 +184,12 @@ module instans {
         }
     }
     export class Mangel {
+        index: number;
         constructor(public role: string, public resourcetype: ResourceType, public workload?: number) {
-            if (role === null || resourcetype === null)
-                alert('fejl ved indlæsningh af mangel ' + role + ',' + resourcetype.name);
+             if (role === null || resourcetype === null)
+                 alert('fejl ved indlæsningh af mangel ' + role + ',' + resourcetype.name);
+             this.index = mangler.length;
+             mangler.push(this);
         }
     }
     export function readinstance(nobj: Object) {//bør lave tjek på resgroup om array eller ej
@@ -199,6 +202,7 @@ module instans {
         resourcetyper = [];
         resourcer = [];
         eventgrupper = [];
+        mangler = [];
         var k, kk: any;
         var gruppeid: string[] = [];
         var resid: string[] = [];

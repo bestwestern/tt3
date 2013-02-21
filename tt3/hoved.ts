@@ -4,6 +4,7 @@
 /*TODO: 
 test ved indsættelse af event i appliestoevent, som allerede findes i en gruppe i appliestogroup
 Lav resource angivelse og: test ved angivelse af resource i preferresource (ikke resourcegr)
+lav preassigned kolonne
 bør solutionevent pege på forældreevent*/
 var timer: instans.Time[];
 var sol1: solution.Sol;
@@ -15,6 +16,7 @@ var eventgrupper: instans.EventGroup[];
 var events: instans.AEvent[];
 var hardconstraints: instans.Constraint[];
 var softconstraints: instans.Constraint[];
+var mangler: instans.Mangel[];
 window.onload = () => {
     /* if (typeof (Worker) !== "undefined")
          alert('worker virker');

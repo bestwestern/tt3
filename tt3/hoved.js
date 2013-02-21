@@ -4,6 +4,7 @@
 /*TODO:
 test ved indsættelse af event i appliestoevent, som allerede findes i en gruppe i appliestogroup
 Lav resource angivelse og: test ved angivelse af resource i preferresource (ikke resourcegr)
+lav preassigned kolonne
 bør solutionevent pege på forældreevent*/
 var timer;
 var sol1;
@@ -15,6 +16,7 @@ var eventgrupper;
 var events;
 var hardconstraints;
 var softconstraints;
+var mangler;
 window.onload = function () {
     /* if (typeof (Worker) !== "undefined")
     alert('worker virker');
@@ -66,8 +68,7 @@ function resvalg(selection, rolle, soleventindex) {
         }
     }
     solevent.resourcer[i].resourceref = resourcer[j];
-    // $('#content').html(lavtablerowhtml(sol1));
-    }
+}
 function lavtablerowhtml(solin) {
     var htmltxt = "<table><thead><tr><td>Event</td><td>Time</td>";
     var solevents = solin.solevents;
