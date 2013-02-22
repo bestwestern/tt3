@@ -4,25 +4,25 @@ declare var x;
 module solution {
     export class SolResource {
         resourceref: instans.Resource;
-        constructor(public mangel: instans.Mangel) { }
+        constructor(public mangel: instans.ResMangel) { }
     }
 
     export class Sol {
-        solevents: SolEvent[];
+        //solevents: SolEvent[];
         hardcosts: any;
         softcosts: any;
         constructor() {
-            this.solevents = [];
+      //      this.solevents = [];
             this.softcosts = {};
             this.hardcosts = {};
             for (var i = 0, len = events.length; i < len; i++)
                 for (var j = 0, eventlen = events[i].duration; j < eventlen; j++) {
                     var curevent = events[i];
-                    this.solevents.push(new SolEvent(curevent,j));
+              //      this.solevents.push(new SolEvent(curevent,j));
                 }
         }
         udregn() {
-            var hardafv = 0;
+          /*  var hardafv = 0;
             for (var c = 0, lencon = hardconstraints.length; c < lencon; c++) {
                 var constr = hardconstraints[c];
                 var constrafvigelser: number[] = [];
@@ -65,10 +65,10 @@ module solution {
                     }
                 hardafv += constr.costfunction(constrafvigelser)*constr.weight;
          //       alert(hardafv.toString());
-            }
+            }*/
         }
     }
-    export class SolEvent {
+   /* export class SolEvent {
         resourcer: SolResource[];
         
         constructor(public sEvent: instans.AEvent, public durationindeks: number,
@@ -78,7 +78,7 @@ module solution {
                 this.resourcer.push(new SolResource(sEvent.eventmangler[i]));
             sEvent.solevent.push(this);
         }
-    }
+    }*/
 
 
 }

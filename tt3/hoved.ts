@@ -16,7 +16,8 @@ var eventgrupper: instans.EventGroup[];
 var events: instans.AEvent[];
 var hardconstraints: instans.Constraint[];
 var softconstraints: instans.Constraint[];
-var mangler: instans.Mangel[];
+var resmangler: instans.ResMangel[];
+var tidmangler: instans.TidMangel[];
 window.onload = () => {
     /* if (typeof (Worker) !== "undefined")
          alert('worker virker');
@@ -42,35 +43,39 @@ window.onload = () => {
     ];
 
     instans.readxml("XML/" + filenames[1] + ".xml");
-    /*      for (var i = 0; i < filenames.length; i++) {
+          for (var i = 0; i < filenames.length; i++) {
               instans.readxml("XML/" + filenames[i] + ".xml");
               var sol1: solution.Sol = new solution.Sol();
     
     //          sol1.udregn();
-          }*/
+          }
     sol1 = new solution.Sol();
     // sol1.solevents[1].resourcer[0].resourceref = resourcer[190];
     sol1.udregn();
-    $('#content').html(lavtablerowhtml(sol1));
+    //$('#content').html(lavtablerowhtml(sol1));
     //alert(sol1.solevents.length.toString());
 
     //  var k = new Course('jk', null);
 
 }
-function resvalg(selection, rolle, soleventindex) {
+/*function resvalg(selection, rolle, soleventindex) {
     var solevent = sol1.solevents[soleventindex];
     for (var i = 0, len = solevent.resourcer.length; i < len; i++)
         if (solevent.resourcer[i].mangel.role == rolle)
-    break;
-    var selid = selection.options[selection.selectedIndex].value;
+    break;*/
+   /* var j = Number(selection.options[selection.selectedIndex].value);
+    var valgtres = resourcer[j];
+
     for (var j = 0, len = resourcer.length; j < len; j++)
         if (resourcer[j].id == selid)
-            break;
-    solevent.resourcer[i].resourceref = resourcer[j];
-}
+            break;*/
+   // solevent.resourcer[i].resourceref = resourcer[selection.options[selection.selectedIndex].value];
+    //$('#content').html(lavtablerowhtml(sol1));
+
+//}
 
 function lavtablerowhtml(solin: solution.Sol) {
-    var htmltxt = "<table><thead><tr><td>Event</td><td>Time</td>";
+   /* var htmltxt = "<table><thead><tr><td>Event</td><td>Time</td>";
     var solevents = solin.solevents;
     var roles: string[] = [];
     var restypedropdown = {};
@@ -85,14 +90,14 @@ function lavtablerowhtml(solin: solution.Sol) {
 
     }
     htmltxt += "</tr></thead>";
-    for (var i = 0, antalev = solevents.length; i < antalev; i++) {
-        var solevent = solevents[i];
-        var ievent = solevent.sEvent;
+    for (var i = 0, antalev = events.length; i < antalev; i++) {
+        var ievent = events[i];
         var navn = ievent.name;
-        //  for (var j = 0, antrollerievmangler = ievent.eventmangler.length; i < antrollerievmangler
-        if (ievent.duration > 1)
+         if (ievent.duration > 1)
             navn += " (" + (solevent.durationindeks + 1) + "/" + ievent.duration + ")";
-        htmltxt += "<tr><td>" + navn + "</td><td>Time</td>";
+         htmltxt += "<tr><td>" + navn + "</td><td>"; //
+        
+        // Time < / td > ";
         for (var j = 0, antrol = roles.length; j < antrol; j++) {
             var colrole = roles[j];
             var colroleinevent = false;
@@ -105,16 +110,16 @@ function lavtablerowhtml(solin: solution.Sol) {
             if (colroleinevent) {
                 var restype = ievent.eventmangler[k].resourcetype.id;
                 if (restypedropdown[restype] === undefined) {
-                    var resids: string[] = [];
+                    var resids: number[] = [];
                     var selecthtml = "<option value='EJVALGT'>Not chosen</option>";
                     var resgrs = ievent.eventmangler[k].resourcetype.resourcegroups;
                     for (var l = 0, antgr = resgrs.length; l < antgr; l++) {
                         var resgr = resgrs[l].resourcer;
                         for (var m = 0, antres = resgr.length; m < antres; m++) {
-                            if (resids.indexOf(resgr[m].id) == -1) {
-                                var rid = resgr[m].id;
-                                resids.push(rid);
-                                selecthtml += "<option value='" + rid + "'>" + resgr[m].name + "</option>";
+                            if (resids.indexOf(resgr[m].index) == -1) {
+                                var resindexd = resgr[m].index;
+                                resids.push(resindexd);
+                                selecthtml += "<option value='" + resindexd + "'>" + resgr[m].name + "</option>";
                             }
                         }
                     }
@@ -126,8 +131,8 @@ function lavtablerowhtml(solin: solution.Sol) {
                 for (var n = 0, antalsolresmngl = solevent.resourcer.length; n < antalsolresmngl; n++) {
                     if (solevent.resourcer[n].mangel == ievent.eventmangler[k]) {
                         if (solevent.resourcer[n].resourceref != undefined) {
-                            drop = drop.replace("'" + solevent.resourcer[n].resourceref.id + "'>",
-                        "'" + solevent.resourcer[n].resourceref.id + "' selected>")
+                            drop = drop.replace("'" + solevent.resourcer[n].resourceref.index + "'>",
+                        "'" + solevent.resourcer[n].resourceref.index + "' selected>")
                         }
                     }
                     else { }
@@ -140,5 +145,5 @@ function lavtablerowhtml(solin: solution.Sol) {
         }
         htmltxt += "</tr>";
     }
-    return htmltxt + "</table>";
+    return htmltxt + "</table>";*/
 }

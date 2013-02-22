@@ -136,6 +136,7 @@ module instans {
         constructor(name: string, id: string) { super(id, name); this.timer = []; }
     }
     export class Day extends TimeGroup {
+
         timer: Time[];
         constructor(name: string, id: string) { super(id, name); this.timer = []; }
     }
@@ -159,37 +160,52 @@ module instans {
         constructor(name: string, id: string, public resourcetype: ResourceType) { super(id, name); this.resourcer = []; }
     }
     export class Resource extends Entity {
+        index: number;
         resourcegroups: ResourceGroup[];
         constructor(name: string, id: string, public resourcetype: ResourceType) {
             super(id, name);
             this.resourcegroups = [];
+            this.index = resourcer.length;
         }
     }
     export class AEvent {
+        index: number;
         eventresourcer: Resource[];
-        eventmangler: Mangel[];
+        eventresmangler: ResMangel[];
+        eventtidmangler: TidMangel[];
         eventresourcegrupper: ResourceGroup[];
         eventeventgrupper: EventGroup[];
-        solevent: solution.SolEvent[];
         constructor(public id: string, public name: string, public duration: number, public workload?: number,
             public preasigntime?: Time) {
-            this.solevent = [];
             this.eventeventgrupper = [];
             this.eventresourcegrupper = [];
             this.eventresourcer = [];
-            this.eventmangler = [];
+            this.eventresmangler = [];
+            this.eventtidmangler = [];
+            this.index = events.length;
             /*  if (duration >1) {
                   alert('bingo');
               }*/
         }
     }
-    export class Mangel {
+    export class TidMangel {
         index: number;
-        constructor(public role: string, public resourcetype: ResourceType, public workload?: number) {
-             if (role === null || resourcetype === null)
-                 alert('fejl ved indlæsningh af mangel ' + role + ',' + resourcetype.name);
-             this.index = mangler.length;
-             mangler.push(this);
+        constructor(public aevent: AEvent, public durationindex: number) {
+            if (aevent === null || durationindex === null)
+                alert('fejl ved indlæsningh af tidmangel ');
+            this.index = tidmangler.length;
+            tidmangler.push(this);
+        }
+
+    }
+    export class ResMangel {
+        index: number;
+        constructor(public role: string, public resourcetype: ResourceType, public aevent: AEvent,
+            public durationindex: number, public workload?: number) {
+            if (role === null || resourcetype === null)
+                alert('fejl ved indlæsningh af mangel ' + role + ',' + resourcetype.name);
+            this.index = resmangler.length;
+            resmangler.push(this);
         }
     }
     export function readinstance(nobj: Object) {//bør lave tjek på resgroup om array eller ej
@@ -202,7 +218,8 @@ module instans {
         resourcetyper = [];
         resourcer = [];
         eventgrupper = [];
-        mangler = [];
+        resmangler = [];
+        tidmangler = [];
         var k, kk: any;
         var gruppeid: string[] = [];
         var resid: string[] = [];
@@ -340,12 +357,7 @@ module instans {
             }
             resourcer.push(nyres);
             resid.push(nyres.id);
-            /* resourcegrupper.push(new ResourceGroup(curgr["Id"], curgr["Name"],
-                resourcetyper[typeid.indexOf(curgr["ResourceType"]["Reference"])]));*/
-
-        }
-
-
+        }        
         var ev = nobj["Instances"]["Instance"]["Events"];
         var evgruppeid: string[] = [];
         if (ev["EventGroups"]) {
@@ -376,7 +388,23 @@ module instans {
         var evid: string[] = [];
         for (var key in ev) {
             var curev = ev[key];
-            var nyev = new AEvent(curev["Id"], curev["Name"], curev["Duration"]);
+            if (curev["Time"]) {
+                var timeref = curev["Time"]["Reference"];
+                for (var i = 0, len = timer.length; i < len; i++) {
+                    if (timer[i].id == timeref) {
+                        var preassigntime = timer[i];
+                        break;
+                    }
+                }
+                if (!preassigntime)
+                    alert('Preassigned tid ikke fundet for ' + curev["Name"]);
+            }
+
+            var nyev = new AEvent(curev["Id"], curev["Name"], curev["Duration"] || 1, curev["Workload"], preassigntime);
+            if (!preassigntime) {
+                for (var i = 0; i < nyev.duration; i++)
+                    nyev.eventtidmangler.push(new TidMangel(nyev, i));
+            }
             for (var key2 in curev["Course"]) {
                 var evg = curev["Course"][key2];
                 if (evgruppeid.indexOf(evg) > -1) {
@@ -501,7 +529,8 @@ module instans {
             if ("Role" in thisres && "ResourceType" in thisres) {
                 var curtype = resourcetyper[typeid.indexOf(thisres["ResourceType"]["Reference"])];
                 if (curtype)
-                    nyev.eventmangler.push(new Mangel(thisres["Role"], curtype, thisres["Workload"]));
+                    for (var i = 0, len = nyev.duration ; i < len; i++)
+                        nyev.eventresmangler.push(new ResMangel(thisres["Role"], curtype, nyev, i, thisres["Workload"]));
                 else
                     alert('fejlx v res event');
             }

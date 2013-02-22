@@ -12,6 +12,7 @@ var instans;
         }
         return s;
     }
+    //costfunction
     var AssignResourceConstraint = (function () {
         function AssignResourceConstraint(id, name, weight, costfunction, role) {
             this.id = id;
@@ -20,6 +21,7 @@ var instans;
             this.role = role;
             this.appliestogre = [];
             this.appliestoev = [];
+            //   this.appliestoma = [];
             switch(costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
@@ -176,6 +178,7 @@ var instans;
                 _super.call(this, id, name);
             this.resourcetype = resourcetype;
             this.resourcegroups = [];
+            this.index = resourcer.length;
         }
         return Resource;
     })(Entity);
@@ -187,29 +190,50 @@ var instans;
             this.duration = duration;
             this.workload = workload;
             this.preasigntime = preasigntime;
-            this.solevent = [];
             this.eventeventgrupper = [];
             this.eventresourcegrupper = [];
             this.eventresourcer = [];
-            this.eventmangler = [];
-        }
+            this.eventresmangler = [];
+            this.eventtidmangler = [];
+            this.index = events.length;
+            /*  if (duration >1) {
+            alert('bingo');
+            }*/
+                    }
         return AEvent;
     })();
     instans.AEvent = AEvent;    
-    var Mangel = (function () {
-        function Mangel(role, resourcetype, index, workload) {
+    var TidMangel = (function () {
+        function TidMangel(aevent, durationindex) {
+            this.aevent = aevent;
+            this.durationindex = durationindex;
+            if(aevent === null || durationindex === null) {
+                alert('fejl ved indlæsningh af tidmangel ');
+            }
+            this.index = tidmangler.length;
+            tidmangler.push(this);
+        }
+        return TidMangel;
+    })();
+    instans.TidMangel = TidMangel;    
+    var ResMangel = (function () {
+        function ResMangel(role, resourcetype, aevent, durationindex, workload) {
             this.role = role;
             this.resourcetype = resourcetype;
-            this.index = index;
+            this.aevent = aevent;
+            this.durationindex = durationindex;
             this.workload = workload;
             if(role === null || resourcetype === null) {
                 alert('fejl ved indlæsningh af mangel ' + role + ',' + resourcetype.name);
             }
+            this.index = resmangler.length;
+            resmangler.push(this);
         }
-        return Mangel;
+        return ResMangel;
     })();
-    instans.Mangel = Mangel;    
+    instans.ResMangel = ResMangel;    
     function readinstance(nobj) {
+        //bør lave tjek på resgroup om array eller ej
         hardconstraints = [];
         softconstraints = [];
         timer = [];
@@ -219,6 +243,8 @@ var instans;
         resourcetyper = [];
         resourcer = [];
         eventgrupper = [];
+        resmangler = [];
+        tidmangler = [];
         var k, kk;
         var gruppeid = [];
         var resid = [];
@@ -280,6 +306,8 @@ var instans;
                 for(var key in tmpg) {
                     var k = tmpg[key];
                     if(k["Reference"]) {
+                        //hvis der findes reference så er der flere og de bliver loopet
+                        //hvis ikke er tidsgruppen k
                         k = k["Reference"];
                     }
                     var tmg = tidsgrupper[gruppeid.indexOf(k)];
@@ -326,6 +354,7 @@ var instans;
         }
         tmp = res["Resource"];
         for(var key in tmp) {
+            //vil fejl ved kun 1 resource
             var curres = tmp[key];
             var nyres = new Resource(curres["Name"], curres["Id"], resourcetyper[typeid.indexOf(curres["ResourceType"]["Reference"])]);
             for(var key2 in curres["ResourceGroups"]["ResourceGroup"]) {
@@ -382,7 +411,24 @@ var instans;
         var evid = [];
         for(var key in ev) {
             var curev = ev[key];
-            var nyev = new AEvent(curev["Id"], curev["Name"], curev["Duration"]);
+            if(curev["Time"]) {
+                var timeref = curev["Time"]["Reference"];
+                for(var i = 0, len = timer.length; i < len; i++) {
+                    if(timer[i].id == timeref) {
+                        var preassigntime = timer[i];
+                        break;
+                    }
+                }
+                if(!preassigntime) {
+                    alert('Preassigned tid ikke fundet for ' + curev["Name"]);
+                }
+            }
+            var nyev = new AEvent(curev["Id"], curev["Name"], curev["Duration"] || 1, curev["Workload"], preassigntime);
+            if(!preassigntime) {
+                for(var i = 0; i < nyev.duration; i++) {
+                    nyev.eventtidmangler.push(new TidMangel(nyev, i));
+                }
+            }
             for(var key2 in curev["Course"]) {
                 var evg = curev["Course"][key2];
                 if(evgruppeid.indexOf(evg) > -1) {
@@ -442,8 +488,10 @@ var instans;
     function readxml(url) {
         var xmlhttp;
         if(XMLHttpRequest) {
+            // code for IE7+, Firefox, Chrome, Opera, Safari
             xmlhttp = new XMLHttpRequest();
         } else {
+            // code for IE6, IE5
             xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
         }
         xmlhttp.open("GET", url, false);
@@ -460,6 +508,7 @@ var instans;
         function XML2jsobj(node) {
             var data = {
             };
+            // append a value
             function Add(name, value) {
                 if(data[name]) {
                     if(data[name].constructor != Array) {
@@ -473,15 +522,19 @@ var instans;
                 }
             }
             ;
-            var c, cn;
+            // element attributes
+                        var c, cn;
             for(c = 0; cn = node.attributes[c]; c++) {
                 Add(cn.name, cn.value);
             }
+            // child elements
             for(c = 0; cn = node.childNodes[c]; c++) {
                 if(cn.nodeType == 1) {
                     if(cn.childNodes.length == 1 && cn.firstChild.nodeType == 3) {
+                        // text value
                         Add(cn.nodeName, cn.firstChild.nodeValue);
                     } else {
+                        // sub-object
                         Add(cn.nodeName, XML2jsobj(cn));
                     }
                 }
@@ -502,16 +555,20 @@ var instans;
             if("Role" in thisres && "ResourceType" in thisres) {
                 var curtype = resourcetyper[typeid.indexOf(thisres["ResourceType"]["Reference"])];
                 if(curtype) {
-                    nyev.eventmangler.push(new Mangel(thisres["Role"], curtype, thisres["Workload"]));
+                    for(var i = 0, len = nyev.duration; i < len; i++) {
+                        nyev.eventresmangler.push(new ResMangel(thisres["Role"], curtype, nyev, i, thisres["Workload"]));
+                    }
                 } else {
                     alert('fejlx v res event');
                 }
             } else {
+                //var fddfdfsk = nobj["jk"]["jk"];
                 alert('fejl v res event');
             }
         }
     }
     function lavcon(constraint, type, evgruppeid, evid, resid, grupid) {
+        //var nycon: Constraint;
         var na = constraint["Name"];
         var id = constraint["Id"];
         var we = constraint["Weight"];
@@ -527,6 +584,7 @@ var instans;
                 var nycon = new AssignTimeConstraint(id, na, we, co);
                 break;
             case "LimitBusyTimesConstraint":
+                //MANFLWE
                 break;
             case "PreferTimesConstraint":
                 var nycon = new PreferTimesConstraint(id, na, we, co);
@@ -538,11 +596,13 @@ var instans;
                 var nycon = new PreferResourcesConstraint(id, na, we, co);
                 break;
             default:
+                // alert constraint ikke understøttet    var fddfdfsk = constraint["jk"]["jk"];
                 break;
         }
         if(nycon) {
             if(constraint["AppliesTo"]["Events"]) {
                 var appliesto = constraint["AppliesTo"];
+                //       if ("EventGroups" in appliesto) //if array
                 if(appliesto["Events"]["Event"] instanceof Array) {
                     for(var key in appliesto["Events"]["Event"]) {
                         nycon.appliestogre.push(eventgrupper[evid.indexOf(appliesto["Events"]["Event"][key]["Reference"])]);
@@ -581,12 +641,29 @@ var instans;
                     for(var key in appliesto["ResourceGroup"]) {
                         var egr = resourcegrupper[grupid.indexOf(appliesto["ResourceGroup"][key]["Reference"])];
                         nycon.appliestogrr.push(egr);
-                    }
+                        /*                        for (var i = 0, len = gr.events.length; i < len; i++)
+                        if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
+                        nycon.appliestoev.push(gr.events[i]);*/
+                                            }
                 } else {
                     var egr = resourcegrupper[grupid.indexOf(appliesto["ResourceGroup"]["Reference"])];
                     nycon.appliestogrr.push(egr);
                 }
             }
+            /*              }
+            }
+            /*if (nycon instanceof AssignResourceConstraint) {
+            var ac: AssignResourceConstraint = <AssignResourceConstraint> nycon;
+            for (var i = 0, len = ac.appliestoev.length; i < len; i++) {
+            var ev = ac.appliestoev[i];
+            for (var j = 0; j < ev.eventmangler.length; j++) {
+            var evma = ev.eventmangler[j];
+            if (evma.role==ro)
+            ac.appliestoma.push(evma);
+            }
+            }
+            nycon = ac;
+            }*/
             if(ha) {
                 hardconstraints.push(nycon);
             } else {
@@ -595,3 +672,4 @@ var instans;
         }
     }
 })(instans || (instans = {}));
+//@ sourceMappingURL=instans.js.map
