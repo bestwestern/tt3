@@ -1,26 +1,25 @@
 var solution;
 (function (solution) {
-    var SolResource = (function () {
-        function SolResource(mangel) {
-            this.mangel = mangel;
-        }
-        return SolResource;
-    })();
-    solution.SolResource = SolResource;    
+    /* export class SolResource {
+    resourceref: instans.Resource;
+    constructor(public mangel: instans.ResMangel) { }
+    }
+    */
     var Sol = (function () {
+        //     hardcosts: any;
+        //   softcosts: any;
         function Sol() {
+            this.restildelinger = [];
+            this.tidtildelinger = [];
             //      this.solevents = [];
-            this.softcosts = {
-            };
-            this.hardcosts = {
-            };
-            for(var i = 0, len = events.length; i < len; i++) {
-                for(var j = 0, eventlen = events[i].duration; j < eventlen; j++) {
-                    var curevent = events[i];
-                    //      this.solevents.push(new SolEvent(curevent,j));
-                                    }
-            }
-        }
+            /*     this.softcosts = {};
+            this.hardcosts = {};
+            for (var i = 0, len = events.length; i < len; i++)
+            for (var j = 0, eventlen = events[i].duration; j < eventlen; j++) {
+            var curevent = events[i];
+            //      this.solevents.push(new SolEvent(curevent,j));
+            }*/
+                    }
         Sol.prototype.udregn = function () {
             /*  var hardafv = 0;
             for (var c = 0, lencon = hardconstraints.length; c < lencon; c++) {

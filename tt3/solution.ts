@@ -2,24 +2,28 @@
 declare var x;
 
 module solution {
-    export class SolResource {
+   /* export class SolResource {
         resourceref: instans.Resource;
         constructor(public mangel: instans.ResMangel) { }
     }
-
+*/
     export class Sol {
         //solevents: SolEvent[];
-        hardcosts: any;
-        softcosts: any;
+        tidtildelinger: number[];
+        restildelinger: number[];
+   //     hardcosts: any;
+     //   softcosts: any;
         constructor() {
+            this.restildelinger = [];
+            this.tidtildelinger = [];
       //      this.solevents = [];
-            this.softcosts = {};
+       /*     this.softcosts = {};
             this.hardcosts = {};
             for (var i = 0, len = events.length; i < len; i++)
                 for (var j = 0, eventlen = events[i].duration; j < eventlen; j++) {
                     var curevent = events[i];
               //      this.solevents.push(new SolEvent(curevent,j));
-                }
+                }*/
         }
         udregn() {
           /*  var hardafv = 0;

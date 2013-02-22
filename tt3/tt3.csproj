@@ -60,6 +60,9 @@
     <Content Include="instans.js.map">
       <DependentUpon>instans.ts</DependentUpon>
     </Content>
+    <Content Include="instans.min.js.map">
+      <DependentUpon>instans.js</DependentUpon>
+    </Content>
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>

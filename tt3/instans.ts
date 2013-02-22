@@ -357,7 +357,7 @@ module instans {
             }
             resourcer.push(nyres);
             resid.push(nyres.id);
-        }        
+        }
         var ev = nobj["Instances"]["Instance"]["Events"];
         var evgruppeid: string[] = [];
         if (ev["EventGroups"]) {
@@ -388,19 +388,21 @@ module instans {
         var evid: string[] = [];
         for (var key in ev) {
             var curev = ev[key];
+
+            findepreassigntime:
             if (curev["Time"]) {
                 var timeref = curev["Time"]["Reference"];
                 for (var i = 0, len = timer.length; i < len; i++) {
                     if (timer[i].id == timeref) {
                         var preassigntime = timer[i];
-                        break;
+                        break findepreassigntime;
                     }
                 }
                 if (!preassigntime)
                     alert('Preassigned tid ikke fundet for ' + curev["Name"]);
             }
 
-            var nyev = new AEvent(curev["Id"], curev["Name"], curev["Duration"] || 1, curev["Workload"], preassigntime);
+            var nyev = new AEvent(curev["Id"], curev["Name"], Number(curev["Duration"]), curev["Workload"], preassigntime);
             if (!preassigntime) {
                 for (var i = 0; i < nyev.duration; i++)
                     nyev.eventtidmangler.push(new TidMangel(nyev, i));
@@ -471,11 +473,12 @@ module instans {
         xmlhttp.send();
         var xmlDoc = xmlhttp.responseXML;
         var data;
+        findnode:
         for (var i = 0; i < xmlDoc.childNodes.length; i++)
             if (xmlDoc.childNodes[i].baseName === 'HighSchoolTimetableArchive') {
                 data = XML2jsobj(xmlDoc.childNodes[i]);
                 readinstance(data);
-                break;
+                break findnode;
             }
 
 

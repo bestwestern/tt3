@@ -43,14 +43,11 @@ window.onload = function () {
     ];
     instans.readxml("XML/" + filenames[1] + ".xml");
     for(var i = 0; i < filenames.length; i++) {
-        instans.readxml("XML/" + filenames[i] + ".xml");
-        var sol1 = new solution.Sol();
-        //          sol1.udregn();
-            }
+    }
     sol1 = new solution.Sol();
     // sol1.solevents[1].resourcer[0].resourceref = resourcer[190];
     sol1.udregn();
-    //$('#content').html(lavtablerowhtml(sol1));
+    $('#content').html(lavtablerowhtml(sol1));
     //alert(sol1.solevents.length.toString());
     //  var k = new Course('jk', null);
     };
@@ -69,76 +66,142 @@ break;*/
 //$('#content').html(lavtablerowhtml(sol1));
 //}
 function lavtablerowhtml(solin) {
-    /* var htmltxt = "<table><thead><tr><td>Event</td><td>Time</td>";
-    var solevents = solin.solevents;
-    var roles: string[] = [];
-    var restypedropdown = {};
-    for (var i = 0, antalev = solevents.length; i < antalev; i++) {//optimer
-    var mngl = solevents[i].sEvent.eventmangler;
-    for (var j = 0, antrollerievmangler = mngl.length; j < antrollerievmangler; j++) {
+    var htmltxt = "<table><thead><tr><td>Event</td><td>Time</td>";
+    //  var solevents = solin.solevents;
+    var roles = [];
+    var restypedropdown = {
+    };
+    var antalevents = events.length;
+    /*  for (var i = 0; i < antalevents; i++) {//optimer
+    var mngl = events[i].eventresmangler;
+    for (var j = 0, antrollerievmangler = mngl.length / events[i].duration;
+    j < antrollerievmangler; j++) {
     if (roles.indexOf(mngl[j].role) == -1) {
     roles.push(mngl[j].role);
     htmltxt += "<td>" + mngl[j].role + "</td>";
     }
     }
-    
-    }
+    }*/
     htmltxt += "</tr></thead>";
-    for (var i = 0, antalev = events.length; i < antalev; i++) {
-    var ievent = events[i];
-    var navn = ievent.name;
-    if (ievent.duration > 1)
-    navn += " (" + (solevent.durationindeks + 1) + "/" + ievent.duration + ")";
-    htmltxt += "<tr><td>" + navn + "</td><td>"; //
-    
-    // Time < / td > ";
-    for (var j = 0, antrol = roles.length; j < antrol; j++) {
-    var colrole = roles[j];
-    var colroleinevent = false;
-    for (var k = 0, antmangliev = ievent.eventmangler.length; k < antmangliev; k++) {
-    if (colrole == ievent.eventmangler[k].role) {
-    colroleinevent = true;
-    break;
+    for(var i = 0; i < antalevents; i++) {
+        var ievent = events[i];
+        var antalmngler = ievent.eventresmangler.length;
+        for(var durationindex = 0; durationindex < ievent.duration; durationindex++) {
+            if(ievent.duration > 1 && ievent.eventresmangler.length > 0) {
+                var her = 4;
+                ;
+            }
+            var navn = ievent.name;
+            if(ievent.duration > 1) {
+                navn += " (" + (durationindex + 1) + "/" + ievent.duration + ")";
+            }
+            htmltxt += "<tr><td>" + navn + "</td><td>tid</td>"//
+            ;
+            for(var mnglindex = durationindex; mnglindex < antalmngler; mnglindex = mnglindex + ievent.duration) {
+                var colrole = ievent.eventresmangler[mnglindex].role;
+                var restype = ievent.eventresmangler[mnglindex].resourcetype.id;
+                if(restypedropdown[restype] === undefined) {
+                    var resids = [];
+                    var selecthtml = "<option value='EJVALGT'>Not chosen</option>";
+                    var resgrs = ievent.eventresmangler[mnglindex].resourcetype.resourcegroups;
+                    for(var l = 0, antgr = resgrs.length; l < antgr; l++) {
+                        var resgr = resgrs[l].resourcer;
+                        for(var m = 0, antres = resgr.length; m < antres; m++) {
+                            if(resids.indexOf(resgr[m].index) == -1) {
+                                var resindexd = resgr[m].index;
+                                resids.push(resindexd);
+                                selecthtml += "<option value='" + resindexd + "'>" + resgr[m].name + "</option>";
+                            }
+                        }
+                    }
+                    selecthtml += "</select>";
+                    restypedropdown[restype] = selecthtml;
+                }
+                var drop = restypedropdown[restype];
+                //tjek om resource angivet
+                /*       for (var n = 0, antalsolresmngl = solevent.resourcer.length; n < antalsolresmngl; n++) {
+                if (solevent.resourcer[n].mangel == ievent.eventmangler[k]) {
+                if (solevent.resourcer[n].resourceref != undefined) {
+                drop = drop.replace("'" +solevent.resourcer[n].resourceref.index + "'>",
+                "'" +solevent.resourcer[n].resourceref.index + "' selected>")*/
+                htmltxt += "<td>MNGL " + colrole + " vælg:<select>" + drop + "</td>";
+            }
+        }
     }
-    }
-    if (colroleinevent) {
-    var restype = ievent.eventmangler[k].resourcetype.id;
-    if (restypedropdown[restype] === undefined) {
-    var resids: number[] = [];
-    var selecthtml = "<option value='EJVALGT'>Not chosen</option>";
-    var resgrs = ievent.eventmangler[k].resourcetype.resourcegroups;
-    for (var l = 0, antgr = resgrs.length; l < antgr; l++) {
-    var resgr = resgrs[l].resourcer;
-    for (var m = 0, antres = resgr.length; m < antres; m++) {
-    if (resids.indexOf(resgr[m].index) == -1) {
-    var resindexd = resgr[m].index;
-    resids.push(resindexd);
-    selecthtml += "<option value='" + resindexd + "'>" + resgr[m].name + "</option>";
-    }
-    }
-    }
-    selecthtml += "</select>";
-    restypedropdown[restype] = selecthtml;
-    }
-    var drop: string = restypedropdown[restype];
-    //tjek om resource angivet
-    for (var n = 0, antalsolresmngl = solevent.resourcer.length; n < antalsolresmngl; n++) {
-    if (solevent.resourcer[n].mangel == ievent.eventmangler[k]) {
-    if (solevent.resourcer[n].resourceref != undefined) {
-    drop = drop.replace("'" + solevent.resourcer[n].resourceref.index + "'>",
-    "'" + solevent.resourcer[n].resourceref.index + "' selected>")
-    }
-    }
-    else { }
-    }
-    
-    htmltxt += "<td> <select onchange='resvalg(this,\"" + colrole + "\",\"" + i + "\")'>" + drop + "</td>";
-    }
-    else
-    htmltxt += "<td></td>";
-    }
-    htmltxt += "</tr>";
-    }
-    return htmltxt + "</table>";*/
-    }
+    return htmltxt + "</table>";
+}
+/*     if (colroleinevent) {
+var restype = ievent.eventmangler[k].resourcetype.id;
+if (restypedropdown[restype] === undefined) {
+var resids: number[] = [];
+var selecthtml = "<option value='EJVALGT'>Not chosen</option>";
+var resgrs = ievent.eventmangler[k].resourcetype.resourcegroups;
+for (var l = 0, antgr = resgrs.length; l < antgr; l++) {
+var resgr = resgrs[l].resourcer;
+for (var m = 0, antres = resgr.length; m < antres; m++) {
+if (resids.indexOf(resgr[m].index) == -1) {
+var resindexd = resgr[m].index;
+resids.push(resindexd);
+selecthtml += "<option value='" + resindexd + "'>" + resgr[m].name + "</option>";
+}
+selecthtml += "</select>";
+restypedropdown[restype] = selecthtml;
+}
+var drop: string = restypedropdown[restype];
+//tjek om resource angivet
+/*       for (var n = 0, antalsolresmngl = solevent.resourcer.length; n < antalsolresmngl; n++) {
+if (solevent.resourcer[n].mangel == ievent.eventmangler[k]) {
+if (solevent.resourcer[n].resourceref != undefined) {
+drop = drop.replace("'" +solevent.resourcer[n].resourceref.index + "'>",
+"'" +solevent.resourcer[n].resourceref.index + "' selected>")
+}
+}
+else { }
+}
+
+/*   htmltxt += "<td> <select onchange='resvalg(this,\"" + colrole + "\",\"" + i + "\")'>" + drop + "</td>";
+}
+else
+htmltxt += "<td></td>";
+}
+htmltxt += "</tr>";
+}
+}*/
+/*     if (colroleinevent) {
+var restype = ievent.eventmangler[k].resourcetype.id;
+if (restypedropdown[restype] === undefined) {
+var resids: number[] = [];
+var selecthtml = "<option value='EJVALGT'>Not chosen</option>";
+var resgrs = ievent.eventmangler[k].resourcetype.resourcegroups;
+for (var l = 0, antgr = resgrs.length; l < antgr; l++) {
+var resgr = resgrs[l].resourcer;
+for (var m = 0, antres = resgr.length; m < antres; m++) {
+if (resids.indexOf(resgr[m].index) == -1) {
+var resindexd = resgr[m].index;
+resids.push(resindexd);
+selecthtml += "<option value='" + resindexd + "'>" + resgr[m].name + "</option>";
+}
+selecthtml += "</select>";
+restypedropdown[restype] = selecthtml;
+}
+var drop: string = restypedropdown[restype];
+//tjek om resource angivet
+/*       for (var n = 0, antalsolresmngl = solevent.resourcer.length; n < antalsolresmngl; n++) {
+if (solevent.resourcer[n].mangel == ievent.eventmangler[k]) {
+if (solevent.resourcer[n].resourceref != undefined) {
+drop = drop.replace("'" +solevent.resourcer[n].resourceref.index + "'>",
+"'" +solevent.resourcer[n].resourceref.index + "' selected>")
+}
+}
+else { }
+}
+
+/*   htmltxt += "<td> <select onchange='resvalg(this,\"" + colrole + "\",\"" + i + "\")'>" + drop + "</td>";
+}
+else
+htmltxt += "<td></td>";
+}
+htmltxt += "</tr>";
+}
+}*/
 //@ sourceMappingURL=hoved.js.map
