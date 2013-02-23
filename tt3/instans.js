@@ -3,6 +3,8 @@
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+/// <reference path="solution.ts" />
+/// <reference path="hoved.ts" />
 var instans;
 (function (instans) {
     function sum(afvigelser) {
@@ -105,6 +107,7 @@ var instans;
         function Time(name, id) {
                 _super.call(this, id, name);
             this.timegroups = [];
+            this.index = timer.length;
         }
         return Time;
     })(Entity);
@@ -411,13 +414,13 @@ var instans;
         var evid = [];
         for(var key in ev) {
             var curev = ev[key];
-            findepreassigntime:
-if(curev["Time"]) {
+            var preassigntime = null;
+            if(curev["Time"]) {
                 var timeref = curev["Time"]["Reference"];
                 for(var i = 0, len = timer.length; i < len; i++) {
                     if(timer[i].id == timeref) {
-                        var preassigntime = timer[i];
-                        break findepreassigntime;
+                        preassigntime = timer[i];
+                        i = len;
                     }
                 }
                 if(!preassigntime) {
@@ -499,12 +502,11 @@ if(curev["Time"]) {
         xmlhttp.send();
         var xmlDoc = xmlhttp.responseXML;
         var data;
-        findnode:
-for(var i = 0; i < xmlDoc.childNodes.length; i++) {
+        for(var i = 0; i < xmlDoc.childNodes.length; i++) {
             if(xmlDoc.childNodes[i].baseName === 'HighSchoolTimetableArchive') {
                 data = XML2jsobj(xmlDoc.childNodes[i]);
                 readinstance(data);
-                break findnode;
+                i = xmlDoc.childNodes.length;
             }
         }
         function XML2jsobj(node) {

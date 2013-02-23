@@ -1,4 +1,5 @@
 /// <reference path="instans.ts" />
+/// <reference path="hoved.ts" />
 declare var x;
 
 module solution {

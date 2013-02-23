@@ -18,6 +18,7 @@ var hardconstraints: instans.Constraint[];
 var softconstraints: instans.Constraint[];
 var resmangler: instans.ResMangel[];
 var tidmangler: instans.TidMangel[];
+var counter = 0;
 window.onload = () => {
     /* if (typeof (Worker) !== "undefined")
          alert('worker virker');
@@ -41,15 +42,15 @@ window.onload = () => {
     "SouthAfricaLewitt2009",
     "SpainSchool"
     ];
-
-    instans.readxml("XML/" + filenames[1] + ".xml");
+    instans.readxml(filenames[4] + ".xml");
     for (var i = 0; i < filenames.length; i++) {
-        /*   instans.readxml("XML/" + filenames[i] + ".xml");
-         /*  var sol1: solution.Sol = new solution.Sol();
-           $('#content').html(lavtablerowhtml(sol1));*/
+        //   instans.readxml("XML/" + filenames[i] + ".xml");
+        /*  var sol1: solution.Sol = new solution.Sol();
+          $('#content').html(lavtablerowhtml(sol1));*/
 
         //          sol1.udregn();
     }
+ 
     sol1 = new solution.Sol();
     // sol1.solevents[1].resourcer[0].resourceref = resourcer[190];
     sol1.udregn();
@@ -76,12 +77,16 @@ window.onload = () => {
 //}
 
 function lavtablerowhtml(solin: solution.Sol) {
-    var htmltxt = "<table><thead><tr><td>Event</td><td>Time</td>";
+    var htmltxt = "<table><thead><tr><td>Event</td><td>Time</td></tr></thead>";
     //  var solevents = solin.solevents;
     var roles: string[] = [];
     var restypedropdown = {};
     var antalevents = events.length;
 
+    var tiddrop = " <option value='EJVALGT'> Not chosen </option> ";
+    for (var i = 0, len = timer.length; i < len; i++)
+        tiddrop += "<option value='" + timer[i].index + "'>" + timer[i].name + "</option>";
+    tiddrop += "</select>";
     /*  for (var i = 0; i < antalevents; i++) {//optimer
           var mngl = events[i].eventresmangler;
           for (var j = 0, antrollerievmangler = mngl.length / events[i].duration;
@@ -92,7 +97,6 @@ function lavtablerowhtml(solin: solution.Sol) {
               }
           }
       }*/
-    htmltxt += "</tr></thead>";
     for (var i = 0; i < antalevents; i++) {
         var ievent = events[i];
         var antalmngler = ievent.eventresmangler.length;
@@ -104,15 +108,35 @@ function lavtablerowhtml(solin: solution.Sol) {
             }
 
             var navn = ievent.name;
+            var tooltip = "";
             if (ievent.duration > 1)
                 navn += " (" + (durationindex + 1) + "/" + ievent.duration + ")";
-            htmltxt += "<tr><td>" + navn + "</td><td>tid</td>"; //
+            for (var j = 0, len = ievent.eventresourcer.length; j < len; j++)
+                tooltip += ievent.eventresourcer[j].name + ", ";
+            if (tooltip.length > 9999999999999990)
+                htmltxt += "<tr title='" + tooltip.substr(0, tooltip.length - 2) + "'><td>";
+            else
+                htmltxt += "<tr><td>";
+            if (ievent.preasigntime) {
+                var valgttid = timer[ievent.preasigntime.index + durationindex];
+                htmltxt += navn + "</td><td>Time:" + valgttid.name + "</td>";
+            }
+            else {
+                var tiddropi = tiddrop;
+                htmltxt +=  navn + "</td><td>Time:<select>" + tiddropi + "</td>";
+            }
+         /*   if (ievent.eventresourcer.length > 0) {
+                htmltxt += " (";
+                for (var j = 0, len = ievent.eventresourcer.length; j < len; j++)
+                    htmltxt += ievent.eventresourcer[j].name + "|";
+                htmltxt = htmltxt.substr(0, htmltxt.length - 1) + ")";
+            }*/
             for (var mnglindex = durationindex; mnglindex < antalmngler ; mnglindex = mnglindex + ievent.duration) {
                 var colrole = ievent.eventresmangler[mnglindex].role;
                 var restype = ievent.eventresmangler[mnglindex].resourcetype.id;
                 if (restypedropdown[restype] === undefined) {
                     var resids: number[] = [];
-                    var selecthtml = "<option value='EJVALGT'>Not chosen</option>";
+                    var selecthtml = "<option value='EJVALGT'>Not chosen</option>"; //style = 'background-color: blue'
                     var resgrs = ievent.eventresmangler[mnglindex].resourcetype.resourcegroups;
                     for (var l = 0, antgr = resgrs.length; l < antgr; l++) {
                         var resgr = resgrs[l].resourcer;
@@ -138,7 +162,7 @@ function lavtablerowhtml(solin: solution.Sol) {
                                "'" +solevent.resourcer[n].resourceref.index + "' selected>")*/
 
 
-                htmltxt += "<td>MNGL " + colrole + " vælg:<select>" + drop + "</td>"
+                htmltxt += "<td> " + colrole + ":<select>" + drop + "</td>"
             }
         }
     }

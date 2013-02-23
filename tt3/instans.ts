@@ -1,4 +1,5 @@
-
+/// <reference path="solution.ts" />
+/// <reference path="hoved.ts" />
 
 module instans {
     function sum(afvigelser: number[]) {
@@ -121,9 +122,11 @@ module instans {
     }
     export class Time extends Entity {
         timegroups: TimeGroup[];
+        index: number;
         constructor(name: string, id: string) {
             super(id, name);
             this.timegroups = [];
+            this.index = timer.length;
         }
     }
 
@@ -220,11 +223,13 @@ module instans {
         eventgrupper = [];
         resmangler = [];
         tidmangler = [];
+
         var k, kk: any;
         var gruppeid: string[] = [];
         var resid: string[] = [];
         var times = nobj["Instances"]["Instance"]["Times"];
         var grps = times["TimeGroups"];
+      
         if ("Week" in grps) {
             var tmp = grps["Week"]
             if (tmp instanceof Array)
@@ -388,14 +393,13 @@ module instans {
         var evid: string[] = [];
         for (var key in ev) {
             var curev = ev[key];
-
-            findepreassigntime:
+            var preassigntime = null;
             if (curev["Time"]) {
                 var timeref = curev["Time"]["Reference"];
                 for (var i = 0, len = timer.length; i < len; i++) {
                     if (timer[i].id == timeref) {
-                        var preassigntime = timer[i];
-                        break findepreassigntime;
+                        preassigntime = timer[i];
+                        i = len;
                     }
                 }
                 if (!preassigntime)
@@ -459,29 +463,28 @@ module instans {
                 lavcon(con[key], key, evgruppeid, evid, resid, grupid)
     }
     export function readxml(url) {
-
-
-
         var xmlhttp;
+    
         if (XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
             xmlhttp = new XMLHttpRequest();
-        }
+         }
         else {// code for IE6, IE5
             xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
         }
-        xmlhttp.open("GET", url, false);
+       
+       xmlhttp.open("GET", url, false);
         xmlhttp.send();
         var xmlDoc = xmlhttp.responseXML;
         var data;
-        findnode:
-        for (var i = 0; i < xmlDoc.childNodes.length; i++)
+        for (var i = 0; i < xmlDoc.childNodes.length; i++) {
             if (xmlDoc.childNodes[i].baseName === 'HighSchoolTimetableArchive') {
                 data = XML2jsobj(xmlDoc.childNodes[i]);
                 readinstance(data);
-                break findnode;
+                i = xmlDoc.childNodes.length;
+
             }
-
-
+        }
+  
         function XML2jsobj(node) {
             var data = {};
             // append a value
