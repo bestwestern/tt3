@@ -45,9 +45,6 @@ window.onload = function () {
     instans.readxml(filenames[4] + ".xml");
     for(var i = 0; i < filenames.length; i++) {
     }
-    sol1 = new solution.Sol();
-    // sol1.solevents[1].resourcer[0].resourceref = resourcer[190];
-    sol1.udregn();
     $('#content').html(lavtablerowhtml(sol1));
     //alert(sol1.solevents.length.toString());
     //  var k = new Course('jk', null);

@@ -10,7 +10,15 @@
     <script src="hoved.js"></script>
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script>
+        alert('jk');
 
+ {
+            xmlhttp = new XMLHttpRequest();
+            xmlhttp.open("GET", 'test.xml', false);  //Open the file using the GET routine
+            xmlhttp.send(null);  //Send request
+            xmlDoc = xmlhttp.responseXML;  //xmlDoc holds the document information now
+     alert(xmlDoc)
+        }
         /* var k = { "jk": 4, "jkll": 43 };
          var z = {};
          z[k] = "jdfsk";

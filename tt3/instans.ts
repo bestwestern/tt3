@@ -473,7 +473,7 @@ module instans {
         }
        
        xmlhttp.open("GET", url, false);
-        xmlhttp.send();
+        xmlhttp.send(null);
         var xmlDoc = xmlhttp.responseXML;
         var data;
         for (var i = 0; i < xmlDoc.childNodes.length; i++) {

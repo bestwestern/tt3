@@ -24,6 +24,7 @@ window.onload = () => {
          alert('worker virker');
      else
          alert('not');*/
+  
     var filenames = [
         "test",
         "NetherlandsKottenpark2009",
@@ -51,9 +52,6 @@ window.onload = () => {
         //          sol1.udregn();
     }
  
-    sol1 = new solution.Sol();
-    // sol1.solevents[1].resourcer[0].resourceref = resourcer[190];
-    sol1.udregn();
     $('#content').html(lavtablerowhtml(sol1));
     //alert(sol1.solevents.length.toString());
 
