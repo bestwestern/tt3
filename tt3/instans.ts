@@ -229,7 +229,7 @@ module instans {
         var resid: string[] = [];
         var times = nobj["Instances"]["Instance"]["Times"];
         var grps = times["TimeGroups"];
-      
+
         if ("Week" in grps) {
             var tmp = grps["Week"]
             if (tmp instanceof Array)
@@ -463,28 +463,27 @@ module instans {
                 lavcon(con[key], key, evgruppeid, evid, resid, grupid)
     }
     export function readxml(url) {
-        var xmlhttp;
-    
-        if (XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
-            xmlhttp = new XMLHttpRequest();
-         }
-        else {// code for IE6, IE5
-            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-        }
-       
-       xmlhttp.open("GET", url, false);
-        xmlhttp.send(null);
-        var xmlDoc = xmlhttp.responseXML;
-        var data;
-        for (var i = 0; i < xmlDoc.childNodes.length; i++) {
-            if (xmlDoc.childNodes[i].baseName === 'HighSchoolTimetableArchive') {
-                data = XML2jsobj(xmlDoc.childNodes[i]);
-                readinstance(data);
-                i = xmlDoc.childNodes.length;
+        var xmlhttp = new XMLHttpRequest();
 
-            }
-        }
-  
+        xmlhttp.open("GET", url, false);
+        xmlhttp.send(null);
+        var xmlDoc: any = xmlhttp.responseXML;
+        var data;
+        var c, cn;
+       /* console.log(url);
+        console.log(xmlDoc.childNodes[0].nodeName);*/
+        if (xmlDoc.childNodes[0].nodeName === 'HighSchoolTimetableArchive')
+            readinstance(XML2jsobj(xmlDoc.childNodes[0]));
+        //alert(xmlDoc.childNodes[0].baseName);
+        /*     for (var i = 0; i < xmlDoc.childNodes.length; i++) {
+                 if (xmlDoc.childNodes[i].baseName === 'HighSchoolTimetableArchive') {
+                     data = XML2jsobj(xmlDoc.childNodes[i]);
+                     readinstance(data);
+                     i = xmlDoc.childNodes.length;
+     
+                 }
+             }*/
+
         function XML2jsobj(node) {
             var data = {};
             // append a value

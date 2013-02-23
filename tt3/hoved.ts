@@ -43,16 +43,19 @@ window.onload = () => {
     "SouthAfricaLewitt2009",
     "SpainSchool"
     ];
-    instans.readxml(filenames[4] + ".xml");
+    //instans.readxml(filenames[4] + ".xml");
     for (var i = 0; i < filenames.length; i++) {
-        //   instans.readxml("XML/" + filenames[i] + ".xml");
+        instans.readxml("XML/" + filenames[i] + ".xml");
+
+        $('#content').html(lavtablerowhtml(sol1));
+        alert('html lavet?');
         /*  var sol1: solution.Sol = new solution.Sol();
           $('#content').html(lavtablerowhtml(sol1));*/
 
         //          sol1.udregn();
     }
  
-    $('#content').html(lavtablerowhtml(sol1));
+  //  $('#content').html(lavtablerowhtml(sol1));
     //alert(sol1.solevents.length.toString());
 
     //  var k = new Course('jk', null);
