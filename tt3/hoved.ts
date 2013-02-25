@@ -41,29 +41,38 @@ window.onload = () => {
       "FinlandSecondarySchool",
     "NetherlandsGEPRO",
     "SouthAfricaLewitt2009",
-    "SpainSchool"
+    "SpainSchool",
+    "ItalyInstance1"
     ];
-    instans.readxml("XML/" + filenames[4] + ".xml");
+
+    /*  for (var i = 0; i < filenames.length; i++) {
+          events = [];
+          instans.readxml("XML/" + filenames[i] + ".xml");
+          vistsol = new solution.Sol();
+          if (events.length > 0)
+              $('#content').html(lavtablerowhtml(vistsol));
+          assert(true, events.length.toString());
+      }*/
+    instans.readxml("XML/" + filenames[16] + ".xml");
     vistsol = new solution.Sol();
     $('#content').html(lavtablerowhtml(vistsol));
+    vistsol.udregnhard();
 
-    /*
-    for (var i = 0; i < filenames.length; i++) {
-        events = [];
-        instans.readxml("XML/" + filenames[i] + ".xml");
-        if (events.length > 0)
-            $('#content').html(lavtablerowhtml(sol1));
-        assert(true, events.length.toString());
-    }
-    */
+
 }
 function choicemade(tidangivet: bool, mangelindex: number, dropdown) {
     if (tidangivet)
         var arr = vistsol.tidtildelinger;
     else
         var arr = vistsol.restildelinger;
-    arr[mangelindex] = Number(dropdown.options[dropdown.selectedIndex].value);
+    var nyval = Number(dropdown.options[dropdown.selectedIndex].value);
+
+    if (isNaN(nyval))
+        arr[mangelindex] = null;
+    else
+        arr[mangelindex] = nyval;
     lavtablerowhtml(vistsol);
+    vistsol.udregnhard();
 }
 function assert(value, desc) {
     var resultsList = document.getElementById("results");
@@ -84,7 +93,7 @@ function lavtablerowhtml(solin: solution.Sol) {
     var restypedropdown = {};
     var antalevents = events.length;
 
-    var tiddrop = " <option value='-1'> Not chosen </option> ";
+    var tiddrop = " <option> Not chosen</option> ";
     for (var i = 0, len = timer.length; i < len; i++)
         tiddrop += "<option value='" + timer[i].index + "'>" + timer[i].name + "</option>";
     tiddrop += "</select>";
@@ -119,7 +128,7 @@ function lavtablerowhtml(solin: solution.Sol) {
                 var restype = ievent.eventresmangler[mnglindex].resourcetype.id;
                 if (restypedropdown[restype] === undefined) {
                     var resids: number[] = [];
-                    var selecthtml = "<option value='-1'>Not chosen</option>"; //style = 'background-color: blue'
+                    var selecthtml = "<option>Not chosen</option>"; //style = 'background-color: blue'
                     var resgrs = ievent.eventresmangler[mnglindex].resourcetype.resourcegroups;
                     for (var l = 0, antgr = resgrs.length; l < antgr; l++) {
                         var resgr = resgrs[l].resourcer;

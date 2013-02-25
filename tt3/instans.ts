@@ -584,7 +584,9 @@ module instans {
                 var nycon = new PreferResourcesConstraint(id, na, we, co);
                 break;
 
-
+            case "DistributeSplitEventsConstraint":
+                assert(na, true);
+            break;
 
             default:
 

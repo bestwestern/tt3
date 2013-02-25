@@ -611,6 +611,9 @@ var instans;
             case "PreferResourcesConstraint":
                 var nycon = new PreferResourcesConstraint(id, na, we, co);
                 break;
+            case "DistributeSplitEventsConstraint":
+                assert(na, true);
+                break;
             default:
                 // alert constraint ikke understøttet    var fddfdfsk = constraint["jk"]["jk"];
                 break;
