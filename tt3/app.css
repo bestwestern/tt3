@@ -1,8 +1,23 @@
-﻿body
-{
-    font-family: 'Segoe UI', sans-serif
+﻿body {
+    font-family: 'Segoe UI', sans-serif;
 }
 
 span {
-    font-style: italic
+    font-style: italic;
+}
+
+ul#results {
+    border: 2px ridge maroon;
+    background-color: #ffffcc;
+    padding: 0.25em 1.5em;
+    margin-left: 0;
+}
+
+li.pass {
+    color: #006400;
+}
+
+li.fail {
+    color: #dc143c;
+    text-decoration: line-through;
 }

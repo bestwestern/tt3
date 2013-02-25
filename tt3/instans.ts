@@ -468,12 +468,22 @@ module instans {
         xmlhttp.open("GET", url, false);
         xmlhttp.send(null);
         var xmlDoc: any = xmlhttp.responseXML;
-        var data;
-        var c, cn;
-       /* console.log(url);
+        /* console.log(url);
         console.log(xmlDoc.childNodes[0].nodeName);*/
-        if (xmlDoc.childNodes[0].nodeName === 'HighSchoolTimetableArchive')
-            readinstance(XML2jsobj(xmlDoc.childNodes[0]));
+        var bingo = -1;
+        for (var i = 0, len = xmlDoc.childNodes.length; i < len; i++)
+            if (xmlDoc.childNodes[i].nodeName === 'HighSchoolTimetableArchive') {
+                bingo = i;
+                i = len;
+            }
+        if (bingo > -1)
+            readinstance(XML2jsobj(xmlDoc.childNodes[bingo]));
+        else
+            assert(true, 'kunne ikke læse ' + url);
+        /* else {
+             for (var i = 0; i <2; i++)
+                 assert(true, i + xmlDoc.childNodes[i].nodeName)
+         }*/
         //alert(xmlDoc.childNodes[0].baseName);
         /*     for (var i = 0; i < xmlDoc.childNodes.length; i++) {
                  if (xmlDoc.childNodes[i].baseName === 'HighSchoolTimetableArchive') {
