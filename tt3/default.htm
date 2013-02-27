@@ -11,24 +11,29 @@
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script src="assert.js"></script>
     <script>
-        /*
-         {
-                    xmlhttp = new XMLHttpRequest();
-                    xmlhttp.open("GET", 'xml/test.xml', false);  //Open the file using the GET routine
-                    xmlhttp.send(null);  //Send request
-                    xmlDoc = xmlhttp.responseXML;  //xmlDoc holds the document information now
-              alert(xmlDoc)
-                }
-                /* var k = { "jk": 4, "jkll": 43 };
-                 var z = {};
-                 z[k] = "jdfsk";
-                 var k2 = { "j": 3 };
-                 alert(z[k]);
-                 alert(z[k2]);*/
+        function CreateXMLDoc() {
+            if (document.implementation.createDocument &&
+                document.implementation.createDocumentType) {
+                var fruitDocType = document.implementation.createDocumentType("fruit", "SYSTEM", "<!ENTITY tf 'tropical fruit'>");
+                var xmlDoc = document.implementation.createDocument("", "fruits", fruitDocType);
+
+                var fruitNode = xmlDoc.createElement("fruit");
+                fruitNode.setAttribute("name", "avocado");
+                xmlDoc.documentElement.appendChild(fruitNode);
+
+                var serializer = new XMLSerializer();
+                alert(serializer.serializeToString(xmlDoc));
+            }
+            else {
+                alert("Your browser does not support this example");
+            }
+        }
+
     </script>
 </head>
 <body>
     <div id="wrapper">
+        <button onclick="CreateXMLDoc ();">Create an XML document with document type!</button>
         <ul id="results"></ul>
 
         <div id="content"></div>
