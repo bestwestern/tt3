@@ -19,6 +19,8 @@ var softconstraints: instans.Constraint[];
 var resmangler: instans.ResMangel[];
 var tidmangler: instans.TidMangel[];
 var counter = 0;
+var xmlDoc: any;
+var xmlinstans;
 window.onload = () => {
     /* if (typeof (Worker) !== "undefined")
          alert('worker virker');
@@ -44,7 +46,6 @@ window.onload = () => {
     "SpainSchool",
     "ItalyInstance1"
     ];
-
     /*  for (var i = 0; i < filenames.length; i++) {
           events = [];
           instans.readxml("XML/" + filenames[i] + ".xml");
@@ -54,11 +55,72 @@ window.onload = () => {
           assert(true, events.length.toString());
       }*/
     instans.readxml("XML/" + filenames[16] + ".xml");
-    vistsol = new solution.Sol();
-    $('#content').html(lavtablerowhtml(vistsol));
-    vistsol.udregnhard();
+    // vistsol = new solution.Sol();
+    // $('#content').html(lavtablerowhtml(vistsol));
+    // vistsol.udregnhard();
+    lavxml();
+
+}
+function lavxml() {
+    /* console.log('node ' + i.toString() + ':' + xmlDoc.childNodes[i].nodeName);
+     var thisnode = xmlDoc.childNodes[i];
+     for (var j = 0, len2 = thisnode.childNodes.length; j < len2; j++) {
+         var thisnode2 = thisnode.childNodes[j];
+         console.log('undernode ' + j.toString() + ':' + thisnode2.nodeName);
+         for (var k = 0, len3 = thisnode2.childNodes.length; k < len3; k++) {
+             console.log('undernode2 ' + k.toString() + ':' + thisnode2.childNodes[k].nodeName);
+ 
+         }
+     }*/
+
+    var serializer = new XMLSerializer();
+    var y = xmlDoc.getElementsByTagName("Instances")[0];
+    xmlDoc.documentElement.removeChild(y);
+    var solgroup = xmlDoc.createElement("SolutionGroup");
+    solgroup.setAttribute("Id", "Runessol");
+
+    var solref = xmlDoc.createElement("Solution");
+    solref.setAttribute("Reference", xmlinstans);
+    addnode("Events", solref);
+
+    var metadata = xmlDoc.createElement("MetaData");
+
+    addnode("Contributor", metadata, "run@sdu.dk");
+    addnode("Date", metadata, new Date().toDateString());
+    addnode("Description", metadata, "Speciale");
 
 
+
+    solgroup.appendChild(metadata);
+    solgroup.appendChild(solref);
+
+    /*  var metadata_contr = xmlDoc.createElement("Contributor");
+    var metadata_contr_txt = xmlDoc.createTextNode("Contri");
+
+    metadata_contr.appendChild(metadata_contr_txt);
+    metadata.appendChild(metadata_contr);
+
+    x = metadata_contr.childNodes[0];
+    console.log(x.nodeName);
+    x.nodeValue = "contr";
+    console.log(x.nodeValue);*/
+
+
+    xmlDoc.documentElement.appendChild(solgroup);
+    window.open('data:text/xml,' + serializer.serializeToString(xmlDoc));
+}
+
+function addnode(navn: string, parent: any, txt?: string, ) {
+    var ch = xmlDoc.createElement(navn);
+    if (txt) {
+        var tx = xmlDoc.createTextNode("ch");
+        tx.nodeValue = txt;
+        ch.appendChild(tx);
+    }
+   /* else
+        tx = xmlDoc.createElement(navn);*/
+    
+    parent.appendChild(ch);
 }
 function choicemade(tidangivet: bool, mangelindex: number, dropdown) {
     if (tidangivet)

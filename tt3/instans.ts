@@ -229,7 +229,7 @@ module instans {
         var resid: string[] = [];
         var times = nobj["Instances"]["Instance"]["Times"];
         var grps = times["TimeGroups"];
-
+        xmlinstans = nobj["Instances"]["Instance"]["Id"];
         if ("Week" in grps) {
             var tmp = grps["Week"]
             if (tmp instanceof Array)
@@ -467,7 +467,8 @@ module instans {
 
         xmlhttp.open("GET", url, false);
         xmlhttp.send(null);
-        var xmlDoc: any = xmlhttp.responseXML;
+        xmlDoc = xmlhttp.responseXML;
+
         /* console.log(url);
         console.log(xmlDoc.childNodes[0].nodeName);*/
         var bingo = -1;
@@ -476,8 +477,10 @@ module instans {
                 bingo = i;
                 i = len;
             }
-        if (bingo > -1)
+        if (bingo > -1) {
+            xmlinstans = xmlDoc.childNodes[bingo].childNodes[0].nodeValue;
             readinstance(XML2jsobj(xmlDoc.childNodes[bingo]));
+        }
         else
             assert(true, 'kunne ikke læse ' + url);
         /* else {
@@ -490,7 +493,7 @@ module instans {
                      data = XML2jsobj(xmlDoc.childNodes[i]);
                      readinstance(data);
                      i = xmlDoc.childNodes.length;
-     
+        
                  }
              }*/
 
@@ -513,7 +516,7 @@ module instans {
             var c, cn;
             for (c = 0; cn = node.attributes[c]; c++) {
                 Add(cn.name, cn.value);
-            }
+                }
 
             // child elements
             for (c = 0; cn = node.childNodes[c]; c++) {
@@ -586,7 +589,7 @@ module instans {
 
             case "DistributeSplitEventsConstraint":
                 assert(na, true);
-            break;
+                break;
 
             default:
 

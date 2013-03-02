@@ -253,6 +253,7 @@ var instans;
         var resid = [];
         var times = nobj["Instances"]["Instance"]["Times"];
         var grps = times["TimeGroups"];
+        xmlinstans = nobj["Instances"]["Instance"]["Id"];
         if("Week" in grps) {
             var tmp = grps["Week"];
             if(tmp instanceof Array) {
@@ -493,7 +494,7 @@ var instans;
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.open("GET", url, false);
         xmlhttp.send(null);
-        var xmlDoc = xmlhttp.responseXML;
+        xmlDoc = xmlhttp.responseXML;
         /* console.log(url);
         console.log(xmlDoc.childNodes[0].nodeName);*/
         var bingo = -1;
@@ -504,6 +505,7 @@ var instans;
             }
         }
         if(bingo > -1) {
+            xmlinstans = xmlDoc.childNodes[bingo].childNodes[0].nodeValue;
             readinstance(XML2jsobj(xmlDoc.childNodes[bingo]));
         } else {
             assert(true, 'kunne ikke læse ' + url);

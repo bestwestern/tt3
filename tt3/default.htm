@@ -16,13 +16,14 @@
                 document.implementation.createDocumentType) {
                 var fruitDocType = document.implementation.createDocumentType("fruit", "SYSTEM", "<!ENTITY tf 'tropical fruit'>");
                 var xmlDoc = document.implementation.createDocument("", "fruits", fruitDocType);
-
-                var fruitNode = xmlDoc.createElement("fruit");
-                fruitNode.setAttribute("name", "avocado");
-                xmlDoc.documentElement.appendChild(fruitNode);
-
+                for (var i = 0; i < 1000; i++) {
+                    var fruitNode = xmlDoc.createElement("fruit");
+                    fruitNode.setAttribute("name", "avocado"+i);
+                    xmlDoc.documentElement.appendChild(fruitNode);
+                }
                 var serializer = new XMLSerializer();
-                alert(serializer.serializeToString(xmlDoc));
+        //        window.open('data:text/xml,' + serializer.serializeToString(xmlDoc));
+                // alert(serializer.serializeToString(xmlDoc));
             }
             else {
                 alert("Your browser does not support this example");
