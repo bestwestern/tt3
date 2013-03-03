@@ -478,6 +478,7 @@ var instans;
             events.push(nyev);
             evid.push(nyev.id);
         }
+        antalevents = events.length;
         var con = nobj["Instances"]["Instance"]["Constraints"];
         for(var key in con) {
             if(con[key] instanceof Array) {

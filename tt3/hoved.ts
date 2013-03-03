@@ -14,6 +14,7 @@ var resourcegrupper: instans.ResourceGroup[];
 var resourcer: instans.Resource[];
 var eventgrupper: instans.EventGroup[];
 var events: instans.AEvent[];
+var antalevents: number;
 var hardconstraints: instans.Constraint[];
 var softconstraints: instans.Constraint[];
 var resmangler: instans.ResMangel[];
@@ -55,10 +56,10 @@ window.onload = () => {
           assert(true, events.length.toString());
       }*/
     instans.readxml("XML/" + filenames[16] + ".xml");
-    // vistsol = new solution.Sol();
-    // $('#content').html(lavtablerowhtml(vistsol));
+    vistsol = new solution.Sol();
+    $('#content').html(lavtablerowhtml(vistsol));
     // vistsol.udregnhard();
-    lavxml();
+    // lavxml();
 
 }
 function lavxml() {
@@ -72,25 +73,41 @@ function lavxml() {
  
          }
      }*/
-
     var serializer = new XMLSerializer();
+
+    //slet mens test - går stærkere
     var y = xmlDoc.getElementsByTagName("Instances")[0];
-    xmlDoc.documentElement.removeChild(y);
+  //  xmlDoc.documentElement.removeChild(y);
+
+
+    var solgroupndoe = xmlDoc.getElementsByTagName("SolutionGroups")[0];
+
     var solgroup = xmlDoc.createElement("SolutionGroup");
     solgroup.setAttribute("Id", "Runessol");
 
     var solref = xmlDoc.createElement("Solution");
     solref.setAttribute("Reference", xmlinstans);
-    addnode("Events", solref);
+    var eventsnode = addnode("Events", solref);
+    for (var i = 0; i < 2; i++) {
+        var thisevent = events[i];
 
+        for (var j = 0; j < thisevent.duration; j++) {
+            var ev = addnode("Event", eventsnode);
+            ev.setAttribute("Reference", thisevent.id);
+            addnode("Duration", ev, "1");
+            var tild = vistsol.tidtildelinger[thisevent.eventtidmangler[j].index];
+            var tin = addnode("Time", ev);
+            if (tild)
+                tin.setAttribute("Reference", timer[tild].id);
+            else// i evaluatoren lavet af jeff skal hver event have en tid
+                tin.setAttribute("Reference", timer[0].id);
+            var reses = addnode("Resources", ev);
+        }
+    }
     var metadata = xmlDoc.createElement("MetaData");
-
     addnode("Contributor", metadata, "run@sdu.dk");
     addnode("Date", metadata, new Date().toDateString());
     addnode("Description", metadata, "Speciale");
-
-
-
     solgroup.appendChild(metadata);
     solgroup.appendChild(solref);
 
@@ -106,10 +123,13 @@ function lavxml() {
     console.log(x.nodeValue);*/
 
 
-    xmlDoc.documentElement.appendChild(solgroup);
+    solgroupndoe.appendChild(solgroup);
+ /*   var wind =  serializer.serializeToString(xmlDoc);
+    var fejl = wind.substr(102616);*/
     window.open('data:text/xml,' + serializer.serializeToString(xmlDoc));
 }
-
+function laveventnode() {
+}
 function addnode(navn: string, parent: any, txt?: string, ) {
     var ch = xmlDoc.createElement(navn);
     if (txt) {
@@ -117,10 +137,11 @@ function addnode(navn: string, parent: any, txt?: string, ) {
         tx.nodeValue = txt;
         ch.appendChild(tx);
     }
-   /* else
-        tx = xmlDoc.createElement(navn);*/
-    
+    /* else
+         tx = xmlDoc.createElement(navn);*/
+
     parent.appendChild(ch);
+    return ch;
 }
 function choicemade(tidangivet: bool, mangelindex: number, dropdown) {
     if (tidangivet)
