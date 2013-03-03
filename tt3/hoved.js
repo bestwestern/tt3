@@ -54,7 +54,7 @@ window.onload = function () {
     $('#content').html(lavtablerowhtml(vistsol));
     assert(true, events.length.toString());
     }*/
-    instans.readxml("XML/" + filenames[16] + ".xml");
+    instans.readxml("XML/" + filenames[1] + ".xml");
     vistsol = new solution.Sol();
     $('#content').html(lavtablerowhtml(vistsol));
     // vistsol.udregnhard();
@@ -81,20 +81,32 @@ function lavxml() {
     var solref = xmlDoc.createElement("Solution");
     solref.setAttribute("Reference", xmlinstans);
     var eventsnode = addnode("Events", solref);
-    for(var i = 0; i < 2; i++) {
+    for(var i = 0; i < antalevents; i++) {
         var thisevent = events[i];
         for(var j = 0; j < thisevent.duration; j++) {
             var ev = addnode("Event", eventsnode);
             ev.setAttribute("Reference", thisevent.id);
             addnode("Duration", ev, "1");
-            var tild = vistsol.tidtildelinger[thisevent.eventtidmangler[j].index];
+            var tildtid = vistsol.tidtildelinger[thisevent.eventtidmangler[j].index];
             var tin = addnode("Time", ev);
-            if(tild) {
-                tin.setAttribute("Reference", timer[tild].id);
+            if(tildtid) {
+                tin.setAttribute("Reference", timer[tildtid].id);
             } else {
+                // i evaluatoren lavet af jeff skal hver event have en tid
                 tin.setAttribute("Reference", timer[0].id);
             }
             var reses = addnode("Resources", ev);
+            if(thisevent.eventresmangler.length > 1) {
+                var jkl = 4;
+            }
+            for(var k = j; k < thisevent.eventresmangler.length; k += thisevent.duration) {
+                var tilres = vistsol.restildelinger[thisevent.eventresmangler[k].index];
+                if(tilres) {
+                    var nyres = addnode("Resource", reses);
+                    nyres.setAttribute("Reference", resourcer[tilres].id);
+                    addnode("Role", nyres, thisevent.eventresmangler[k].role);
+                }
+            }
         }
     }
     var metadata = xmlDoc.createElement("MetaData");
@@ -117,8 +129,6 @@ function lavxml() {
     /*   var wind =  serializer.serializeToString(xmlDoc);
     var fejl = wind.substr(102616);*/
     window.open('data:text/xml,' + serializer.serializeToString(xmlDoc));
-}
-function laveventnode() {
 }
 function addnode(navn, parent, txt) {
     var ch = xmlDoc.createElement(navn);
@@ -144,7 +154,7 @@ function choicemade(tidangivet, mangelindex, dropdown) {
     } else {
         arr[mangelindex] = nyval;
     }
-    lavtablerowhtml(vistsol);
+    $('#content').html(lavtablerowhtml(vistsol));
     vistsol.udregnhard();
 }
 function assert(value, desc) {
@@ -221,11 +231,11 @@ function lavtablerowhtml(solin) {
                     restypedropdown[restype] = selecthtml;
                 }
                 var drop = restypedropdown[restype];
-                var resvalg = solin.restildelinger[ievent.eventresmangler[durationindex].index];
+                var resvalg = solin.restildelinger[ievent.eventresmangler[mnglindex].index];
                 if(resvalg > -2) {
                     drop = drop.replace("'" + resvalg + "'", "'" + resvalg + "' selected");
                 }
-                htmltxt += "<td> " + colrole + ":<select onchange='choicemade(false," + ievent.eventresmangler[durationindex].index + ",this)'>>" + drop + "</td>";
+                htmltxt += "<td> " + colrole + ":<select onchange='choicemade(false," + ievent.eventresmangler[mnglindex].index + ",this)'>>" + drop + "</td>";
             }
         }
     }
