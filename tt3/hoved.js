@@ -28,6 +28,7 @@ window.onload = function () {
     else
     alert('not');*/
     var filenames = [
+        "DenmarkSmallSchool", 
         "test", 
         "NetherlandsKottenpark2009", 
         "ArtificialORLibrary-hdtt6", 
@@ -54,7 +55,7 @@ window.onload = function () {
     $('#content').html(lavtablerowhtml(vistsol));
     assert(true, events.length.toString());
     }*/
-    instans.readxml("XML/" + filenames[1] + ".xml");
+    instans.readxml("XML/" + filenames[0] + ".xml");
     vistsol = new solution.Sol();
     $('#content').html(lavtablerowhtml(vistsol));
     // vistsol.udregnhard();
