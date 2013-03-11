@@ -5,16 +5,20 @@ declare var x;
 module solution {
 
     export class Sol {
-        tidtildelinger: number[];
-        restildelinger: number[];
+        tidmangeltildelinger: number[];//tidmangeltildelinger[i]=tidindex for tiden givet til tidmangel i
+        resmangeltildelinger: number[];//resmangeltildelinger[i]=resindex for res givet til resmangel i
+        restiltid: number[];
+        restileve: number[][];
         hardcosts: number[];
         softcosts: number[];
         constructor() {
-            this.restildelinger = [];
-            this.tidtildelinger = [];
+            this.resmangeltildelinger = [];
+            this.tidmangeltildelinger = [];
+            this.restiltid = [];
+            this.restileve = [];
         }
-        udregncon(hardcon: bool) {//frisk udregning (uden gemte tidligere værdier
-            var constrarr:instans.Constraint[] = hardcon ? hardconstraints : softconstraints;
+        udregncon(hardcon: bool) {//frisk udregning (uden gemte tidligere værdier) bør måske ikke lave prefertimes hvis hardcon? - opdel udregn i hard og soft
+            var constrarr: instans.Constraint[] = hardcon ? hardconstraints : softconstraints;
             for (var c = 0, lencon = constrarr.length; c < lencon; c++) {
                 var constr = constrarr[c];
                 var constrafvigelser: number[] = [];
@@ -26,7 +30,7 @@ module solution {
                         var eventafvigelse = 0;
                         var eventtidmngler = constr.appliestoev[i].eventtidmangler;
                         for (var j = 0; j < eventtidmngler.length; j++) {
-                           if (this.tidtildelinger[eventtidmngler[j].index] == null)
+                            if (this.tidmangeltildelinger[eventtidmngler[j].index] == null)
                                 eventafvigelse++;
                         }
                         constrafvigelser.push(eventafvigelse);
@@ -38,20 +42,37 @@ module solution {
                         var eventafvigelse = 0;
                         var eventresmangler = constr.appliestoev[i].eventresmangler
                         for (var j = 0; j < eventresmangler.length; j++) {
-                            if (this.restildelinger[eventresmangler[j].index] == null)
+                            if (this.resmangeltildelinger[eventresmangler[j].index] == null)
                                 eventafvigelse++;
                         }
                         constrafvigelser.push(eventafvigelse);
                     }
                 }
+                if (constr instanceof instans.PreferTimesConstraint) {
+                    var constr: instans.PreferTimesConstraint = <instans.PreferTimesConstraint> constr;
+                    for (var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
+                        var eventafvigelse = 0;
+                        var eventtidmngler = constr.appliestoev[i].eventtidmangler;
+                        for (var j = 0; j < eventtidmngler.length; j++) {
+                            var tildelttid = this.tidmangeltildelinger[eventtidmngler[j].index];
+                            if (tildelttid != null)
+                                if (constr.timer.indexOf(timer[tildelttid]) < 0)
+                                    eventafvigelse++;
+                        }
+                        constrafvigelser.push(eventafvigelse);
+                    }
+                }
+
+
+
 
                 if (constrafvigelser.length > 0) {
                     var li = document.createElement("li");
                     samlconstrafvigelse = constr.costfunction(constrafvigelser) * constr.weight;
                     li.appendChild(document.createTextNode(constr.name + ':' + samlconstrafvigelse.toString() + ':' + constrafvigelser.toString()));
-                    var conliste = document.getElementById("hardcon");
+                    var conliste = hardcon ? document.getElementById("hardcon") : document.getElementById("softcon");
                     conliste.insertBefore(li, conliste.firstChild);
-//                    appendChild(li);
+                    //                    appendChild(li);
                 }
             }
             for (var i = 0; i < constrafvigelser.length; i++) {

@@ -21,7 +21,7 @@ var instans;
             this.name = name;
             this.weight = weight;
             this.role = role;
-            this.appliestogre = [];
+            this.appliestoevgrou = [];
             this.appliestoev = [];
             //   this.appliestoma = [];
             switch(costfunction.toLowerCase()) {
@@ -37,7 +37,7 @@ var instans;
             this.id = id;
             this.name = name;
             this.weight = weight;
-            this.appliestogre = [];
+            this.appliestoevgrou = [];
             this.appliestoev = [];
             switch(costfunction.toLowerCase()) {
                 case "sum":
@@ -52,9 +52,9 @@ var instans;
             this.id = id;
             this.name = name;
             this.weight = weight;
-            this.appliestogre = [];
+            this.appliestoevgrou = [];
             this.appliestoev = [];
-            this.appliestogrr = [];
+            this.appliestoresgrou = [];
             this.appliestores = [];
             switch(costfunction.toLowerCase()) {
                 case "sum":
@@ -62,27 +62,48 @@ var instans;
             }
         }
         return PreferResourcesConstraint;
-    })();    
+    })();
+    instans.PreferResourcesConstraint = PreferResourcesConstraint;    
+    var AvoidClashesConstraint = (function () {
+        function AvoidClashesConstraint(id, name, weight, costfunction) {
+            this.id = id;
+            this.name = name;
+            this.weight = weight;
+            this.appliestoresgrou = [];
+            this.appliestores = [];
+            switch(costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+            }
+        }
+        return AvoidClashesConstraint;
+    })();
+    instans.AvoidClashesConstraint = AvoidClashesConstraint;    
     var PreferTimesConstraint = (function () {
         function PreferTimesConstraint(id, name, weight, costfunction) {
             this.id = id;
             this.name = name;
             this.weight = weight;
-            this.appliestogre = [];
+            this.appliestoevgrou = [];
             this.appliestoev = [];
+            this.timegroups = [];
+            this.timer = [];
             switch(costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
             }
         }
         return PreferTimesConstraint;
-    })();    
+    })();
+    instans.PreferTimesConstraint = PreferTimesConstraint;    
     var SpreadEventsConstraint = (function () {
         function SpreadEventsConstraint(id, name, weight, costfunction) {
             this.id = id;
             this.name = name;
             this.weight = weight;
-            this.appliestogre = [];
+            this.appliestoevgrou = [];
+            this.timegroups = [];
+            this.timer = [];
             this.appliestoev = [];
             switch(costfunction.toLowerCase()) {
                 case "sum":
@@ -90,7 +111,8 @@ var instans;
             }
         }
         return SpreadEventsConstraint;
-    })();    
+    })();
+    instans.SpreadEventsConstraint = SpreadEventsConstraint;    
     var Entity = (function () {
         function Entity(id, name) {
             this.id = id;
@@ -249,8 +271,9 @@ var instans;
         resmangler = [];
         tidmangler = [];
         var k, kk;
-        var gruppeid = [];
+        var tidgruppeid = [];
         var resid = [];
+        var tidid = [];
         var times = nobj["Instances"]["Instance"]["Times"];
         var grps = times["TimeGroups"];
         xmlinstans = nobj["Instances"]["Instance"]["Id"];
@@ -259,11 +282,11 @@ var instans;
             if(tmp instanceof Array) {
                 for(var key in tmp) {
                     tidsgrupper.push(new Week(tmp[key]["Id"], tmp[key]["Name"]));
-                    gruppeid.push(tmp[key]["Id"]);
+                    tidgruppeid.push(tmp[key]["Id"]);
                 }
             } else {
                 tidsgrupper.push(new Week(tmp["Id"], tmp["Name"]));
-                gruppeid.push(tmp["Id"]);
+                tidgruppeid.push(tmp["Id"]);
             }
         }
         if("Day" in grps) {
@@ -271,11 +294,11 @@ var instans;
             if(tmp instanceof Array) {
                 for(var key in tmp) {
                     tidsgrupper.push(new Day(tmp[key]["Id"], tmp[key]["Name"]));
-                    gruppeid.push(tmp[key]["Id"]);
+                    tidgruppeid.push(tmp[key]["Id"]);
                 }
             } else {
                 tidsgrupper.push(new Day(tmp["Id"], tmp["Name"]));
-                gruppeid.push(tmp["Id"]);
+                tidgruppeid.push(tmp["Id"]);
             }
         }
         if("TimeGroup" in grps) {
@@ -283,11 +306,11 @@ var instans;
             if(tmp instanceof Array) {
                 for(var key in tmp) {
                     tidsgrupper.push(new TimeGroup(tmp[key]["Id"], tmp[key]["Name"]));
-                    gruppeid.push(tmp[key]["Id"]);
+                    tidgruppeid.push(tmp[key]["Id"]);
                 }
             } else {
                 tidsgrupper.push(new TimeGroup(tmp["Id"], tmp["Name"]));
-                gruppeid.push(tmp["Id"]);
+                tidgruppeid.push(tmp["Id"]);
             }
         }
         grps = null;
@@ -296,12 +319,12 @@ var instans;
             var curtime = tmp[key];
             var nytime = new Time(curtime["Id"], curtime["Name"]);
             if(curtime["Week"]) {
-                var tmg = tidsgrupper[gruppeid.indexOf(curtime["Week"]["Reference"])];
+                var tmg = tidsgrupper[tidgruppeid.indexOf(curtime["Week"]["Reference"])];
                 nytime.timegroups.push(tmg);
                 tmg.timer.push(nytime);
             }
             if(curtime["Day"]) {
-                var tmg = tidsgrupper[gruppeid.indexOf(curtime["Day"]["Reference"])];
+                var tmg = tidsgrupper[tidgruppeid.indexOf(curtime["Day"]["Reference"])];
                 nytime.timegroups.push(tmg);
                 tmg.timer.push(nytime);
             }
@@ -314,26 +337,27 @@ var instans;
                         //hvis ikke er tidsgruppen k
                         k = k["Reference"];
                     }
-                    var tmg = tidsgrupper[gruppeid.indexOf(k)];
+                    var tmg = tidsgrupper[tidgruppeid.indexOf(k)];
                     nytime.timegroups.push(tmg);
                     tmg.timer.push(nytime);
                 }
             }
             timer.push(nytime);
+            tidid.push(nytime.id);
         }
         var res = nobj["Instances"]["Instance"]["Resources"];
-        var typeid = [];
-        var grupid = [];
+        var restypeid = [];
+        var resgrupid = [];
         if(res["ResourceTypes"]) {
             tmp = res["ResourceTypes"]["ResourceType"];
             if(tmp instanceof Array) {
                 for(var key in tmp) {
                     resourcetyper.push(new ResourceType(tmp[key]["Name"], tmp[key]["Id"]));
-                    typeid.push(tmp[key]["Id"]);
+                    restypeid.push(tmp[key]["Id"]);
                 }
             } else {
                 resourcetyper.push(new ResourceType(tmp["Name"], tmp["Id"]));
-                typeid.push(tmp["Id"]);
+                restypeid.push(tmp["Id"]);
             }
         }
         if(res["ResourceGroups"]) {
@@ -341,29 +365,29 @@ var instans;
             if(tmp instanceof Array) {
                 for(var key in tmp) {
                     var curgr = tmp[key];
-                    var restyp = resourcetyper[typeid.indexOf(curgr["ResourceType"]["Reference"])];
+                    var restyp = resourcetyper[restypeid.indexOf(curgr["ResourceType"]["Reference"])];
                     var resgr = new ResourceGroup(curgr["Id"], curgr["Name"], restyp);
                     resourcegrupper.push(resgr);
                     restyp.resourcegroups.push(resgr);
-                    grupid.push(curgr["Id"]);
+                    resgrupid.push(curgr["Id"]);
                 }
             } else {
                 var curgr = tmp;
-                var restyp = resourcetyper[typeid.indexOf(curgr["ResourceType"]["Reference"])];
+                var restyp = resourcetyper[restypeid.indexOf(curgr["ResourceType"]["Reference"])];
                 var resgr = new ResourceGroup(curgr["Id"], curgr["Name"], restyp);
                 resourcegrupper.push(resgr);
                 restyp.resourcegroups.push(resgr);
-                grupid.push(curgr["Id"]);
+                resgrupid.push(curgr["Id"]);
             }
         }
         tmp = res["Resource"];
         for(var key in tmp) {
             //vil fejl ved kun 1 resource
             var curres = tmp[key];
-            var nyres = new Resource(curres["Name"], curres["Id"], resourcetyper[typeid.indexOf(curres["ResourceType"]["Reference"])]);
+            var nyres = new Resource(curres["Name"], curres["Id"], resourcetyper[restypeid.indexOf(curres["ResourceType"]["Reference"])]);
             for(var key2 in curres["ResourceGroups"]["ResourceGroup"]) {
                 k = curres["ResourceGroups"]["ResourceGroup"][key2];
-                if(resgr = resourcegrupper[grupid.indexOf(k)]) {
+                if(resgr = resourcegrupper[resgrupid.indexOf(k)]) {
                     if(resgr === undefined) {
                         alert('fejl ved ' + curres["Id"]);
                     } else {
@@ -371,7 +395,7 @@ var instans;
                         nyres.resourcegroups.push(resgr);
                     }
                 } else {
-                    var resgr = resourcegrupper[grupid.indexOf(k["Reference"])];
+                    var resgr = resourcegrupper[resgrupid.indexOf(k["Reference"])];
                     if(resgr === undefined) {
                         alert('fejl ved ' + curres["Id"]);
                     } else {
@@ -468,10 +492,10 @@ var instans;
                 if(curev["Resources"]["Resource"]) {
                     if(curev["Resources"]["Resource"] instanceof Array) {
                         for(var i = 0, len = curev["Resources"]["Resource"].length; i < len; i++) {
-                            lavres(curev["Resources"]["Resource"][i], resid, nyev, typeid);
+                            lavres(curev["Resources"]["Resource"][i], resid, nyev, restypeid);
                         }
                     } else {
-                        lavres(curev["Resources"]["Resource"], resid, nyev, typeid);
+                        lavres(curev["Resources"]["Resource"], resid, nyev, restypeid);
                     }
                 }
             }
@@ -483,10 +507,10 @@ var instans;
         for(var key in con) {
             if(con[key] instanceof Array) {
                 for(var i = 0, len = con[key].length; i < len; i++) {
-                    lavcon(con[key][i], key, evgruppeid, evid, resid, grupid);
+                    lavcon(con[key][i], key, evgruppeid, evid, resid, resgrupid, tidid, tidgruppeid);
                 }
             } else {
-                lavcon(con[key], key, evgruppeid, evid, resid, grupid);
+                lavcon(con[key], key, evgruppeid, evid, resid, resgrupid, tidid, tidgruppeid);
             }
         }
     }
@@ -567,6 +591,10 @@ var instans;
             var curres = resourcer[resid.indexOf(thisres["Reference"])];
             if(curres) {
                 nyev.eventresourcer.push(curres);
+                if(!curres.preass) {
+                    curres.preass = [];
+                }
+                curres.preass.push(nyev);
             } else {
                 alert('fejl5 ved indlæsning af resource for ');
             }
@@ -586,7 +614,7 @@ var instans;
             }
         }
     }
-    function lavcon(constraint, type, evgruppeid, evid, resid, grupid) {
+    function lavcon(constraint, type, evgruppeid, evid, resid, grupid, tidid, tidgrupid) {
         //var nycon: Constraint;
         var na = constraint["Name"];
         var id = constraint["Id"];
@@ -617,6 +645,9 @@ var instans;
             case "DistributeSplitEventsConstraint":
                 assert(na, true);
                 break;
+            case "AvoidClashesConstraint":
+                var nycon = new AvoidClashesConstraint(id, na, we, co);
+                break;
             default:
                 // alert constraint ikke understøttet    var fddfdfsk = constraint["jk"]["jk"];
                 break;
@@ -627,7 +658,7 @@ var instans;
                 //       if ("EventGroups" in appliesto) //if array
                 if(appliesto["Events"]["Event"] instanceof Array) {
                     for(var key in appliesto["Events"]["Event"]) {
-                        nycon.appliestogre.push(eventgrupper[evid.indexOf(appliesto["Events"]["Event"][key]["Reference"])]);
+                        nycon.appliestoevgrou.push(eventgrupper[evid.indexOf(appliesto["Events"]["Event"][key]["Reference"])]);
                     }
                 } else {
                     nycon.appliestoev.push(events[evid.indexOf(appliesto["Events"]["Event"]["Reference"])]);
@@ -638,7 +669,7 @@ var instans;
                 if(appliesto["EventGroups"]["EventGroup"] instanceof Array) {
                     for(var key in appliesto["EventGroups"]["EventGroup"]) {
                         var gr = eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"][key]["Reference"])];
-                        nycon.appliestogre.push(gr);
+                        nycon.appliestoevgrou.push(gr);
                         for(var i = 0, len = gr.events.length; i < len; i++) {
                             if(nycon.appliestoev.indexOf(gr.events[i]) == -1) {
                                 nycon.appliestoev.push(gr.events[i]);
@@ -647,10 +678,42 @@ var instans;
                     }
                 } else {
                     var gr = eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"]["Reference"])];
-                    nycon.appliestogre.push(gr);
+                    nycon.appliestoevgrou.push(gr);
                     for(var i = 0, len = gr.events.length; i < len; i++) {
                         if(nycon.appliestoev.indexOf(gr.events[i]) == -1) {
                             nycon.appliestoev.push(gr.events[i]);
+                        }
+                    }
+                }
+            }
+            if(constraint["Times"]) {
+                var t = constraint["Times"]["Time"];
+                if(t instanceof Array) {
+                    for(var key in t) {
+                        nycon.timer.push(timer[tidid.indexOf(t[key]["Reference"])]);
+                    }
+                } else {
+                    nycon.timer.push(timer[tidid.indexOf(t["Reference"])]);
+                }
+            }
+            if(constraint["TimeGroups"]) {
+                var tg = constraint["TimeGroups"]["TimeGroup"];
+                if(tg instanceof Array) {
+                    for(var key in tg) {
+                        var tgr = tidsgrupper[tidgrupid.indexOf(tg[key]["Reference"])];
+                        nycon.timegroups.push(tgr);
+                        for(var i = 0, len = tgr.timer.length; i < len; i++) {
+                            if(nycon.timer.indexOf(tgr.timer[i]) == -1) {
+                                nycon.timer.push(tgr.timer[i]);
+                            }
+                        }
+                    }
+                } else {
+                    var tgr = tidsgrupper[tidgrupid.indexOf(tg["Reference"])];
+                    nycon.timegroups.push(tgr);
+                    for(var i = 0, len = tgr.timer.length; i < len; i++) {
+                        if(nycon.timer.indexOf(tgr.timer[i]) == -1) {
+                            nycon.timer.push(tgr.timer[i]);
                         }
                     }
                 }
@@ -662,14 +725,14 @@ var instans;
                 if(appliesto["ResourceGroup"] instanceof Array) {
                     for(var key in appliesto["ResourceGroup"]) {
                         var egr = resourcegrupper[grupid.indexOf(appliesto["ResourceGroup"][key]["Reference"])];
-                        nycon.appliestogrr.push(egr);
+                        nycon.appliestoresgrou.push(egr);
                         /*                        for (var i = 0, len = gr.events.length; i < len; i++)
                         if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
                         nycon.appliestoev.push(gr.events[i]);*/
                                             }
                 } else {
                     var egr = resourcegrupper[grupid.indexOf(appliesto["ResourceGroup"]["Reference"])];
-                    nycon.appliestogrr.push(egr);
+                    nycon.appliestoresgrou.push(egr);
                 }
             }
             /*              }
@@ -687,6 +750,7 @@ var instans;
             nycon = ac;
             }*/
             if(ha) {
+                // if (nycon =prefertimes - angiv de mulige tider i eventsene
                 hardconstraints.push(nycon);
             } else {
                 softconstraints.push(nycon);

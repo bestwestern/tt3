@@ -12,23 +12,27 @@ module instans {
         id: string;
         name: string;
         weight: number;
-        appliestogre: EventGroup[];
+        appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
-        appliestogrr: ResourceGroup[];
+        appliestoresgrou: ResourceGroup[];
         appliestores: Resource[];
         role: string;
+        timer: Time[];
+        timegroups: TimeGroup[];
         costfunction: (afv: number[]) => number;
         //costfunction
     }
     export class AssignResourceConstraint implements Constraint {
-        appliestogre: EventGroup[];
+        appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
-        appliestogrr: ResourceGroup[];
+        appliestoresgrou: ResourceGroup[];
         appliestores: Resource[];
+        timegroups: TimeGroup[];
+        timer: Time[];
         //    appliestoma: Mangel[];
         costfunction: (afv: number[]) => number;
         constructor(public id: string, public name: string, public weight: number, costfunction: string, public role: string) {
-            this.appliestogre = [];
+            this.appliestoevgrou = [];
             this.appliestoev = [];
             //   this.appliestoma = [];
             switch (costfunction.toLowerCase()) {
@@ -40,14 +44,16 @@ module instans {
     }
 
     export class AssignTimeConstraint implements Constraint {
-        appliestogre: EventGroup[];
+        appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
-        appliestogrr: ResourceGroup[];
+        appliestoresgrou: ResourceGroup[];
+        timegroups: TimeGroup[];
+        timer: Time[];
         appliestores: Resource[];
         role: string;
         costfunction: (afv: number[]) => number;
         constructor(public id: string, public name: string, public weight: number, costfunction: string) {
-            this.appliestogre = [];
+            this.appliestoevgrou = [];
             this.appliestoev = [];
             switch (costfunction.toLowerCase()) {
                 case "sum":
@@ -57,17 +63,19 @@ module instans {
         }
     }
 
-    class PreferResourcesConstraint implements Constraint {
-        appliestogre: EventGroup[];
+    export class PreferResourcesConstraint implements Constraint {
+        appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
-        appliestogrr: ResourceGroup[];
+        appliestoresgrou: ResourceGroup[];
+        timer: Time[];
+        timegroups: TimeGroup[];
         appliestores: Resource[];
         role: string;
         costfunction: (afv: number[]) => number;
         constructor(public id: string, public name: string, public weight: number, costfunction: string) {
-            this.appliestogre = [];
+            this.appliestoevgrou = [];
             this.appliestoev = [];
-            this.appliestogrr = [];
+            this.appliestoresgrou = [];
             this.appliestores = [];
             switch (costfunction.toLowerCase()) {
                 case "sum":
@@ -75,17 +83,43 @@ module instans {
             }
         }
     }
-    class PreferTimesConstraint implements Constraint {
-        appliestogre: EventGroup[];
+
+    export class AvoidClashesConstraint implements Constraint {
+        appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
-        appliestogrr: ResourceGroup[];
+        appliestoresgrou: ResourceGroup[];
+        timer: Time[];
+        timegroups: TimeGroup[];
         appliestores: Resource[];
+        role: string;
+        costfunction: (afv: number[]) => number;
+        constructor(public id: string, public name: string, public weight: number, costfunction: string) {
+            this.appliestoresgrou = [];
+            this.appliestores = [];
+            switch (costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+            }
+        }
+    }
+
+
+    
+    export class PreferTimesConstraint implements Constraint {
+        appliestoevgrou: EventGroup[];
+        appliestoev: AEvent[];
+        appliestoresgrou: ResourceGroup[];
+        timer: Time[];
+        appliestores: Resource[];
+        timegroups: TimeGroup[];
 
         role: string;
         costfunction: (afv: number[]) => number;
         constructor(public id: string, public name: string, public weight: number, costfunction: string) {
-            this.appliestogre = [];
+            this.appliestoevgrou = [];
             this.appliestoev = [];
+            this.timegroups = [];
+            this.timer = [];
             switch (costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
@@ -93,17 +127,20 @@ module instans {
             }
         }
     }
-    class SpreadEventsConstraint implements Constraint {
-        appliestogre: EventGroup[];
+    export class SpreadEventsConstraint implements Constraint {
+        appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
-        appliestogrr: ResourceGroup[];
+        appliestoresgrou: ResourceGroup[];
         appliestores: Resource[];
-
+        timegroups: TimeGroup[];
         role: string;
         costfunction: (afv: number[]) => number;
+        timer: Time[];
 
         constructor(public id: string, public name: string, public weight: number, costfunction: string) {
-            this.appliestogre = [];
+            this.appliestoevgrou = [];
+            this.timegroups = [];
+            this.timer = [];
             this.appliestoev = [];
             switch (costfunction.toLowerCase()) {
                 case "sum":
@@ -165,6 +202,7 @@ module instans {
     export class Resource extends Entity {
         index: number;
         resourcegroups: ResourceGroup[];
+        preass: AEvent[];
         constructor(name: string, id: string, public resourcetype: ResourceType) {
             super(id, name);
             this.resourcegroups = [];
@@ -178,6 +216,7 @@ module instans {
         eventtidmangler: TidMangel[];
         eventresourcegrupper: ResourceGroup[];
         eventeventgrupper: EventGroup[];
+        muligetider: Time[];
         constructor(public id: string, public name: string, public duration: number, public workload?: number,
             public preasigntime?: Time) {
             this.eventeventgrupper = [];
@@ -225,8 +264,9 @@ module instans {
         tidmangler = [];
 
         var k, kk: any;
-        var gruppeid: string[] = [];
+        var tidgruppeid: string[] = [];
         var resid: string[] = [];
+        var tidid: string[] = [];
         var times = nobj["Instances"]["Instance"]["Times"];
         var grps = times["TimeGroups"];
         xmlinstans = nobj["Instances"]["Instance"]["Id"];
@@ -235,11 +275,11 @@ module instans {
             if (tmp instanceof Array)
                 for (var key in tmp) {
                     tidsgrupper.push(new Week(tmp[key]["Id"], tmp[key]["Name"]));
-                    gruppeid.push(tmp[key]["Id"]);
+                    tidgruppeid.push(tmp[key]["Id"]);
                 }
             else {
                 tidsgrupper.push(new Week(tmp["Id"], tmp["Name"]));
-                gruppeid.push(tmp["Id"]);
+                tidgruppeid.push(tmp["Id"]);
             }
         }
         if ("Day" in grps) {
@@ -247,11 +287,11 @@ module instans {
             if (tmp instanceof Array)
                 for (var key in tmp) {
                     tidsgrupper.push(new Day(tmp[key]["Id"], tmp[key]["Name"]));
-                    gruppeid.push(tmp[key]["Id"]);
+                    tidgruppeid.push(tmp[key]["Id"]);
                 }
             else {
                 tidsgrupper.push(new Day(tmp["Id"], tmp["Name"]));
-                gruppeid.push(tmp["Id"]);
+                tidgruppeid.push(tmp["Id"]);
             }
         }
         if ("TimeGroup" in grps) {
@@ -259,11 +299,11 @@ module instans {
             if (tmp instanceof Array)
                 for (var key in tmp) {
                     tidsgrupper.push(new TimeGroup(tmp[key]["Id"], tmp[key]["Name"]));
-                    gruppeid.push(tmp[key]["Id"]);
+                    tidgruppeid.push(tmp[key]["Id"]);
                 }
             else {
                 tidsgrupper.push(new TimeGroup(tmp["Id"], tmp["Name"]));
-                gruppeid.push(tmp["Id"]);
+                tidgruppeid.push(tmp["Id"]);
             }
         }
         grps = null;
@@ -272,13 +312,13 @@ module instans {
             var curtime = tmp[key];
             var nytime = new Time(curtime["Id"], curtime["Name"]);
             if (curtime["Week"]) {
-                var tmg = tidsgrupper[gruppeid.indexOf(curtime["Week"]["Reference"])];
+                var tmg = tidsgrupper[tidgruppeid.indexOf(curtime["Week"]["Reference"])];
                 nytime.timegroups.push(tmg);
                 tmg.timer.push(nytime);
 
             }
             if (curtime["Day"]) {
-                var tmg = tidsgrupper[gruppeid.indexOf(curtime["Day"]["Reference"])];
+                var tmg = tidsgrupper[tidgruppeid.indexOf(curtime["Day"]["Reference"])];
                 nytime.timegroups.push(tmg);
                 tmg.timer.push(nytime);
             }
@@ -290,27 +330,28 @@ module instans {
                         //hvis ikke er tidsgruppen k
                         k = k["Reference"];
                     }
-                    var tmg = tidsgrupper[gruppeid.indexOf(k)];
+                    var tmg = tidsgrupper[tidgruppeid.indexOf(k)];
                     nytime.timegroups.push(tmg);
                     tmg.timer.push(nytime);
                 }
             }
             timer.push(nytime);
+            tidid.push(nytime.id);
         }
 
         var res = nobj["Instances"]["Instance"]["Resources"];
-        var typeid: string[] = [];
-        var grupid: string[] = [];
+        var restypeid: string[] = [];
+        var resgrupid: string[] = [];
         if (res["ResourceTypes"]) {
             tmp = res["ResourceTypes"]["ResourceType"];
             if (tmp instanceof Array)
                 for (var key in tmp) {
                     resourcetyper.push(new ResourceType(tmp[key]["Name"], tmp[key]["Id"]));
-                    typeid.push(tmp[key]["Id"]);
+                    restypeid.push(tmp[key]["Id"]);
                 }
             else {
                 resourcetyper.push(new ResourceType(tmp["Name"], tmp["Id"]));
-                typeid.push(tmp["Id"]);
+                restypeid.push(tmp["Id"]);
             }
 
         }
@@ -319,29 +360,29 @@ module instans {
             if (tmp instanceof Array)
                 for (var key in tmp) {
                     var curgr = tmp[key];
-                    var restyp = resourcetyper[typeid.indexOf(curgr["ResourceType"]["Reference"])];
+                    var restyp = resourcetyper[restypeid.indexOf(curgr["ResourceType"]["Reference"])];
                     var resgr = new ResourceGroup(curgr["Id"], curgr["Name"], restyp);
                     resourcegrupper.push(resgr);
                     restyp.resourcegroups.push(resgr);
-                    grupid.push(curgr["Id"]);
+                    resgrupid.push(curgr["Id"]);
                 }
             else {
                 var curgr = tmp;
-                var restyp = resourcetyper[typeid.indexOf(curgr["ResourceType"]["Reference"])];
+                var restyp = resourcetyper[restypeid.indexOf(curgr["ResourceType"]["Reference"])];
                 var resgr = new ResourceGroup(curgr["Id"], curgr["Name"], restyp);
                 resourcegrupper.push(resgr);
                 restyp.resourcegroups.push(resgr);
-                grupid.push(curgr["Id"]);
+                resgrupid.push(curgr["Id"]);
             }
         }
         tmp = res["Resource"];
         for (var key in tmp) {//vil fejl ved kun 1 resource
             var curres = tmp[key];
             var nyres = new Resource(curres["Name"], curres["Id"],
-                resourcetyper[typeid.indexOf(curres["ResourceType"]["Reference"])]);
+                resourcetyper[restypeid.indexOf(curres["ResourceType"]["Reference"])]);
             for (var key2 in curres["ResourceGroups"]["ResourceGroup"]) {
                 k = curres["ResourceGroups"]["ResourceGroup"][key2];
-                if (resgr = resourcegrupper[grupid.indexOf(k)]) {
+                if (resgr = resourcegrupper[resgrupid.indexOf(k)]) {
                     if (resgr === undefined)
                         alert('fejl ved ' + curres["Id"]);
                     else {
@@ -351,7 +392,7 @@ module instans {
 
                 }
                 else {
-                    var resgr = resourcegrupper[grupid.indexOf(k["Reference"])];
+                    var resgr = resourcegrupper[resgrupid.indexOf(k["Reference"])];
                     if (resgr === undefined)
                         alert('fejl ved ' + curres["Id"]);
                     else {
@@ -444,9 +485,9 @@ module instans {
                 if (curev["Resources"]["Resource"])
                     if (curev["Resources"]["Resource"] instanceof Array)
                         for (var i = 0, len = curev["Resources"]["Resource"].length; i < len; i++)
-                            lavres(curev["Resources"]["Resource"][i], resid, nyev, typeid)
+                            lavres(curev["Resources"]["Resource"][i], resid, nyev, restypeid)
                     else
-                        lavres(curev["Resources"]["Resource"], resid, nyev, typeid);
+                        lavres(curev["Resources"]["Resource"], resid, nyev, restypeid);
 
 
             }
@@ -459,9 +500,9 @@ module instans {
         for (var key in con)
             if (con[key] instanceof Array)
                 for (var i = 0, len = con[key].length; i < len; i++)
-                    lavcon(con[key][i], key, evgruppeid, evid, resid, grupid)
+                    lavcon(con[key][i], key, evgruppeid, evid, resid, resgrupid, tidid, tidgruppeid)
             else
-                lavcon(con[key], key, evgruppeid, evid, resid, grupid)
+                lavcon(con[key], key, evgruppeid, evid, resid, resgrupid, tidid, tidgruppeid)
     }
     export function readxml(url) {
         var xmlhttp = new XMLHttpRequest();
@@ -517,7 +558,7 @@ module instans {
             var c, cn;
             for (c = 0; cn = node.attributes[c]; c++) {
                 Add(cn.name, cn.value);
-                }
+            }
 
             // child elements
             for (c = 0; cn = node.childNodes[c]; c++) {
@@ -539,8 +580,12 @@ module instans {
     function lavres(thisres: Object, resid: string[], nyev: AEvent, typeid: string[]) {
         if ("Reference" in thisres) {
             var curres = resourcer[resid.indexOf(thisres["Reference"])];
-            if (curres)
+            if (curres) {
                 nyev.eventresourcer.push(curres);
+                if (!curres.preass)
+                    curres.preass = [];
+                curres.preass.push(nyev);
+            }
             else
                 alert('fejl5 ved indlæsning af resource for ');
         }
@@ -548,7 +593,7 @@ module instans {
             if ("Role" in thisres && "ResourceType" in thisres) {
                 var curtype = resourcetyper[typeid.indexOf(thisres["ResourceType"]["Reference"])];
                 if (curtype)
-                    for (var i = 0, len = nyev.duration ; i < len; i++)
+                    for (var i = 0, len = nyev.duration; i < len; i++)
                         nyev.eventresmangler.push(new ResMangel(thisres["Role"], curtype, nyev, i, thisres["Workload"]));
                 else
                     alert('fejlx v res event');
@@ -560,7 +605,7 @@ module instans {
         }
 
     }
-    function lavcon(constraint: Object, type: string, evgruppeid: string[], evid: string[], resid: string[], grupid: string[]) {
+    function lavcon(constraint: Object, type: string, evgruppeid: string[], evid: string[], resid: string[], grupid: string[], tidid: string[], tidgrupid: string[]) {
         //var nycon: Constraint;
         var na = constraint["Name"];
         var id = constraint["Id"];
@@ -591,7 +636,9 @@ module instans {
             case "DistributeSplitEventsConstraint":
                 assert(na, true);
                 break;
-
+            case "AvoidClashesConstraint":
+                var nycon = new AvoidClashesConstraint(id, na, we, co);
+                break;
             default:
 
                 // alert constraint ikke understøttet    var fddfdfsk = constraint["jk"]["jk"];
@@ -604,7 +651,7 @@ module instans {
                 //       if ("EventGroups" in appliesto) //if array
                 if (appliesto["Events"]["Event"] instanceof Array)
                     for (var key in appliesto["Events"]["Event"])
-                        nycon.appliestogre.push(eventgrupper[evid.indexOf(appliesto["Events"]["Event"][key]["Reference"])]);
+                        nycon.appliestoevgrou.push(eventgrupper[evid.indexOf(appliesto["Events"]["Event"][key]["Reference"])]);
                 else
                     nycon.appliestoev.push(events[evid.indexOf(appliesto["Events"]["Event"]["Reference"])]);
             }
@@ -613,19 +660,47 @@ module instans {
                 if (appliesto["EventGroups"]["EventGroup"] instanceof Array)
                     for (var key in appliesto["EventGroups"]["EventGroup"]) {
                         var gr = eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"][key]["Reference"])];
-                        nycon.appliestogre.push(gr);
+                        nycon.appliestoevgrou.push(gr);
                         for (var i = 0, len = gr.events.length; i < len; i++)
                             if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
                                 nycon.appliestoev.push(gr.events[i]);
                     }
                 else {
                     var gr = eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"]["Reference"])];
-                    nycon.appliestogre.push(gr);
+                    nycon.appliestoevgrou.push(gr);
                     for (var i = 0, len = gr.events.length; i < len; i++)
                         if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
                             nycon.appliestoev.push(gr.events[i]);
                 }
             }
+            if (constraint["Times"]) {
+                var t = constraint["Times"]["Time"];
+                if (t instanceof Array)
+                    for (var key in t)
+                        nycon.timer.push(timer[tidid.indexOf(t[key]["Reference"])]);
+                else
+                    nycon.timer.push(timer[tidid.indexOf(t["Reference"])]);
+            }
+            if (constraint["TimeGroups"]) {
+                var tg = constraint["TimeGroups"]["TimeGroup"];
+                if (tg instanceof Array) {
+                    for (var key in tg) {
+                        var tgr = tidsgrupper[tidgrupid.indexOf(tg[key]["Reference"])];
+                        nycon.timegroups.push(tgr);
+                        for (var i = 0, len = tgr.timer.length; i < len; i++)
+                            if (nycon.timer.indexOf(tgr.timer[i]) == -1)
+                                nycon.timer.push(tgr.timer[i]);
+                    }
+                }
+                else {
+                    var tgr = tidsgrupper[tidgrupid.indexOf(tg["Reference"])];
+                    nycon.timegroups.push(tgr);
+                    for (var i = 0, len = tgr.timer.length; i < len; i++)
+                        if (nycon.timer.indexOf(tgr.timer[i]) == -1)
+                            nycon.timer.push(tgr.timer[i]);
+                }
+            }
+
             if (constraint["Resource"]) {
                 //implemter
             }
@@ -634,14 +709,14 @@ module instans {
                 if (appliesto["ResourceGroup"] instanceof Array)
                     for (var key in appliesto["ResourceGroup"]) {
                         var egr: ResourceGroup = resourcegrupper[grupid.indexOf(appliesto["ResourceGroup"][key]["Reference"])];
-                        nycon.appliestogrr.push(egr);
+                        nycon.appliestoresgrou.push(egr);
                         /*                        for (var i = 0, len = gr.events.length; i < len; i++)
                                                     if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
                                                         nycon.appliestoev.push(gr.events[i]);*/
                     }
                 else {
                     var egr: ResourceGroup = resourcegrupper[grupid.indexOf(appliesto["ResourceGroup"]["Reference"])];
-                    nycon.appliestogrr.push(egr);
+                    nycon.appliestoresgrou.push(egr);
                 }
             }
             /*              }
@@ -658,7 +733,7 @@ module instans {
                             }
                             nycon = ac;
                             }*/
-            if (ha)
+            if (ha)// if (nycon =prefertimes - angiv de mulige tider i eventsene
                 hardconstraints.push(nycon);
             else
                 softconstraints.push(nycon);

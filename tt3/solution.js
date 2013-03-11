@@ -2,11 +2,13 @@
 (function (solution) {
     var Sol = (function () {
         function Sol() {
-            this.restildelinger = [];
-            this.tidtildelinger = [];
+            this.resmangeltildelinger = [];
+            this.tidmangeltildelinger = [];
+            this.restiltid = [];
+            this.restileve = [];
         }
         Sol.prototype.udregncon = function (hardcon) {
-            //frisk udregning (uden gemte tidligere værdier
+            //frisk udregning (uden gemte tidligere værdier) bør måske ikke lave prefertimes hvis hardcon? - opdel udregn i hard og soft
             var constrarr = hardcon ? hardconstraints : softconstraints;
             for(var c = 0, lencon = constrarr.length; c < lencon; c++) {
                 var constr = constrarr[c];
@@ -19,7 +21,7 @@
                         var eventafvigelse = 0;
                         var eventtidmngler = constr.appliestoev[i].eventtidmangler;
                         for(var j = 0; j < eventtidmngler.length; j++) {
-                            if(this.tidtildelinger[eventtidmngler[j].index] == null) {
+                            if(this.tidmangeltildelinger[eventtidmngler[j].index] == null) {
                                 eventafvigelse++;
                             }
                         }
@@ -32,8 +34,24 @@
                         var eventafvigelse = 0;
                         var eventresmangler = constr.appliestoev[i].eventresmangler;
                         for(var j = 0; j < eventresmangler.length; j++) {
-                            if(this.restildelinger[eventresmangler[j].index] == null) {
+                            if(this.resmangeltildelinger[eventresmangler[j].index] == null) {
                                 eventafvigelse++;
+                            }
+                        }
+                        constrafvigelser.push(eventafvigelse);
+                    }
+                }
+                if(constr instanceof instans.PreferTimesConstraint) {
+                    var constr = constr;
+                    for(var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
+                        var eventafvigelse = 0;
+                        var eventtidmngler = constr.appliestoev[i].eventtidmangler;
+                        for(var j = 0; j < eventtidmngler.length; j++) {
+                            var tildelttid = this.tidmangeltildelinger[eventtidmngler[j].index];
+                            if(tildelttid != null) {
+                                if(constr.timer.indexOf(timer[tildelttid]) < 0) {
+                                    eventafvigelse++;
+                                }
                             }
                         }
                         constrafvigelser.push(eventafvigelse);
@@ -43,7 +61,7 @@
                     var li = document.createElement("li");
                     samlconstrafvigelse = constr.costfunction(constrafvigelser) * constr.weight;
                     li.appendChild(document.createTextNode(constr.name + ':' + samlconstrafvigelse.toString() + ':' + constrafvigelser.toString()));
-                    var conliste = document.getElementById("hardcon");
+                    var conliste = hardcon ? document.getElementById("hardcon") : document.getElementById("softcon");
                     conliste.insertBefore(li, conliste.firstChild);
                     //                    appendChild(li);
                                     }

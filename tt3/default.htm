@@ -18,11 +18,11 @@
                 var xmlDoc = document.implementation.createDocument("", "fruits", fruitDocType);
                 for (var i = 0; i < 1000; i++) {
                     var fruitNode = xmlDoc.createElement("fruit");
-                    fruitNode.setAttribute("name", "avocado"+i);
+                    fruitNode.setAttribute("name", "avocado" + i);
                     xmlDoc.documentElement.appendChild(fruitNode);
                 }
                 var serializer = new XMLSerializer();
-        //        window.open('data:text/xml,' + serializer.serializeToString(xmlDoc));
+                //        window.open('data:text/xml,' + serializer.serializeToString(xmlDoc));
                 // alert(serializer.serializeToString(xmlDoc));
             }
             else {
@@ -40,7 +40,10 @@
         <div id="content"></div>
     </div>
     <div id="footer">
+        hard
         <ul id="hardcon"></ul>
+        soft
+        <ul id="softcon"></ul>
 
 
     </div>

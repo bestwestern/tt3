@@ -27,6 +27,10 @@ window.onload = function () {
     alert('worker virker');
     else
     alert('not');*/
+    var test = [];
+    test[3] = [
+        5
+    ];
     var filenames = [
         "DenmarkSmallSchool", 
         "test", 
@@ -47,14 +51,17 @@ window.onload = function () {
         "SpainSchool", 
         "ItalyInstance1"
     ];
-    /*  for (var i = 0; i < filenames.length; i++) {
-    events = [];
-    instans.readxml("XML/" + filenames[i] + ".xml");
-    vistsol = new solution.Sol();
-    if (events.length > 0)
-    $('#content').html(lavtablerowhtml(vistsol));
-    assert(true, events.length.toString());
-    }*/
+    var alle = 1;
+    if(alle) {
+        for(var i = 0; i < filenames.length; i++) {
+            events = [];
+            instans.readxml("XML/" + filenames[i] + ".xml");
+            /*vistsol = new solution.Sol();
+            if (events.length > 0)
+            $('#content').html(lavtablerowhtml(vistsol));
+            assert(true, events.length.toString());*/
+                    }
+    }
     instans.readxml("XML/" + filenames[0] + ".xml");
     vistsol = new solution.Sol();
     $('#content').html(lavtablerowhtml(vistsol));
@@ -88,7 +95,7 @@ function lavxml() {
             var ev = addnode("Event", eventsnode);
             ev.setAttribute("Reference", thisevent.id);
             addnode("Duration", ev, "1");
-            var tildtid = vistsol.tidtildelinger[thisevent.eventtidmangler[j].index];
+            var tildtid = vistsol.tidmangeltildelinger[thisevent.eventtidmangler[j].index];
             var tin = addnode("Time", ev);
             if(tildtid) {
                 tin.setAttribute("Reference", timer[tildtid].id);
@@ -101,7 +108,7 @@ function lavxml() {
                 var jkl = 4;
             }
             for(var k = j; k < thisevent.eventresmangler.length; k += thisevent.duration) {
-                var tilres = vistsol.restildelinger[thisevent.eventresmangler[k].index];
+                var tilres = vistsol.resmangeltildelinger[thisevent.eventresmangler[k].index];
                 if(tilres) {
                     var nyres = addnode("Resource", reses);
                     nyres.setAttribute("Reference", resourcer[tilres].id);
@@ -145,9 +152,9 @@ function addnode(navn, parent, txt) {
 }
 function choicemade(tidangivet, mangelindex, dropdown) {
     if(tidangivet) {
-        var arr = vistsol.tidtildelinger;
+        var arr = vistsol.tidmangeltildelinger;
     } else {
-        var arr = vistsol.restildelinger;
+        var arr = vistsol.resmangeltildelinger;
     }
     var nyval = Number(dropdown.options[dropdown.selectedIndex].value);
     if(isNaN(nyval)) {
@@ -157,6 +164,7 @@ function choicemade(tidangivet, mangelindex, dropdown) {
     }
     $('#content').html(lavtablerowhtml(vistsol));
     vistsol.udregncon(true);
+    vistsol.udregncon(false);
 }
 function assert(value, desc) {
     var resultsList = document.getElementById("results");
@@ -204,7 +212,7 @@ function lavtablerowhtml(solin) {
                 htmltxt += navn + "</td><td>Time:" + valgttid.name + "</td>";
             } else {
                 var tiddropi = tiddrop;
-                var tidvalg = solin.tidtildelinger[ievent.eventtidmangler[durationindex].index];
+                var tidvalg = solin.tidmangeltildelinger[ievent.eventtidmangler[durationindex].index];
                 if(tidvalg > -2) {
                     tiddropi = tiddropi.replace("'" + tidvalg + "'", "'" + tidvalg + "' selected");
                 }
@@ -232,7 +240,7 @@ function lavtablerowhtml(solin) {
                     restypedropdown[restype] = selecthtml;
                 }
                 var drop = restypedropdown[restype];
-                var resvalg = solin.restildelinger[ievent.eventresmangler[mnglindex].index];
+                var resvalg = solin.resmangeltildelinger[ievent.eventresmangler[mnglindex].index];
                 if(resvalg > -2) {
                     drop = drop.replace("'" + resvalg + "'", "'" + resvalg + "' selected");
                 }
