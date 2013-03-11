@@ -13,10 +13,10 @@ module solution {
             this.restildelinger = [];
             this.tidtildelinger = [];
         }
-        udregnhard() {//frisk udregning (uden gemte tidligere værdier
-            for (var c = 0, lencon = hardconstraints.length; c < lencon; c++) {
-
-                var constr = hardconstraints[c];
+        udregncon(hardcon: bool) {//frisk udregning (uden gemte tidligere værdier
+            var constrarr:instans.Constraint[] = hardcon ? hardconstraints : softconstraints;
+            for (var c = 0, lencon = constrarr.length; c < lencon; c++) {
+                var constr = constrarr[c];
                 var constrafvigelser: number[] = [];
                 var samlconstrafvigelse = 0;
                 var constrstraf = 0;

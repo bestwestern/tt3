@@ -156,7 +156,7 @@ function choicemade(tidangivet, mangelindex, dropdown) {
         arr[mangelindex] = nyval;
     }
     $('#content').html(lavtablerowhtml(vistsol));
-    vistsol.udregnhard();
+    vistsol.udregncon(true);
 }
 function assert(value, desc) {
     var resultsList = document.getElementById("results");

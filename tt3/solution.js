@@ -5,10 +5,11 @@
             this.restildelinger = [];
             this.tidtildelinger = [];
         }
-        Sol.prototype.udregnhard = function () {
+        Sol.prototype.udregncon = function (hardcon) {
             //frisk udregning (uden gemte tidligere værdier
-            for(var c = 0, lencon = hardconstraints.length; c < lencon; c++) {
-                var constr = hardconstraints[c];
+            var constrarr = hardcon ? hardconstraints : softconstraints;
+            for(var c = 0, lencon = constrarr.length; c < lencon; c++) {
+                var constr = constrarr[c];
                 var constrafvigelser = [];
                 var samlconstrafvigelse = 0;
                 var constrstraf = 0;
