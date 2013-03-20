@@ -345,6 +345,7 @@ var instans;
             timer.push(nytime);
             tidid.push(nytime.id);
         }
+        antaltider = timer.length;
         var res = nobj["Instances"]["Instance"]["Resources"];
         var restypeid = [];
         var resgrupid = [];
@@ -407,6 +408,7 @@ var instans;
             resourcer.push(nyres);
             resid.push(nyres.id);
         }
+        antalresourcer = resourcer.length;
         var ev = nobj["Instances"]["Instance"]["Events"];
         var evgruppeid = [];
         if(ev["EventGroups"]) {

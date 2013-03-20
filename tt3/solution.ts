@@ -1,21 +1,36 @@
-/// <reference path="instans.ts" />
+/// <reference path="instans.ts" /> 
 /// <reference path="hoved.ts" />
 declare var x;
 
 module solution {
-
+    export class tildeling {
+        durationindex: number[];
+        eventindex: number[];
+        constructor() {
+            this.durationindex = [];
+            this.eventindex = [];
+        }
+    }
+    export class restider {
+        tider: tildeling[];//tider[tidindex]
+        constructor() {
+            this.tider = [];
+            for (var i = 0; i < antaltider; i++)
+                this.tider.push(new tildeling());
+        }
+    }
     export class Sol {
         tidmangeltildelinger: number[];//tidmangeltildelinger[i]=tidindex for tiden givet til tidmangel i
         resmangeltildelinger: number[];//resmangeltildelinger[i]=resindex for res givet til resmangel i
-        restiltid: number[];
-        restileve: number[][];
+        restiltid: restider[];//restider[resindex]
         hardcosts: number[];
         softcosts: number[];
         constructor() {
             this.resmangeltildelinger = [];
             this.tidmangeltildelinger = [];
             this.restiltid = [];
-            this.restileve = [];
+            for (var i = 0; i < antalresourcer; i++)
+                this.restiltid[i] = new restider();
         }
         udregncon(hardcon: bool) {//frisk udregning (uden gemte tidligere værdier) bør måske ikke lave prefertimes hvis hardcon? - opdel udregn i hard og soft
             var constrarr: instans.Constraint[] = hardcon ? hardconstraints : softconstraints;
@@ -75,9 +90,29 @@ module solution {
                     //                    appendChild(li);
                 }
             }
-            for (var i = 0; i < constrafvigelser.length; i++) {
+            if (constrafvigelser)
+                for (var i = 0; i < constrafvigelser.length; i++) {
+                }
+        }
+
+        fratagresourcetileventtiltid(resindex: number, durationindex: number, tidindex: number, eventindex: number) {
+            var tmp = this.restiltid[resindex].tider[tidindex];
+            var fundet = -1;
+            for (var i = 0; i < tmp.durationindex.length; i++) {
+                if (tmp.durationindex[i] == durationindex && tmp.eventindex[i] == eventindex)
+                    fundet = i;
+            }
+            if (fundet > -1) {
+                tmp.eventindex.splice(fundet, 1);
+                tmp.durationindex.splice(fundet, 1);
             }
         }
+        tildelresourcetileventtiltid(resindex: number, durationindex: number, tidindex: number, eventindex: number) {
+            var tmp = this.restiltid[resindex].tider[tidindex];
+            tmp.eventindex.push(eventindex);
+            tmp.durationindex.push(durationindex);
+        }
+
     }
 }
 /*  var hardafv = 0;

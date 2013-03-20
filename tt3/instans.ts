@@ -338,7 +338,7 @@ module instans {
             timer.push(nytime);
             tidid.push(nytime.id);
         }
-
+        antaltider = timer.length;
         var res = nobj["Instances"]["Instance"]["Resources"];
         var restypeid: string[] = [];
         var resgrupid: string[] = [];
@@ -404,6 +404,7 @@ module instans {
             resourcer.push(nyres);
             resid.push(nyres.id);
         }
+        antalresourcer = resourcer.length;
         var ev = nobj["Instances"]["Instance"]["Events"];
         var evgruppeid: string[] = [];
         if (ev["EventGroups"]) {

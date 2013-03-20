@@ -15,6 +15,8 @@ var resourcer: instans.Resource[];
 var eventgrupper: instans.EventGroup[];
 var events: instans.AEvent[];
 var antalevents: number;
+var antalresourcer: number;
+var antaltider: number;
 var hardconstraints: instans.Constraint[];
 var softconstraints: instans.Constraint[];
 var resmangler: instans.ResMangel[];
@@ -49,7 +51,7 @@ window.onload = () => {
     "SpainSchool",
     "ItalyInstance1"
     ];
-    var alle = 1;
+    var alle = 0;
     if (alle)
         for (var i = 0; i < filenames.length; i++) {
             events = [];
@@ -59,7 +61,7 @@ window.onload = () => {
                 $('#content').html(lavtablerowhtml(vistsol));
             assert(true, events.length.toString());*/
         }
-    instans.readxml("XML/" + filenames[0] + ".xml");
+    instans.readxml("XML/" + filenames[2] + ".xml");
     vistsol = new solution.Sol();
     $('#content').html(lavtablerowhtml(vistsol));
     // vistsol.udregnhard();
@@ -157,16 +159,40 @@ function addnode(navn: string, parent: any, txt?: string, ) {
     return ch;
 }
 function choicemade(tidangivet: bool, mangelindex: number, dropdown) {
+    var eventindex = dropdown.getAttribute('data-eventindex');
+    var durationindex = dropdown.getAttribute('data-durationindex');
+    var tidmangelindex = dropdown.getAttribute('data-tidmangelindex');
     if (tidangivet)
         var arr = vistsol.tidmangeltildelinger;
     else
         var arr = vistsol.resmangeltildelinger;
     var nyval = Number(dropdown.options[dropdown.selectedIndex].value);
-
+    var oldval = arr[mangelindex];
+    if (tidangivet && oldval !== undefined) {
+        for (var resindex = 0; resindex < antalresourcer; resindex++) {
+            var tmp = vistsol.restiltid[resindex].tider[oldval];
+            for (var j = 0; j < tmp.durationindex.length;   j++) {
+                if (tmp.durationindex[j] == durationindex && tmp.eventindex[j] == eventindex) {
+                    vistsol.fratagresourcetileventtiltid(resindex, durationindex, oldval, eventindex);
+                    vistsol.tildelresourcetileventtiltid(resindex, durationindex, nyval, eventindex);
+                }
+            }
+        }
+    }
+    else {
+        var tidindex = vistsol.tidmangeltildelinger[tidmangelindex];
+        if (tidindex != null) {
+            if (oldval !== undefined)
+                vistsol.fratagresourcetileventtiltid(oldval, durationindex, tidindex, eventindex);
+            if (!isNaN(nyval))
+                vistsol.tildelresourcetileventtiltid(nyval, durationindex, tidindex, eventindex);
+        }
+    }
     if (isNaN(nyval))
         arr[mangelindex] = null;
     else
         arr[mangelindex] = nyval;
+
     $('#content').html(lavtablerowhtml(vistsol));
     vistsol.udregncon(true);
     vistsol.udregncon(false);
@@ -217,7 +243,7 @@ function lavtablerowhtml(solin: solution.Sol) {
                 var tidvalg = solin.tidmangeltildelinger[ievent.eventtidmangler[durationindex].index];
                 if (tidvalg > -2)
                     tiddropi = tiddropi.replace("'" + tidvalg + "'", "'" + tidvalg + "' selected");
-                htmltxt += navn + "</td><td>Time:<select onchange='choicemade(true," +
+                htmltxt += navn + "</td><td>Time:<select  data-eventindex=" + ievent.index + "  data-durationindex=" + durationindex + "  data-tidmangelindex=" + ievent.eventtidmangler[durationindex].index + "   onchange='choicemade(true," +
                     ievent.eventtidmangler[durationindex].index + ",this)'>" + tiddropi + "</td>";
             }
             for (var mnglindex = durationindex; mnglindex < antalmngler ; mnglindex = mnglindex + ievent.duration) {
@@ -243,7 +269,7 @@ function lavtablerowhtml(solin: solution.Sol) {
                 var resvalg = solin.resmangeltildelinger[ievent.eventresmangler[mnglindex].index];
                 if (resvalg > -2)
                     drop = drop.replace("'" + resvalg + "'", "'" + resvalg + "' selected");
-                htmltxt += "<td> " + colrole + ":<select onchange='choicemade(false," +
+                htmltxt += "<td> " + colrole + ":<select data-eventindex=" + ievent.index + "  data-durationindex=" + durationindex + "  data-tidmangelindex=" + ievent.eventtidmangler[durationindex].index + " onchange='choicemade(false," +
                    ievent.eventresmangler[mnglindex].index + ",this)'>>" + drop + "</td>"
             }
         }

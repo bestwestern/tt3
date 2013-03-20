@@ -1,11 +1,32 @@
 ﻿var solution;
 (function (solution) {
+    var tildeling = (function () {
+        function tildeling() {
+            this.durationindex = [];
+            this.eventindex = [];
+        }
+        return tildeling;
+    })();
+    solution.tildeling = tildeling;    
+    var restider = (function () {
+        //tider[tidindex]
+        function restider() {
+            this.tider = [];
+            for(var i = 0; i < antaltider; i++) {
+                this.tider.push(new tildeling());
+            }
+        }
+        return restider;
+    })();
+    solution.restider = restider;    
     var Sol = (function () {
         function Sol() {
             this.resmangeltildelinger = [];
             this.tidmangeltildelinger = [];
             this.restiltid = [];
-            this.restileve = [];
+            for(var i = 0; i < antalresourcer; i++) {
+                this.restiltid[i] = new restider();
+            }
         }
         Sol.prototype.udregncon = function (hardcon) {
             //frisk udregning (uden gemte tidligere værdier) bør måske ikke lave prefertimes hvis hardcon? - opdel udregn i hard og soft
@@ -66,8 +87,28 @@
                     //                    appendChild(li);
                                     }
             }
-            for(var i = 0; i < constrafvigelser.length; i++) {
+            if(constrafvigelser) {
+                for(var i = 0; i < constrafvigelser.length; i++) {
+                }
             }
+        };
+        Sol.prototype.fratagresourcetileventtiltid = function (resindex, durationindex, tidindex, eventindex) {
+            var tmp = this.restiltid[resindex].tider[tidindex];
+            var fundet = -1;
+            for(var i = 0; i < tmp.durationindex.length; i++) {
+                if(tmp.durationindex[i] == durationindex && tmp.eventindex[i] == eventindex) {
+                    fundet = i;
+                }
+            }
+            if(fundet > -1) {
+                tmp.eventindex.splice(fundet, 1);
+                tmp.durationindex.splice(fundet, 1);
+            }
+        };
+        Sol.prototype.tildelresourcetileventtiltid = function (resindex, durationindex, tidindex, eventindex) {
+            var tmp = this.restiltid[resindex].tider[tidindex];
+            tmp.eventindex.push(eventindex);
+            tmp.durationindex.push(durationindex);
         };
         return Sol;
     })();
