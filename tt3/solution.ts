@@ -94,7 +94,23 @@ module solution {
                 for (var i = 0; i < constrafvigelser.length; i++) {
                 }
         }
+        tildeltidtilevent(tidmangelindex: number, tidindex: number) {
+            var event = tidmangler[tidmangelindex].aevent;
+            var eventindex = event.index;
+            var durationindex = tidmangler[tidmangelindex].durationindex;
 
+            var gltid = this.tidmangeltildelinger[tidmangelindex];
+
+            for (var i = durationindex; i < event.eventresmangler.length; i = i + event.duration) {
+                var tildeltres = resourcer[this.resmangeltildelinger[event.eventresmangler[i].index]];
+                if (tildeltres !== undefined) {
+                    if (gltid !== undefined)
+                        this.fratagresourcetileventtiltid(tildeltres.index, durationindex, tidindex, eventindex);   
+                    this.tildelresourcetileventtiltid(tildeltres.index, durationindex, tidindex, eventindex);
+                }
+            }
+            this.tidmangeltildelinger[tidmangelindex] = tidindex;
+        }
         fratagresourcetileventtiltid(resindex: number, durationindex: number, tidindex: number, eventindex: number) {
             var tmp = this.restiltid[resindex].tider[tidindex];
             var fundet = -1;

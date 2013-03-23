@@ -1,11 +1,3 @@
-﻿/// <reference path="solution.ts" />
-/// <reference path="instans.ts" />
-/// <reference path="jquery.d.ts" />
-/*TODO:
-test ved indsættelse af event i appliestoevent, som allerede findes i en gruppe i appliestogroup
-Lav resource angivelse og: test ved angivelse af resource i preferresource (ikke resourcegr)
-lav preassigned kolonne
-bør solutionevent pege på forældreevent*/
 var timer;
 var vistsol;
 var tidsgrupper;
@@ -25,10 +17,6 @@ var counter = 0;
 var xmlDoc;
 var xmlinstans;
 window.onload = function () {
-    /* if (typeof (Worker) !== "undefined")
-    alert('worker virker');
-    else
-    alert('not');*/
     var test = [];
     test[3] = [
         5
@@ -58,33 +46,15 @@ window.onload = function () {
         for(var i = 0; i < filenames.length; i++) {
             events = [];
             instans.readxml("XML/" + filenames[i] + ".xml");
-            /*vistsol = new solution.Sol();
-            if (events.length > 0)
-            $('#content').html(lavtablerowhtml(vistsol));
-            assert(true, events.length.toString());*/
-                    }
+        }
     }
     instans.readxml("XML/" + filenames[2] + ".xml");
     vistsol = new solution.Sol();
     $('#content').html(lavtablerowhtml(vistsol));
-    // vistsol.udregnhard();
-    // lavxml();
-    };
+};
 function lavxml() {
-    /* console.log('node ' + i.toString() + ':' + xmlDoc.childNodes[i].nodeName);
-    var thisnode = xmlDoc.childNodes[i];
-    for (var j = 0, len2 = thisnode.childNodes.length; j < len2; j++) {
-    var thisnode2 = thisnode.childNodes[j];
-    console.log('undernode ' + j.toString() + ':' + thisnode2.nodeName);
-    for (var k = 0, len3 = thisnode2.childNodes.length; k < len3; k++) {
-    console.log('undernode2 ' + k.toString() + ':' + thisnode2.childNodes[k].nodeName);
-    
-    }
-    }*/
     var serializer = new XMLSerializer();
-    //slet mens test - går stærkere
     var y = xmlDoc.getElementsByTagName("Instances")[0];
-    //  xmlDoc.documentElement.removeChild(y);
     var solgroupndoe = xmlDoc.getElementsByTagName("SolutionGroups")[0];
     var solgroup = xmlDoc.createElement("SolutionGroup");
     solgroup.setAttribute("Id", "Runessol");
@@ -102,7 +72,6 @@ function lavxml() {
             if(tildtid) {
                 tin.setAttribute("Reference", timer[tildtid].id);
             } else {
-                // i evaluatoren lavet af jeff skal hver event have en tid
                 tin.setAttribute("Reference", timer[0].id);
             }
             var reses = addnode("Resources", ev);
@@ -125,19 +94,7 @@ function lavxml() {
     addnode("Description", metadata, "Speciale");
     solgroup.appendChild(metadata);
     solgroup.appendChild(solref);
-    /*  var metadata_contr = xmlDoc.createElement("Contributor");
-    var metadata_contr_txt = xmlDoc.createTextNode("Contri");
-    
-    metadata_contr.appendChild(metadata_contr_txt);
-    metadata.appendChild(metadata_contr);
-    
-    x = metadata_contr.childNodes[0];
-    console.log(x.nodeName);
-    x.nodeValue = "contr";
-    console.log(x.nodeValue);*/
     solgroupndoe.appendChild(solgroup);
-    /*   var wind =  serializer.serializeToString(xmlDoc);
-    var fejl = wind.substr(102616);*/
     window.open('data:text/xml,' + serializer.serializeToString(xmlDoc));
 }
 function addnode(navn, parent, txt) {
@@ -147,8 +104,6 @@ function addnode(navn, parent, txt) {
         tx.nodeValue = txt;
         ch.appendChild(tx);
     }
-    /* else
-    tx = xmlDoc.createElement(navn);*/
     parent.appendChild(ch);
     return ch;
 }
@@ -207,7 +162,6 @@ function assert(value, desc) {
 }
 function lavtablerowhtml(solin) {
     var htmltxt = "<table><thead><tr><td>Event</td><td>Time</td></tr></thead>";
-    //  var solevents = solin.solevents;
     var roles = [];
     var restypedropdown = {
     };
@@ -250,8 +204,7 @@ function lavtablerowhtml(solin) {
                 var restype = ievent.eventresmangler[mnglindex].resourcetype.id;
                 if(restypedropdown[restype] === undefined) {
                     var resids = [];
-                    var selecthtml = "<option>Not chosen</option>";//style = 'background-color: blue'
-                    
+                    var selecthtml = "<option>Not chosen</option>";
                     var resgrs = ievent.eventresmangler[mnglindex].resourcetype.resourcegroups;
                     for(var l = 0, antgr = resgrs.length; l < antgr; l++) {
                         var resgr = resgrs[l].resourcer;
@@ -277,4 +230,3 @@ function lavtablerowhtml(solin) {
     }
     return htmltxt + "</table>";
 }
-//@ sourceMappingURL=hoved.js.map

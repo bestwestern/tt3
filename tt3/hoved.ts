@@ -192,7 +192,7 @@ function choicemade(tidangivet: bool, mangelindex: number, dropdown) {
         arr[mangelindex] = null;
     else
         arr[mangelindex] = nyval;
-
+  //  vistsol.tildeltidtilevent(77, 0);
     $('#content').html(lavtablerowhtml(vistsol));
     vistsol.udregncon(true);
     vistsol.udregncon(false);
