@@ -159,10 +159,36 @@ function addnode(navn: string, parent: any, txt?: string, ) {
     return ch;
 }
 function choicemade(tidangivet: bool, mangelindex: number, dropdown) {
-    var eventindex = dropdown.getAttribute('data-eventindex');
+     var eventindex = dropdown.getAttribute('data-eventindex');
     var durationindex = dropdown.getAttribute('data-durationindex');
     var tidmangelindex = dropdown.getAttribute('data-tidmangelindex');
-    if (tidangivet)
+    if (tidangivet) {
+        var nyval = Number(dropdown.options[dropdown.selectedIndex].value);
+        if (isNaN(nyval))
+            nyval = -1
+        //var oldval = vistsol.tidmangeltildelinger[mangelindex];
+        vistsol.tildeltidtilevent(mangelindex, nyval);
+    }
+    else {
+        var nyval = Number(dropdown.options[dropdown.selectedIndex].value);
+        var oldval = vistsol.resmangeltildelinger[mangelindex];
+        var tidindex = vistsol.tidmangeltildelinger[tidmangelindex];
+        if (tidindex != null) {
+            if (oldval !== undefined)
+                vistsol.fratagresourcetileventtiltid(oldval, durationindex, tidindex, eventindex);
+            if (!isNaN(nyval))
+                vistsol.tildelresourcetileventtiltid(nyval, durationindex, tidindex, eventindex);
+        }
+        if (isNaN(nyval))
+            vistsol.resmangeltildelinger[mangelindex] = null;
+        else
+            vistsol.resmangeltildelinger[mangelindex] = nyval;
+    }
+    $('#content').html(lavtablerowhtml(vistsol));
+    vistsol.udregncon(true);
+    vistsol.udregncon(false);
+
+    /*if (tidangivet)
         var arr = vistsol.tidmangeltildelinger;
     else
         var arr = vistsol.resmangeltildelinger;
@@ -195,7 +221,7 @@ function choicemade(tidangivet: bool, mangelindex: number, dropdown) {
   //  vistsol.tildeltidtilevent(77, 0);
     $('#content').html(lavtablerowhtml(vistsol));
     vistsol.udregncon(true);
-    vistsol.udregncon(false);
+    vistsol.udregncon(false);*/
 }
 function assert(value, desc) {
     var resultsList = document.getElementById("results");

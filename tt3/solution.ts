@@ -98,18 +98,22 @@ module solution {
             var event = tidmangler[tidmangelindex].aevent;
             var eventindex = event.index;
             var durationindex = tidmangler[tidmangelindex].durationindex;
-
-            var gltid = this.tidmangeltildelinger[tidmangelindex];
-
+            if (this.tidmangeltildelinger[tidmangelindex] != undefined)
+                var gltid = this.tidmangeltildelinger[tidmangelindex];
             for (var i = durationindex; i < event.eventresmangler.length; i = i + event.duration) {
-                var tildeltres = resourcer[this.resmangeltildelinger[event.eventresmangler[i].index]];
-                if (tildeltres !== undefined) {
+                if (this.resmangeltildelinger[event.eventresmangler[i].index] !== undefined) {
+                    var resindex = this.resmangeltildelinger[event.eventresmangler[i].index];
                     if (gltid !== undefined)
-                        this.fratagresourcetileventtiltid(tildeltres.index, durationindex, tidindex, eventindex);   
-                    this.tildelresourcetileventtiltid(tildeltres.index, durationindex, tidindex, eventindex);
+                        this.fratagresourcetileventtiltid(resindex, durationindex, gltid, eventindex);
+                    if (tidindex > -1)
+                        this.tildelresourcetileventtiltid(resindex, durationindex, tidindex, eventindex);
+
                 }
             }
-            this.tidmangeltildelinger[tidmangelindex] = tidindex;
+            if (tidindex>-1)
+                this.tidmangeltildelinger[tidmangelindex] = tidindex;
+            else
+                this.tidmangeltildelinger[tidmangelindex] = null;
         }
         fratagresourcetileventtiltid(resindex: number, durationindex: number, tidindex: number, eventindex: number) {
             var tmp = this.restiltid[resindex].tider[tidindex];
