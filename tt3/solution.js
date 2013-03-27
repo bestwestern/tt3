@@ -27,6 +27,8 @@
             for(var i = 0; i < antalresourcer; i++) {
                 this.restiltid[i] = new restider();
             }
+            for(var i = 0; i < antalevents; i++) {
+            }
         }
         Sol.prototype.udregncon = function (hardcon) {
             //frisk udregning (uden gemte tidligere værdier) bør måske ikke lave prefertimes hvis hardcon? - opdel udregn i hard og soft
@@ -110,6 +112,14 @@
                     }
                 }
                 for(var j = 0; j < event.eventresourcer.length; j++) {
+                    //preassignede
+                    var resindex = event.eventresourcer[j].index;
+                    if(gltid !== undefined) {
+                        this.fratagresourcetileventtiltid(resindex, durationindex, gltid, eventindex);
+                    }
+                    if(tidindex > -1) {
+                        this.tildelresourcetileventtiltid(resindex, durationindex, tidindex, eventindex);
+                    }
                 }
             }
             if(tidindex > -1) {

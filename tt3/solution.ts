@@ -31,6 +31,9 @@ module solution {
             this.restiltid = [];
             for (var i = 0; i < antalresourcer; i++)
                 this.restiltid[i] = new restider();
+            for (var i = 0; i < antalevents; i++){//tildel preassigned res på events med preassigned tider
+
+            }
         }
         udregncon(hardcon: bool) {//frisk udregning (uden gemte tidligere værdier) bør måske ikke lave prefertimes hvis hardcon? - opdel udregn i hard og soft
             var constrarr: instans.Constraint[] = hardcon ? hardconstraints : softconstraints;
@@ -109,7 +112,7 @@ module solution {
                         this.tildelresourcetileventtiltid(resindex, durationindex, tidindex, eventindex);
 
                 }
-                for (var j = 0; j < event.eventresourcer.length; j++) {//preassignede
+                for (var j = 0; j < event.eventresourcer.length; j++) {//preassignede   
                     var resindex = event.eventresourcer[j].index;
                     if (gltid !== undefined)
                         this.fratagresourcetileventtiltid(resindex, durationindex, gltid, eventindex);

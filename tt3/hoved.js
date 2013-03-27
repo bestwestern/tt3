@@ -64,7 +64,7 @@ window.onload = function () {
             assert(true, events.length.toString());*/
                     }
     }
-    instans.readxml("XML/" + filenames[2] + ".xml");
+    instans.readxml("XML/" + filenames[5] + ".xml");
     vistsol = new solution.Sol();
     $('#content').html(lavtablerowhtml(vistsol));
     // vistsol.udregnhard();
@@ -166,7 +166,11 @@ function choicemade(tidangivet, mangelindex, dropdown) {
     } else {
         var nyval = Number(dropdown.options[dropdown.selectedIndex].value);
         var oldval = vistsol.resmangeltildelinger[mangelindex];
-        var tidindex = vistsol.tidmangeltildelinger[tidmangelindex];
+        if(tidmangelindex < 0) {
+            var tidindex = (-tidmangelindex) + 1;
+        } else {
+            var tidindex = vistsol.tidmangeltildelinger[tidmangelindex];
+        }
         if(tidindex != null) {
             if(oldval !== undefined) {
                 vistsol.fratagresourcetileventtiltid(oldval, durationindex, tidindex, eventindex);
@@ -297,7 +301,13 @@ function lavtablerowhtml(solin) {
                 if(resvalg > -2) {
                     drop = drop.replace("'" + resvalg + "'", "'" + resvalg + "' selected");
                 }
-                htmltxt += "<td> " + colrole + ":<select data-eventindex=" + ievent.index + "  data-durationindex=" + durationindex + "  data-tidmangelindex=" + ievent.eventtidmangler[durationindex].index + " onchange='choicemade(false," + ievent.eventresmangler[mnglindex].index + ",this)'>>" + drop + "</td>";
+                if(ievent.eventtidmangler[durationindex] != undefined) {
+                    var tidmangelindex = ievent.eventtidmangler[durationindex].index;
+                } else {
+                    var tidmangelindex = -(ievent.preasigntime.index + durationindex) - 1;
+                }//negativ såfremt preassignet tid
+                
+                htmltxt += "<td> " + colrole + ":<select data-eventindex=" + ievent.index + "  data-durationindex=" + durationindex + "  data-tidmangelindex=" + tidmangelindex + " onchange='choicemade(false," + ievent.eventresmangler[mnglindex].index + ",this)'>>" + drop + "</td>";
             }
         }
     }

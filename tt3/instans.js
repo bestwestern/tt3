@@ -501,6 +501,9 @@ var instans;
                     }
                 }
             }
+            if(preassigntime && nyev.eventresourcer.length > 0) {
+                var her = 2;
+            }
             events.push(nyev);
             evid.push(nyev.id);
         }
