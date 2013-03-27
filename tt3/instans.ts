@@ -211,7 +211,7 @@ module instans {
     }
     export class AEvent {
         index: number;
-        eventresourcer: Resource[];
+        eventresourcer: Resource[];//preassignede
         eventresmangler: ResMangel[];//hvis 3 mangler (mangel 1 er lokale) og duration er 4, så vil resmangel [4],[5],[6],[7] være lokalemanglerne for de 4 durationindex
         eventtidmangler: TidMangel[];
         eventresourcegrupper: ResourceGroup[];

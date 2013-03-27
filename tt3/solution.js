@@ -109,6 +109,8 @@
                         this.tildelresourcetileventtiltid(resindex, durationindex, tidindex, eventindex);
                     }
                 }
+                for(var j = 0; j < event.eventresourcer.length; j++) {
+                }
             }
             if(tidindex > -1) {
                 this.tidmangeltildelinger[tidmangelindex] = tidindex;

@@ -109,8 +109,16 @@ module solution {
                         this.tildelresourcetileventtiltid(resindex, durationindex, tidindex, eventindex);
 
                 }
+                for (var j = 0; j < event.eventresourcer.length; j++) {//preassignede
+                    var resindex = event.eventresourcer[j].index;
+                    if (gltid !== undefined)
+                        this.fratagresourcetileventtiltid(resindex, durationindex, gltid, eventindex);
+                    if (tidindex > -1)
+                        this.tildelresourcetileventtiltid(resindex, durationindex, tidindex, eventindex);
+
+                }
             }
-            if (tidindex>-1)
+            if (tidindex > -1)
                 this.tidmangeltildelinger[tidmangelindex] = tidindex;
             else
                 this.tidmangeltildelinger[tidmangelindex] = null;

@@ -153,7 +153,6 @@ function addnode(navn, parent, txt) {
     return ch;
 }
 function choicemade(tidangivet, mangelindex, dropdown) {
-    "use strict";
     var eventindex = dropdown.getAttribute('data-eventindex');
     var durationindex = dropdown.getAttribute('data-durationindex');
     var tidmangelindex = dropdown.getAttribute('data-tidmangelindex');
