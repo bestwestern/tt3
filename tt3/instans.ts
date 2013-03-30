@@ -104,7 +104,7 @@ module instans {
     }
 
 
-    
+
     export class PreferTimesConstraint implements Constraint {
         appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
@@ -492,7 +492,7 @@ module instans {
 
 
             }
-            if (preassigntime && nyev.eventresourcer.length > 0) {
+            if (preassigntime && nyev.eventresourcer.length > 0 && nyev.eventresmangler.length > 0) {
                 var her = 2;
             }
             events.push(nyev);
@@ -677,6 +677,24 @@ module instans {
                             nycon.appliestoev.push(gr.events[i]);
                 }
             }
+          /*  if (constraint["AppliesTo"]["ResourceGroups"]) {
+                var appliesto = constraint["AppliesTo"];
+                if (appliesto["EventGroups"]["ResourceGroups"] instanceof Array)
+                    for (var key in appliesto["ResourceGroups"]["ResourceGroup"]) {
+                        var gr = resourcegrupper[resgrup.indexOf(appliesto["ResourceGroups"]["ResourceGroup"][key]["Reference"])];
+                        nycon.appliestoresgrou.push(gr);
+                        for (var i = 0, len = gr.events.length; i < len; i++)
+                            if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
+                                nycon.appliestoev.push(gr.events[i]);
+                    }
+                else {
+                    var gr = eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"]["Reference"])];
+                    nycon.appliestoevgrou.push(gr);
+                    for (var i = 0, len = gr.events.length; i < len; i++)
+                        if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
+                            nycon.appliestoev.push(gr.events[i]);
+                }
+            }*/
             if (constraint["Times"]) {
                 var t = constraint["Times"]["Time"];
                 if (t instanceof Array)
@@ -713,7 +731,7 @@ module instans {
                 if (appliesto["ResourceGroup"] instanceof Array)
                     for (var key in appliesto["ResourceGroup"]) {
                         var egr: ResourceGroup = resourcegrupper[grupid.indexOf(appliesto["ResourceGroup"][key]["Reference"])];
-                        nycon.appliestoresgrou.push(egr);
+                        nyc on.appliestoresgrou.push(egr);
                         /*                        for (var i = 0, len = gr.events.length; i < len; i++)
                                                     if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
                                                         nycon.appliestoev.push(gr.events[i]);*/

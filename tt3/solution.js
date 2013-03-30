@@ -28,6 +28,17 @@
                 this.restiltid[i] = new restider();
             }
             for(var i = 0; i < antalevents; i++) {
+                //tildel preassigned res på events med preassigned tider
+                var thisevent = events[i];
+                if(thisevent.preasigntime) {
+                    for(var durationindex = 0; durationindex < thisevent.duration; durationindex++) {
+                        for(var j = 0; j < thisevent.eventresourcer.length; j++) {
+                            var resindex = thisevent.eventresourcer[j].index;
+                            this.restiltid[resindex].tider[thisevent.preasigntime.index + durationindex].durationindex.push(durationindex);
+                            this.restiltid[resindex].tider[thisevent.preasigntime.index + durationindex].eventindex.push(thisevent.index);
+                        }
+                    }
+                }
             }
         }
         Sol.prototype.udregncon = function (hardcon) {
@@ -78,6 +89,18 @@
                             }
                         }
                         constrafvigelser.push(eventafvigelse);
+                    }
+                }
+                if(constr instanceof instans.AvoidClashesConstraint) {
+                    var constr = constr;
+                    for(var i = 0; i < constr.appliestores.length; i++) {
+                        var resafvigelse = 0;
+                        var resindex = constr.appliestores[i].index;
+                        for(var tidindex = 0; tidindex < antaltider; tidindex++) {
+                            if(this.restiltid[resindex].tider[tidindex].durationindex.length > 0) {
+                                resafvigelse += this.restiltid[resindex].tider[tidindex].durationindex.length - 1;
+                            }
+                        }
                     }
                 }
                 if(constrafvigelser.length > 0) {

@@ -31,8 +31,18 @@ module solution {
             this.restiltid = [];
             for (var i = 0; i < antalresourcer; i++)
                 this.restiltid[i] = new restider();
-            for (var i = 0; i < antalevents; i++){//tildel preassigned res på events med preassigned tider
+            for (var i = 0; i < antalevents; i++) {//tildel preassigned res på events med preassigned tider
+                var thisevent = events[i];
+                if (thisevent.preasigntime) {
+                    for (var durationindex = 0; durationindex < thisevent.duration; durationindex++)
 
+                        for (var j = 0; j < thisevent.eventresourcer.length; j++) {
+                            var resindex = thisevent.eventresourcer[j].index;
+                            this.restiltid[resindex].tider[thisevent.preasigntime.index + durationindex].durationindex.push(durationindex);
+                            this.restiltid[resindex].tider[thisevent.preasigntime.index + durationindex].eventindex.push(thisevent.index);
+
+                        }
+                }
             }
         }
         udregncon(hardcon: bool) {//frisk udregning (uden gemte tidligere værdier) bør måske ikke lave prefertimes hvis hardcon? - opdel udregn i hard og soft
@@ -82,7 +92,18 @@ module solution {
                 }
 
 
+                if (constr instanceof instans.AvoidClashesConstraint) {
+                    var constr: instans.PreferTimesConstraint = <instans.AvoidClashesConstraint> constr;
+                    for (var i = 0; i < constr.appliestores.length; i++) {
+                        var resafvigelse = 0;
+                        var resindex = constr.appliestores[i].index;
+                        for (var tidindex = 0; tidindex < antaltider; tidindex++)
+                            if (this.restiltid[resindex].tider[tidindex].durationindex.length > 0) {
+                                resafvigelse += this.restiltid[resindex].tider[tidindex].durationindex.length - 1;
+                            }
+                    }
 
+                }
 
                 if (constrafvigelser.length > 0) {
                     var li = document.createElement("li");
@@ -125,7 +146,7 @@ module solution {
                 this.tidmangeltildelinger[tidmangelindex] = tidindex;
             else
                 this.tidmangeltildelinger[tidmangelindex] = null;
-        }
+        }   
         fratagresourcetileventtiltid(resindex: number, durationindex: number, tidindex: number, eventindex: number) {
             var tmp = this.restiltid[resindex].tider[tidindex];
             var fundet = -1;
