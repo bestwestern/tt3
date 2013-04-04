@@ -609,7 +609,7 @@ module instans {
         }
 
     }
-    function lavcon(constraint: Object, type: string, evgruppeid: string[], evid: string[], resid: string[], grupid: string[], tidid: string[], tidgrupid: string[]) {
+    function lavcon(constraint: Object, type: string, evgruppeid: string[], evid: string[], resid: string[], resgrupid: string[], tidid: string[], tidgrupid: string[]) {
         //var nycon: Constraint;
         var na = constraint["Name"];
         var id = constraint["Id"];
@@ -677,24 +677,24 @@ module instans {
                             nycon.appliestoev.push(gr.events[i]);
                 }
             }
-          /*  if (constraint["AppliesTo"]["ResourceGroups"]) {
-                var appliesto = constraint["AppliesTo"];
-                if (appliesto["EventGroups"]["ResourceGroups"] instanceof Array)
-                    for (var key in appliesto["ResourceGroups"]["ResourceGroup"]) {
-                        var gr = resourcegrupper[resgrup.indexOf(appliesto["ResourceGroups"]["ResourceGroup"][key]["Reference"])];
-                        nycon.appliestoresgrou.push(gr);
-                        for (var i = 0, len = gr.events.length; i < len; i++)
-                            if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
-                                nycon.appliestoev.push(gr.events[i]);
-                    }
-                else {
-                    var gr = eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"]["Reference"])];
-                    nycon.appliestoevgrou.push(gr);
-                    for (var i = 0, len = gr.events.length; i < len; i++)
-                        if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
-                            nycon.appliestoev.push(gr.events[i]);
-                }
-            }*/
+            /*  if (constraint["AppliesTo"]["ResourceGroups"]) {
+                  var appliesto = constraint["AppliesTo"];
+                  if (appliesto["EventGroups"]["ResourceGroups"] instanceof Array)
+                      for (var key in appliesto["ResourceGroups"]["ResourceGroup"]) {
+                          var gr = resourcegrupper[resgrup.indexOf(appliesto["ResourceGroups"]["ResourceGroup"][key]["Reference"])];
+                          nycon.appliestoresgrou.push(gr);
+                          for (var i = 0, len = gr.events.length; i < len; i++)
+                              if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
+                                  nycon.appliestoev.push(gr.events[i]);
+                      }
+                  else {
+                      var gr = eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"]["Reference"])];
+                      nycon.appliestoevgrou.push(gr);
+                      for (var i = 0, len = gr.events.length; i < len; i++)
+                          if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
+                              nycon.appliestoev.push(gr.events[i]);
+                  }
+              }*/
             if (constraint["Times"]) {
                 var t = constraint["Times"]["Time"];
                 if (t instanceof Array)
@@ -724,20 +724,25 @@ module instans {
             }
 
             if (constraint["Resource"]) {
+                alert('nu skal resource under lavconstraints kodes!');
+
                 //implemter
             }
-            if (constraint["ResourceGroups"]) {
-                var appliesto = constraint["ResourceGroups"];
+            if (constraint["AppliesTo"]["ResourceGroups"] || constraint["ResourceGroups"]) {
+                if (constraint["ResourceGroups"])
+                    var appliesto = constraint["ResourceGroups"];
+                else
+                    var appliesto = constraint["AppliesTo"]["ResourceGroups"];
                 if (appliesto["ResourceGroup"] instanceof Array)
                     for (var key in appliesto["ResourceGroup"]) {
-                        var egr: ResourceGroup = resourcegrupper[grupid.indexOf(appliesto["ResourceGroup"][key]["Reference"])];
-                        nyc on.appliestoresgrou.push(egr);
-                        /*                        for (var i = 0, len = gr.events.length; i < len; i++)
-                                                    if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
-                                                        nycon.appliestoev.push(gr.events[i]);*/
+                        var rgr: ResourceGroup = resourcegrupper[resgrupid.indexOf(appliesto["ResourceGroup"][key]["Reference"])];
+                        nycon.appliestoresgrou.push(rgr);
+                        for (var i = 0, len = rgr.resourcer.length; i < len; i++)
+                            if (nycon.appliestores.indexOf(rgr.resourcer[i]) == -1)
+                                nycon.appliestores.push(rgr.resourcer[i]);
                     }
                 else {
-                    var egr: ResourceGroup = resourcegrupper[grupid.indexOf(appliesto["ResourceGroup"]["Reference"])];
+                    var egr: ResourceGroup = resourcegrupper[resgrupid.indexOf(appliesto["ResourceGroup"]["Reference"])];
                     nycon.appliestoresgrou.push(egr);
                 }
             }

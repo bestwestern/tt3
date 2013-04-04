@@ -619,7 +619,7 @@ var instans;
             }
         }
     }
-    function lavcon(constraint, type, evgruppeid, evid, resid, grupid, tidid, tidgrupid) {
+    function lavcon(constraint, type, evgruppeid, evid, resid, resgrupid, tidid, tidgrupid) {
         //var nycon: Constraint;
         var na = constraint["Name"];
         var id = constraint["Id"];
@@ -742,19 +742,27 @@ var instans;
                 }
             }
             if(constraint["Resource"]) {
-            }
-            if(constraint["ResourceGroups"]) {
-                var appliesto = constraint["ResourceGroups"];
+                alert('nu skal resource under lavconstraints kodes!');
+                //implemter
+                            }
+            if(constraint["AppliesTo"]["ResourceGroups"] || constraint["ResourceGroups"]) {
+                if(constraint["ResourceGroups"]) {
+                    var appliesto = constraint["ResourceGroups"];
+                } else {
+                    var appliesto = constraint["AppliesTo"]["ResourceGroups"];
+                }
                 if(appliesto["ResourceGroup"] instanceof Array) {
                     for(var key in appliesto["ResourceGroup"]) {
-                        var egr = resourcegrupper[grupid.indexOf(appliesto["ResourceGroup"][key]["Reference"])];
-                        nycon.appliestoresgrou.push(egr);
-                        /*                        for (var i = 0, len = gr.events.length; i < len; i++)
-                        if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
-                        nycon.appliestoev.push(gr.events[i]);*/
-                                            }
+                        var rgr = resourcegrupper[resgrupid.indexOf(appliesto["ResourceGroup"][key]["Reference"])];
+                        nycon.appliestoresgrou.push(rgr);
+                        for(var i = 0, len = rgr.resourcer.length; i < len; i++) {
+                            if(nycon.appliestores.indexOf(rgr.resourcer[i]) == -1) {
+                                nycon.appliestores.push(rgr.resourcer[i]);
+                            }
+                        }
+                    }
                 } else {
-                    var egr = resourcegrupper[grupid.indexOf(appliesto["ResourceGroup"]["Reference"])];
+                    var egr = resourcegrupper[resgrupid.indexOf(appliesto["ResourceGroup"]["Reference"])];
                     nycon.appliestoresgrou.push(egr);
                 }
             }

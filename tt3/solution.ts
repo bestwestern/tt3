@@ -98,13 +98,12 @@ module solution {
                         var resafvigelse = 0;
                         var resindex = constr.appliestores[i].index;
                         for (var tidindex = 0; tidindex < antaltider; tidindex++)
-                            if (this.restiltid[resindex].tider[tidindex].durationindex.length > 0) {
+                            if (this.restiltid[resindex].tider[tidindex].durationindex.length > 1) {
                                 resafvigelse += this.restiltid[resindex].tider[tidindex].durationindex.length - 1;
                             }
+                        constrafvigelser.push(resafvigelse);
                     }
-
                 }
-
                 if (constrafvigelser.length > 0) {
                     var li = document.createElement("li");
                     samlconstrafvigelse = constr.costfunction(constrafvigelser) * constr.weight;
@@ -146,7 +145,7 @@ module solution {
                 this.tidmangeltildelinger[tidmangelindex] = tidindex;
             else
                 this.tidmangeltildelinger[tidmangelindex] = null;
-        }   
+        }
         fratagresourcetileventtiltid(resindex: number, durationindex: number, tidindex: number, eventindex: number) {
             var tmp = this.restiltid[resindex].tider[tidindex];
             var fundet = -1;
@@ -160,7 +159,7 @@ module solution {
             }
         }
         tildelresourcetileventtiltid(resindex: number, durationindex: number, tidindex: number, eventindex: number) {
-            var tmp = this.restiltid[resindex].tider[tidindex];
+                var tmp = this.restiltid[resindex].tider[tidindex];
             tmp.eventindex.push(eventindex);
             tmp.durationindex.push(durationindex);
         }

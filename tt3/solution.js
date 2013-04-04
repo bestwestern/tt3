@@ -97,10 +97,11 @@
                         var resafvigelse = 0;
                         var resindex = constr.appliestores[i].index;
                         for(var tidindex = 0; tidindex < antaltider; tidindex++) {
-                            if(this.restiltid[resindex].tider[tidindex].durationindex.length > 0) {
+                            if(this.restiltid[resindex].tider[tidindex].durationindex.length > 1) {
                                 resafvigelse += this.restiltid[resindex].tider[tidindex].durationindex.length - 1;
                             }
                         }
+                        constrafvigelser.push(resafvigelse);
                     }
                 }
                 if(constrafvigelser.length > 0) {

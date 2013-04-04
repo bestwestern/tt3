@@ -173,7 +173,7 @@ function choicemade(tidangivet: bool, mangelindex: number, dropdown) {
         var nyval = Number(dropdown.options[dropdown.selectedIndex].value);
         var oldval = vistsol.resmangeltildelinger[mangelindex];
         if (tidmangelindex < 0)
-            var tidindex = (-tidmangelindex) + 1
+            var tidindex = tidmangelindex*(-1) - 1
         else
             var tidindex = vistsol.tidmangeltildelinger[tidmangelindex];
         if (tidindex != null) {
