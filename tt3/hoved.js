@@ -54,7 +54,7 @@ window.onload = function () {
     $('#content').html(lavtablerowhtml(vistsol));
     assert(true, events.length.toString());
     }*/
-    instans.readxml("XML/" + filenames[1] + ".xml");
+    instans.readxml("XML/" + filenames[8] + ".xml");
     vistsol = new solution.Sol();
     $('#content').html(lavtablerowhtml(vistsol));
     // vistsol.udregnhard();
