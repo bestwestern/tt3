@@ -84,13 +84,9 @@ function lavxml() {
     //slet mens test - går stærkere
     var y = xmlDoc.getElementsByTagName("Instances")[0];
     //  xmlDoc.documentElement.removeChild(y);
-
-
     var solgroupndoe = xmlDoc.getElementsByTagName("SolutionGroups")[0];
-
     var solgroup = xmlDoc.createElement("SolutionGroup");
     solgroup.setAttribute("Id", "Runessol");
-
     var solref = xmlDoc.createElement("Solution");
     solref.setAttribute("Reference", xmlinstans);
     var eventsnode = addnode("Events", solref);
@@ -100,13 +96,17 @@ function lavxml() {
         for (var j = 0; j < thisevent.duration; j++) {
             var ev = addnode("Event", eventsnode);
             ev.setAttribute("Reference", thisevent.id);
-            addnode("Duration", ev, "1");
-            var tildtid = vistsol.tidmangeltildelinger[thisevent.eventtidmangler[j].index];
+            addnode("Duration", ev, "1");//skal laves duration=duration hvis preasignedtid
             var tin = addnode("Time", ev);
-            if (tildtid)
-                tin.setAttribute("Reference", timer[tildtid].id);
-            else// i evaluatoren lavet af jeff skal hver event have en tid
-                tin.setAttribute("Reference", timer[0].id);
+            if (thisevent.preasigntime)
+                tin.setAttribute("Reference", timer[thisevent.preasigntime.index + j].id);
+            else {
+                var tildtid = vistsol.tidmangeltildelinger[thisevent.eventtidmangler[j].index];
+                if (tildtid)
+                    tin.setAttribute("Reference", timer[tildtid].id);
+                else// i evaluatoren lavet af jeff skal hver event have en tid
+                    tin.setAttribute("Reference", timer[0].id);
+            }
             var reses = addnode("Resources", ev);
             if (thisevent.eventresmangler.length > 1) {
                 var jkl = 4;

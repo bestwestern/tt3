@@ -3,8 +3,6 @@
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-/// <reference path="solution.ts" />
-/// <reference path="hoved.ts" />
 var instans;
 (function (instans) {
     function sum(afvigelser) {
@@ -14,7 +12,25 @@ var instans;
         }
         return s;
     }
-    //costfunction
+    var AvoidClashesConstraint = (function () {
+        function AvoidClashesConstraint(id, name, weight, costfunction) {
+            this.id = id;
+            this.name = name;
+            this.weight = weight;
+            this.appliestoresgrou = [];
+            this.appliestores = [];
+            switch(costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
+            }
+        }
+        return AvoidClashesConstraint;
+    })();
+    instans.AvoidClashesConstraint = AvoidClashesConstraint;    
     var AssignResourceConstraint = (function () {
         function AssignResourceConstraint(id, name, weight, costfunction, role) {
             this.id = id;
@@ -23,10 +39,13 @@ var instans;
             this.role = role;
             this.appliestoevgrou = [];
             this.appliestoev = [];
-            //   this.appliestoma = [];
             switch(costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
             }
         }
         return AssignResourceConstraint;
@@ -42,6 +61,10 @@ var instans;
             switch(costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
             }
         }
         return AssignTimeConstraint;
@@ -59,26 +82,15 @@ var instans;
             switch(costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
             }
         }
         return PreferResourcesConstraint;
     })();
     instans.PreferResourcesConstraint = PreferResourcesConstraint;    
-    var AvoidClashesConstraint = (function () {
-        function AvoidClashesConstraint(id, name, weight, costfunction) {
-            this.id = id;
-            this.name = name;
-            this.weight = weight;
-            this.appliestoresgrou = [];
-            this.appliestores = [];
-            switch(costfunction.toLowerCase()) {
-                case "sum":
-                    this.costfunction = sum;
-            }
-        }
-        return AvoidClashesConstraint;
-    })();
-    instans.AvoidClashesConstraint = AvoidClashesConstraint;    
     var PreferTimesConstraint = (function () {
         function PreferTimesConstraint(id, name, weight, costfunction) {
             this.id = id;
@@ -91,11 +103,34 @@ var instans;
             switch(costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
             }
         }
         return PreferTimesConstraint;
     })();
     instans.PreferTimesConstraint = PreferTimesConstraint;    
+    var SplitEventsConstraint = (function () {
+        function SplitEventsConstraint(id, name, weight, costfunction) {
+            this.id = id;
+            this.name = name;
+            this.weight = weight;
+            switch(costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
+            }
+            this.appliestoevgrou = [];
+            this.appliestoev = [];
+        }
+        return SplitEventsConstraint;
+    })();
+    instans.SplitEventsConstraint = SplitEventsConstraint;    
     var SpreadEventsConstraint = (function () {
         function SpreadEventsConstraint(id, name, weight, costfunction) {
             this.id = id;
@@ -108,6 +143,10 @@ var instans;
             switch(costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
             }
         }
         return SpreadEventsConstraint;
@@ -221,10 +260,7 @@ var instans;
             this.eventresmangler = [];
             this.eventtidmangler = [];
             this.index = events.length;
-            /*  if (duration >1) {
-            alert('bingo');
-            }*/
-                    }
+        }
         return AEvent;
     })();
     instans.AEvent = AEvent;    
@@ -258,7 +294,6 @@ var instans;
     })();
     instans.ResMangel = ResMangel;    
     function readinstance(nobj) {
-        //bør lave tjek på resgroup om array eller ej
         hardconstraints = [];
         softconstraints = [];
         timer = [];
@@ -333,8 +368,6 @@ var instans;
                 for(var key in tmpg) {
                     var k = tmpg[key];
                     if(k["Reference"]) {
-                        //hvis der findes reference så er der flere og de bliver loopet
-                        //hvis ikke er tidsgruppen k
                         k = k["Reference"];
                     }
                     var tmg = tidsgrupper[tidgruppeid.indexOf(k)];
@@ -383,7 +416,6 @@ var instans;
         }
         tmp = res["Resource"];
         for(var key in tmp) {
-            //vil fejl ved kun 1 resource
             var curres = tmp[key];
             var nyres = new Resource(curres["Name"], curres["Id"], resourcetyper[restypeid.indexOf(curres["ResourceType"]["Reference"])]);
             for(var key2 in curres["ResourceGroups"]["ResourceGroup"]) {
@@ -459,6 +491,8 @@ var instans;
                 for(var i = 0; i < nyev.duration; i++) {
                     nyev.eventtidmangler.push(new TidMangel(nyev, i));
                 }
+            } else {
+                var hje = 3;
             }
             for(var key2 in curev["Course"]) {
                 var evg = curev["Course"][key2];
@@ -525,8 +559,6 @@ var instans;
         xmlhttp.open("GET", url, false);
         xmlhttp.send(null);
         xmlDoc = xmlhttp.responseXML;
-        /* console.log(url);
-        console.log(xmlDoc.childNodes[0].nodeName);*/
         var bingo = -1;
         for(var i = 0, len = xmlDoc.childNodes.length; i < len; i++) {
             if(xmlDoc.childNodes[i].nodeName === 'HighSchoolTimetableArchive') {
@@ -540,23 +572,9 @@ var instans;
         } else {
             assert(true, 'kunne ikke læse ' + url);
         }
-        /* else {
-        for (var i = 0; i <2; i++)
-        assert(true, i + xmlDoc.childNodes[i].nodeName)
-        }*/
-        //alert(xmlDoc.childNodes[0].baseName);
-        /*     for (var i = 0; i < xmlDoc.childNodes.length; i++) {
-        if (xmlDoc.childNodes[i].baseName === 'HighSchoolTimetableArchive') {
-        data = XML2jsobj(xmlDoc.childNodes[i]);
-        readinstance(data);
-        i = xmlDoc.childNodes.length;
-        
-        }
-        }*/
         function XML2jsobj(node) {
             var data = {
             };
-            // append a value
             function Add(name, value) {
                 if(data[name]) {
                     if(data[name].constructor != Array) {
@@ -570,19 +588,15 @@ var instans;
                 }
             }
             ;
-            // element attributes
-                        var c, cn;
+            var c, cn;
             for(c = 0; cn = node.attributes[c]; c++) {
                 Add(cn.name, cn.value);
             }
-            // child elements
             for(c = 0; cn = node.childNodes[c]; c++) {
                 if(cn.nodeType == 1) {
                     if(cn.childNodes.length == 1 && cn.firstChild.nodeType == 3) {
-                        // text value
                         Add(cn.nodeName, cn.firstChild.nodeValue);
                     } else {
-                        // sub-object
                         Add(cn.nodeName, XML2jsobj(cn));
                     }
                 }
@@ -614,13 +628,11 @@ var instans;
                     alert('fejlx v res event');
                 }
             } else {
-                //var fddfdfsk = nobj["jk"]["jk"];
                 alert('fejl v res event');
             }
         }
     }
     function lavcon(constraint, type, evgruppeid, evid, resid, resgrupid, tidid, tidgrupid) {
-        //var nycon: Constraint;
         var na = constraint["Name"];
         var id = constraint["Id"];
         var we = constraint["Weight"];
@@ -636,7 +648,6 @@ var instans;
                 var nycon = new AssignTimeConstraint(id, na, we, co);
                 break;
             case "LimitBusyTimesConstraint":
-                //MANFLWE
                 break;
             case "PreferTimesConstraint":
                 var nycon = new PreferTimesConstraint(id, na, we, co);
@@ -647,6 +658,9 @@ var instans;
             case "PreferResourcesConstraint":
                 var nycon = new PreferResourcesConstraint(id, na, we, co);
                 break;
+            case "SplitEventsConstraint":
+                var nycon = new SplitEventsConstraint(id, na, we, co);
+                break;
             case "DistributeSplitEventsConstraint":
                 assert(na, true);
                 break;
@@ -654,13 +668,23 @@ var instans;
                 var nycon = new AvoidClashesConstraint(id, na, we, co);
                 break;
             default:
-                // alert constraint ikke understøttet    var fddfdfsk = constraint["jk"]["jk"];
                 break;
         }
         if(nycon) {
+            if("MinimumAmount" in constraint) {
+                nycon.minimumamount = constraint["MinimumAmount"];
+            }
+            if("MinimumDuration" in constraint) {
+                nycon.minimumduration = constraint["MinimumDuration"];
+            }
+            if("MaximumDuration" in constraint) {
+                nycon.maximumduration = constraint["MaximumDuration"];
+            }
+            if("MaximumAmount" in constraint) {
+                nycon.maximumamount = constraint["MaximumAmount"];
+            }
             if(constraint["AppliesTo"]["Events"]) {
                 var appliesto = constraint["AppliesTo"];
-                //       if ("EventGroups" in appliesto) //if array
                 if(appliesto["Events"]["Event"] instanceof Array) {
                     for(var key in appliesto["Events"]["Event"]) {
                         nycon.appliestoevgrou.push(eventgrupper[evid.indexOf(appliesto["Events"]["Event"][key]["Reference"])]);
@@ -691,24 +715,6 @@ var instans;
                     }
                 }
             }
-            /*  if (constraint["AppliesTo"]["ResourceGroups"]) {
-            var appliesto = constraint["AppliesTo"];
-            if (appliesto["EventGroups"]["ResourceGroups"] instanceof Array)
-            for (var key in appliesto["ResourceGroups"]["ResourceGroup"]) {
-            var gr = resourcegrupper[resgrup.indexOf(appliesto["ResourceGroups"]["ResourceGroup"][key]["Reference"])];
-            nycon.appliestoresgrou.push(gr);
-            for (var i = 0, len = gr.events.length; i < len; i++)
-            if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
-            nycon.appliestoev.push(gr.events[i]);
-            }
-            else {
-            var gr = eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"]["Reference"])];
-            nycon.appliestoevgrou.push(gr);
-            for (var i = 0, len = gr.events.length; i < len; i++)
-            if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
-            nycon.appliestoev.push(gr.events[i]);
-            }
-            }*/
             if(constraint["Times"]) {
                 var t = constraint["Times"]["Time"];
                 if(t instanceof Array) {
@@ -743,8 +749,7 @@ var instans;
             }
             if(constraint["Resource"]) {
                 alert('nu skal resource under lavconstraints kodes!');
-                //implemter
-                            }
+            }
             if(constraint["AppliesTo"]["ResourceGroups"] || constraint["ResourceGroups"]) {
                 if(constraint["ResourceGroups"]) {
                     var appliesto = constraint["ResourceGroups"];
@@ -766,22 +771,7 @@ var instans;
                     nycon.appliestoresgrou.push(egr);
                 }
             }
-            /*              }
-            }
-            /*if (nycon instanceof AssignResourceConstraint) {
-            var ac: AssignResourceConstraint = <AssignResourceConstraint> nycon;
-            for (var i = 0, len = ac.appliestoev.length; i < len; i++) {
-            var ev = ac.appliestoev[i];
-            for (var j = 0; j < ev.eventmangler.length; j++) {
-            var evma = ev.eventmangler[j];
-            if (evma.role==ro)
-            ac.appliestoma.push(evma);
-            }
-            }
-            nycon = ac;
-            }*/
             if(ha) {
-                // if (nycon =prefertimes - angiv de mulige tider i eventsene
                 hardconstraints.push(nycon);
             } else {
                 softconstraints.push(nycon);
@@ -789,4 +779,3 @@ var instans;
         }
     }
 })(instans || (instans = {}));
-//@ sourceMappingURL=instans.js.map

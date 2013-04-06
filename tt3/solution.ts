@@ -19,6 +19,7 @@ module solution {
                 this.tider.push(new tildeling());
         }
     }
+
     export class Sol {
         tidmangeltildelinger: number[];//tidmangeltildelinger[i]=tidindex for tiden givet til tidmangel i
         resmangeltildelinger: number[];//resmangeltildelinger[i]=resindex for res givet til resmangel i
@@ -52,6 +53,18 @@ module solution {
                 var constrafvigelser: number[] = [];
                 var samlconstrafvigelse = 0;
                 var constrstraf = 0;
+                if (constr instanceof instans.AssignResourceConstraint) {
+                    var constr: instans.AssignResouceConstraint = <instans.AssignTimeConstraint> constr;
+                    for (var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
+                        var eventafvigelse = 0;
+                        var eventresmangler = constr.appliestoev[i].eventresmangler
+                        for (var j = 0; j < eventresmangler.length; j++) {
+                            if (this.resmangeltildelinger[eventresmangler[j].index] == null)
+                                eventafvigelse++;
+                        }
+                        constrafvigelser.push(eventafvigelse);
+                    }
+                }
                 if (constr instanceof instans.AssignTimeConstraint) {
                     var constr: instans.AssignTimeConstraint = <instans.AssignTimeConstraint> constr;
                     for (var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
@@ -64,16 +77,24 @@ module solution {
                         constrafvigelser.push(eventafvigelse);
                     }
                 }
-                if (constr instanceof instans.AssignResourceConstraint) {
-                    var constr: instans.AssignResouceConstraint = <instans.AssignTimeConstraint> constr;
+                if (constr instanceof instans.AvoidClashesConstraint) {
+                    var constr: instans.PreferTimesConstraint = <instans.AvoidClashesConstraint> constr;
+                    for (var i = 0; i < constr.appliestores.length; i++) {
+                        var resafvigelse = 0;
+                        var resindex = constr.appliestores[i].index;
+                        for (var tidindex = 0; tidindex < antaltider; tidindex++)
+                            if (this.restiltid[resindex].tider[tidindex].durationindex.length > 1) {
+                                resafvigelse += this.restiltid[resindex].tider[tidindex].durationindex.length - 1;
+                            }
+                        constrafvigelser.push(resafvigelse);
+                    }
+                }
+                if (constr instanceof instans.SplitEventsConstraint) {
+                    var constr: instans.SplitEventsConstraint = <instans.SplitEventsConstraint>constr;
                     for (var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
-                        var eventafvigelse = 0;
-                        var eventresmangler = constr.appliestoev[i].eventresmangler
-                        for (var j = 0; j < eventresmangler.length; j++) {
-                            if (this.resmangeltildelinger[eventresmangler[j].index] == null)
-                                eventafvigelse++;
-                        }
-                        constrafvigelser.push(eventafvigelse);
+                        var eventafvigelse = this.getspliteventafvigelse(constr.appliestoev[i], <instans.SplitEventsConstraint> constr);
+                        if (eventafvigelse > 0)
+                            constrafvigelser.push(eventafvigelse);
                     }
                 }
                 if (constr instanceof instans.PreferTimesConstraint) {
@@ -92,18 +113,7 @@ module solution {
                 }
 
 
-                if (constr instanceof instans.AvoidClashesConstraint) {
-                    var constr: instans.PreferTimesConstraint = <instans.AvoidClashesConstraint> constr;
-                    for (var i = 0; i < constr.appliestores.length; i++) {
-                        var resafvigelse = 0;
-                        var resindex = constr.appliestores[i].index;
-                        for (var tidindex = 0; tidindex < antaltider; tidindex++)
-                            if (this.restiltid[resindex].tider[tidindex].durationindex.length > 1) {
-                                resafvigelse += this.restiltid[resindex].tider[tidindex].durationindex.length - 1;
-                            }
-                        constrafvigelser.push(resafvigelse);
-                    }
-                }
+
                 if (constrafvigelser.length > 0) {
                     var li = document.createElement("li");
                     samlconstrafvigelse = constr.costfunction(constrafvigelser) * constr.weight;
@@ -117,6 +127,73 @@ module solution {
                 for (var i = 0; i < constrafvigelser.length; i++) {
                 }
         }
+        getspliteventafvigelse(event: instans.AEvent, con: instans.SplitEventsConstraint) {
+            var mindur = con.minimumduration;
+            var minam = con.minimumamount;
+            var maxdur = con.maximumduration;
+            var maxam = con.maximumamount;
+            var igang = true;
+            var searchindex = 0;
+            var totalduration = event.eventtidmangler.length;
+            var startogslut: number[] = [];
+            while (igang) {
+                if (this.tidmangeltildelinger[event.eventtidmangler[searchindex].index] != null) {
+                    startogslut.push(searchindex);
+                    var instansigang = true;
+                    while (instansigang) {
+                        if (searchindex + 2 > totalduration) {
+                            instansigang = false;
+                            igang = false;
+                        }
+                        else {
+                            if (this.tidmangeltildelinger[event.eventtidmangler[searchindex + 1].index] != null) {
+                                if (this.tidmangeltildelinger[event.eventtidmangler[searchindex].index] + 1 == this.tidmangeltildelinger[event.eventtidmangler[searchindex + 1].index]) {
+                                    searchindex++;
+                                }
+                                else {
+                                    instansigang = false;
+                                }
+                            }
+                            else {
+                                instansigang = false;
+                            }
+                        }
+                    }
+                    startogslut.push(searchindex++);
+                }
+                else {
+                    if (searchindex + 2 > totalduration) {
+                        igang = false;
+                    }
+                    else
+                        searchindex++;
+                }
+            }
+            var afvigelser = 0;
+
+            if (startogslut.length > 0) {
+
+                var str = event.name;
+                for (var i = 0; i < startogslut.length; i = i + 2) {
+                    var len = startogslut[i + 1] - startogslut[i] + 1;
+                    str += " længde:" + len.toString();
+                    if (len < mindur)
+                        afvigelser++;
+                    if (len > maxdur)
+                        afvigelser++
+
+                }
+                var ant = startogslut.length / 2;
+                if (ant > maxam)
+                    afvigelser += ant - maxam;
+                if (ant < minam)
+                    afvigelser += minam - ant;
+                str += " antal:" + ant.toString();
+                // alert(str);
+            }
+            return afvigelser;
+        }
+
         tildeltidtilevent(tidmangelindex: number, tidindex: number) {
             var event = tidmangler[tidmangelindex].aevent;
             var eventindex = event.index;
@@ -159,7 +236,7 @@ module solution {
             }
         }
         tildelresourcetileventtiltid(resindex: number, durationindex: number, tidindex: number, eventindex: number) {
-                var tmp = this.restiltid[resindex].tider[tidindex];
+            var tmp = this.restiltid[resindex].tider[tidindex];
             tmp.eventindex.push(eventindex);
             tmp.durationindex.push(durationindex);
         }

@@ -9,18 +9,41 @@ module instans {
         return s;
     }
     export interface Constraint {//behøver ikke slette de ekstra appliesto - bliver ikke anvendt fordi de ikke er i construct
-        id: string;
-        name: string;
-        weight: number;
+        id: string; name: string; weight: number; appliestoevgrou: EventGroup[]; appliestoev: AEvent[]; appliestoresgrou: ResourceGroup[];
+        appliestores: Resource[]; role: string; timer: Time[]; timegroups: TimeGroup[]; minimumduration: number;
+        maximumduration: number;
+        minimumamount: number;
+        maximumamount: number;
+
+        costfunction: (afv: number[]) => number;
+        //costfunction
+    }
+    export class AvoidClashesConstraint implements Constraint {
+        minimumduration: number;
+        maximumduration: number;
+        minimumamount: number;
+        maximumamount: number;
+
         appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
         appliestoresgrou: ResourceGroup[];
-        appliestores: Resource[];
-        role: string;
         timer: Time[];
         timegroups: TimeGroup[];
+        appliestores: Resource[];
+        role: string;
         costfunction: (afv: number[]) => number;
-        //costfunction
+        constructor(public id: string, public name: string, public weight: number, costfunction: string) {
+            this.appliestoresgrou = [];
+            this.appliestores = [];
+            switch (costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+                break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                break;
+            }
+        }
     }
     export class AssignResourceConstraint implements Constraint {
         appliestoevgrou: EventGroup[];
@@ -29,6 +52,11 @@ module instans {
         appliestores: Resource[];
         timegroups: TimeGroup[];
         timer: Time[];
+        minimumduration: number;
+        maximumduration: number;
+        minimumamount: number;
+        maximumamount: number;
+
         //    appliestoma: Mangel[];
         costfunction: (afv: number[]) => number;
         constructor(public id: string, public name: string, public weight: number, costfunction: string, public role: string) {
@@ -38,19 +66,26 @@ module instans {
             switch (costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
-
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
             }
         }
     }
 
     export class AssignTimeConstraint implements Constraint {
-        appliestoevgrou: EventGroup[];
-        appliestoev: AEvent[];
+        appliestoevgrou: EventGroup[]; appliestoev: AEvent[];
         appliestoresgrou: ResourceGroup[];
         timegroups: TimeGroup[];
         timer: Time[];
         appliestores: Resource[];
         role: string;
+        minimumduration: number;
+        maximumduration: number;
+        minimumamount: number;
+        maximumamount: number;
+
         costfunction: (afv: number[]) => number;
         constructor(public id: string, public name: string, public weight: number, costfunction: string) {
             this.appliestoevgrou = [];
@@ -58,12 +93,20 @@ module instans {
             switch (costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
-
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
             }
         }
     }
 
     export class PreferResourcesConstraint implements Constraint {
+        minimumduration: number;
+        maximumduration: number;
+        minimumamount: number;
+        maximumamount: number;
+
         appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
         appliestoresgrou: ResourceGroup[];
@@ -80,32 +123,24 @@ module instans {
             switch (costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
             }
         }
     }
 
-    export class AvoidClashesConstraint implements Constraint {
-        appliestoevgrou: EventGroup[];
-        appliestoev: AEvent[];
-        appliestoresgrou: ResourceGroup[];
-        timer: Time[];
-        timegroups: TimeGroup[];
-        appliestores: Resource[];
-        role: string;
-        costfunction: (afv: number[]) => number;
-        constructor(public id: string, public name: string, public weight: number, costfunction: string) {
-            this.appliestoresgrou = [];
-            this.appliestores = [];
-            switch (costfunction.toLowerCase()) {
-                case "sum":
-                    this.costfunction = sum;
-            }
-        }
-    }
+
 
 
 
     export class PreferTimesConstraint implements Constraint {
+        minimumduration: number;
+        maximumduration: number;
+        minimumamount: number;
+        maximumamount: number;
+
         appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
         appliestoresgrou: ResourceGroup[];
@@ -123,9 +158,41 @@ module instans {
             switch (costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
-
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
             }
         }
+    }
+
+    export class SplitEventsConstraint implements Constraint {
+        appliestoevgrou: EventGroup[];
+        appliestoev: AEvent[];
+        appliestoresgrou: ResourceGroup[];
+        appliestores: Resource[];
+        role: string;
+        timer: Time[];
+        timegroups: TimeGroup[];
+        minimumduration: number;
+        maximumduration: number;
+        minimumamount: number;
+        maximumamount: number;
+        costfunction: (afv: number[]) => number;
+        constructor(public id: string, public name: string, public weight: number, costfunction: string) {
+            switch (costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
+            }
+            this.appliestoevgrou = [];
+            this.appliestoev = [];
+
+        }
+
     }
     export class SpreadEventsConstraint implements Constraint {
         appliestoevgrou: EventGroup[];
@@ -136,6 +203,10 @@ module instans {
         role: string;
         costfunction: (afv: number[]) => number;
         timer: Time[];
+        minimumduration: number;
+        maximumduration: number;
+        minimumamount: number;
+        maximumamount: number;
 
         constructor(public id: string, public name: string, public weight: number, costfunction: string) {
             this.appliestoevgrou = [];
@@ -145,7 +216,10 @@ module instans {
             switch (costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
-
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
             }
         }
     }
@@ -453,6 +527,8 @@ module instans {
                 for (var i = 0; i < nyev.duration; i++)
                     nyev.eventtidmangler.push(new TidMangel(nyev, i));
             }
+            else
+                var hje = 3;
             for (var key2 in curev["Course"]) {
                 var evg = curev["Course"][key2];
                 if (evgruppeid.indexOf(evg) > -1) {
@@ -636,7 +712,9 @@ module instans {
             case "PreferResourcesConstraint":
                 var nycon = new PreferResourcesConstraint(id, na, we, co);
                 break;
-
+            case "SplitEventsConstraint":
+                var nycon = new SplitEventsConstraint(id, na, we, co);
+                break;
             case "DistributeSplitEventsConstraint":
                 assert(na, true);
                 break;
@@ -650,6 +728,14 @@ module instans {
 
         }
         if (nycon) {
+            if ("MinimumAmount" in constraint) 
+                nycon.minimumamount = constraint["MinimumAmount"];
+            if ("MinimumDuration" in constraint)
+                nycon.minimumduration = constraint["MinimumDuration"];
+            if ("MaximumDuration" in constraint)
+                nycon.maximumduration = constraint["MaximumDuration"];
+            if ("MaximumAmount" in constraint)
+                nycon.maximumamount = constraint["MaximumAmount"];
             if (constraint["AppliesTo"]["Events"]) {
                 var appliesto = constraint["AppliesTo"];
                 //       if ("EventGroups" in appliesto) //if array
