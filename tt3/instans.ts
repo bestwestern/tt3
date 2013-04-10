@@ -38,10 +38,10 @@ module instans {
             switch (costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
-                break;
+                    break;
                 default:
                     alert('costfunction mangler!' + costfunction);
-                break;
+                    break;
             }
         }
     }
@@ -286,7 +286,9 @@ module instans {
     export class AEvent {
         index: number;
         eventresourcer: Resource[];//preassignede
-        eventresmangler: ResMangel[];//hvis 3 mangler (mangel 1 er lokale) og duration er 4, så vil resmangel [4],[5],[6],[7] være lokalemanglerne for de 4 durationindex
+        eventresmangler: ResMangel[];//hvis 3 mangler (mangel 1 er lokale) og duration er 4, 
+        //så vil resmangel [4],[5],[6],[7] være lokalemanglerne for de 4 durationindex
+        //NB! Hvis preassignedtime så vil der ikke være en mangel for hver duration!
         eventtidmangler: TidMangel[];
         eventresourcegrupper: ResourceGroup[];
         eventeventgrupper: EventGroup[];
@@ -672,9 +674,13 @@ module instans {
         else {
             if ("Role" in thisres && "ResourceType" in thisres) {
                 var curtype = resourcetyper[typeid.indexOf(thisres["ResourceType"]["Reference"])];
-                if (curtype)
-                    for (var i = 0, len = nyev.duration; i < len; i++)
-                        nyev.eventresmangler.push(new ResMangel(thisres["Role"], curtype, nyev, i, thisres["Workload"]));
+                if (curtype) {
+                    if (nyev.preasigntime)
+                        nyev.eventresmangler.push(new ResMangel(thisres["Role"], curtype, nyev, null, thisres["Workload"]));
+                    else
+                        for (var i = 0, len = nyev.duration; i < len; i++)
+                            nyev.eventresmangler.push(new ResMangel(thisres["Role"], curtype, nyev, i, thisres["Workload"]));
+                }
                 else
                     alert('fejlx v res event');
             }
@@ -728,7 +734,7 @@ module instans {
 
         }
         if (nycon) {
-            if ("MinimumAmount" in constraint) 
+            if ("MinimumAmount" in constraint)
                 nycon.minimumamount = constraint["MinimumAmount"];
             if ("MinimumDuration" in constraint)
                 nycon.minimumduration = constraint["MinimumDuration"];

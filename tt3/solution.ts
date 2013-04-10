@@ -53,16 +53,21 @@ module solution {
                 var constrafvigelser: number[] = [];
                 var samlconstrafvigelse = 0;
                 var constrstraf = 0;
-                if (constr instanceof instans.AssignResourceConstraint) {
+                 if (constr instanceof instans.AssignResourceConstraint) {
                     var constr: instans.AssignResouceConstraint = <instans.AssignTimeConstraint> constr;
                     for (var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
                         var eventafvigelse = 0;
                         var eventresmangler = constr.appliestoev[i].eventresmangler
                         for (var j = 0; j < eventresmangler.length; j++) {
-                            if (this.resmangeltildelinger[eventresmangler[j].index] == null)
-                                eventafvigelse++;
+                            if (eventresmangler[j].role == constr.role)
+                                if (this.resmangeltildelinger[eventresmangler[j].index] == null) {
+                                    if (constr.appliestoev[i].preasigntime)
+                                        eventafvigelse = eventafvigelse + constr.appliestoev[i].duration
+                                    else
+                                        eventafvigelse++;
+                                }
                         }
-                        constrafvigelser.push(eventafvigelse);
+                    
                     }
                 }
                 if (constr instanceof instans.AssignTimeConstraint) {
@@ -117,7 +122,7 @@ module solution {
                 if (constrafvigelser.length > 0) {
                     var li = document.createElement("li");
                     samlconstrafvigelse = constr.costfunction(constrafvigelser) * constr.weight;
-                    li.appendChild(document.createTextNode(constr.name + ':' + samlconstrafvigelse.toString() + ':' + constrafvigelser.toString()));
+                    li.appendChild(document.createTextNode(constr.id + ':' + samlconstrafvigelse.toString() + ':' + constrafvigelser.toString()));
                     var conliste = hardcon ? document.getElementById("hardcon") : document.getElementById("softcon");
                     conliste.insertBefore(li, conliste.firstChild);
                     //                    appendChild(li);
@@ -127,17 +132,17 @@ module solution {
                 for (var i = 0; i < constrafvigelser.length; i++) {
                 }
         }
-        getspliteventafvigelse(event: instans.AEvent, con: instans.SplitEventsConstraint) {
+        getspliteventafvigelse(thisevent: instans.AEvent, con: instans.SplitEventsConstraint) {
             var mindur = con.minimumduration;
             var minam = con.minimumamount;
             var maxdur = con.maximumduration;
             var maxam = con.maximumamount;
             var igang = true;
             var searchindex = 0;
-            var totalduration = event.eventtidmangler.length;
+            var totalduration = thisevent.eventtidmangler.length;
             var startogslut: number[] = [];
             while (igang) {
-                if (this.tidmangeltildelinger[event.eventtidmangler[searchindex].index] != null) {
+                if (this.tidmangeltildelinger[thisevent.eventtidmangler[searchindex].index] != null) {
                     startogslut.push(searchindex);
                     var instansigang = true;
                     while (instansigang) {
@@ -146,17 +151,29 @@ module solution {
                             igang = false;
                         }
                         else {
-                            if (this.tidmangeltildelinger[event.eventtidmangler[searchindex + 1].index] != null) {
-                                if (this.tidmangeltildelinger[event.eventtidmangler[searchindex].index] + 1 == this.tidmangeltildelinger[event.eventtidmangler[searchindex + 1].index]) {
-                                    searchindex++;
+                            if (this.tidmangeltildelinger[thisevent.eventtidmangler[searchindex + 1].index] != null) {
+                                if (this.tidmangeltildelinger[thisevent.eventtidmangler[searchindex].index] + 1 == this.tidmangeltildelinger[thisevent.eventtidmangler[searchindex + 1].index]) {
+                                    var resourcerens = false;//nb imgen resmangler
+                                    for (var k = searchindex + 1; k < thisevent.eventresmangler.length; k += thisevent.duration) {
+                                        var denneres = vistsol.resmangeltildelinger[thisevent.eventresmangler[k].index];
+                                        var forrigeres = vistsol.resmangeltildelinger[thisevent.eventresmangler[k - 1].index];
+                                        if (denneres == forrigeres)
+                                            resourcerens = true;
+                                        else {
+                                            resourcerens = false;
+                                            k = thisevent.eventresmangler.length;
+                                        }
+                                    }
+                                    if (resourcerens || thisevent.eventresmangler.length == 0)
+                                        searchindex++;
+                                    else
+                                        instansigang = false;
                                 }
-                                else {
+                                else
                                     instansigang = false;
-                                }
                             }
-                            else {
+                            else
                                 instansigang = false;
-                            }
                         }
                     }
                     startogslut.push(searchindex++);
@@ -173,7 +190,7 @@ module solution {
 
             if (startogslut.length > 0) {
 
-                var str = event.name;
+                var str = thisevent.name;
                 for (var i = 0; i < startogslut.length; i = i + 2) {
                     var len = startogslut[i + 1] - startogslut[i] + 1;
                     str += " længde:" + len.toString();

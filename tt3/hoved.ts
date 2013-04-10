@@ -68,6 +68,27 @@ window.onload = () => {
     // lavxml();
 
 }
+function tildeltid0() {
+    var nyvisning = false;
+    for (var i = 0; i < events.length; i++) {
+        var thisevent = events[i];
+        if (!thisevent.preasigntime) {
+            for (var j = 0; j < thisevent.duration; j++) {
+                var tildtid = timer[vistsol.tidmangeltildelinger[thisevent.eventtidmangler[j].index]];
+                if (!tildtid) {
+                    // vistsol.tidmangeltildelinger[i] = 0;
+                    vistsol.tildeltidtilevent(thisevent.eventtidmangler[j].index, 0);
+                    nyvisning = true;
+                }
+            }
+        }
+    }
+    if (nyvisning) {
+        $('#content').html(lavtablerowhtml(vistsol));
+        vistsol.udregncon(true);
+        vistsol.udregncon(false);
+    }
+}
 function lavxml() {
     /* console.log('node ' + i.toString() + ':' + xmlDoc.childNodes[i].nodeName);
      var thisnode = xmlDoc.childNodes[i];
@@ -79,6 +100,7 @@ function lavxml() {
  
          }
      }*/
+    tildeltid0();
     var serializer = new XMLSerializer();
 
     //slet mens test - går stærkere
@@ -92,31 +114,64 @@ function lavxml() {
     var eventsnode = addnode("Events", solref);
     for (var i = 0; i < antalevents; i++) {
         var thisevent = events[i];
-
+        if (i == 50)
+            var her = 4;
         for (var j = 0; j < thisevent.duration; j++) {
-            var ev = addnode("Event", eventsnode);
-            ev.setAttribute("Reference", thisevent.id);
-            addnode("Duration", ev, "1");//skal laves duration=duration hvis preasignedtid
-            var tin = addnode("Time", ev);
-            if (thisevent.preasigntime)
-                tin.setAttribute("Reference", timer[thisevent.preasigntime.index + j].id);
+            if (thisevent.preasigntime) {
+                if (j == 0) {//kun 1
+                    var ev = addnode("Event", eventsnode);
+                    ev.setAttribute("Reference", thisevent.id);
+                    addnode("Duration", ev, thisevent.duration.toString());//skal laves duration=duration hvis preasignedtid
+                    var tin = addnode("Time", ev);
+                    tin.setAttribute("Reference", timer[thisevent.preasigntime.index].id);
+                    var reses = addnode("Resources", ev);
+                    for (var k = 0; k < thisevent.eventresmangler.length; k++) {
+                        var tilres = vistsol.resmangeltildelinger[thisevent.eventresmangler[k].index];
+                        if (tilres) {
+                            var nyres = addnode("Resource", reses);
+                            nyres.setAttribute("Reference", resourcer[tilres].id);
+                            addnode("Role", nyres, thisevent.eventresmangler[k].role);
+                        }
+                    }
+                }
+            }
             else {
-                var tildtid = vistsol.tidmangeltildelinger[thisevent.eventtidmangler[j].index];
-                if (tildtid)
+                var nysolevent = true;
+                if (j >0) {
+                    var dennetid = vistsol.tidmangeltildelinger[thisevent.eventtidmangler[j].index];
+                    var forrigetid = vistsol.tidmangeltildelinger[thisevent.eventtidmangler[j - 1].index]
+                    if (dennetid == forrigetid + 1) {
+                        var resourcerens = true;
+                        for (var k = j; k < thisevent.eventresmangler.length; k += thisevent.duration) {
+                            var denneres = vistsol.resmangeltildelinger[thisevent.eventresmangler[k].index];
+                            var forrigeres = vistsol.resmangeltildelinger[thisevent.eventresmangler[k - 1].index];
+                            if (denneres != forrigeres)
+                                resourcerens = false;
+                        }
+                        if (resourcerens) {
+                            ev.childNodes[0].childNodes[0].nodeValue = Number(ev.childNodes[0].childNodes[0].nodeValue) + 1;
+                            nysolevent = false;
+                        }
+                    }
+                }
+                if (nysolevent) {
+                    var ev = addnode("Event", eventsnode);
+                    ev.setAttribute("Reference", thisevent.id);
+
+                    addnode("Duration", ev, "1");//skal øge duration hvis ens 
+                    var tin = addnode("Time", ev);
+
+                    var tildtid = vistsol.tidmangeltildelinger[thisevent.eventtidmangler[j].index];
                     tin.setAttribute("Reference", timer[tildtid].id);
-                else// i evaluatoren lavet af jeff skal hver event have en tid
-                    tin.setAttribute("Reference", timer[0].id);
-            }
-            var reses = addnode("Resources", ev);
-            if (thisevent.eventresmangler.length > 1) {
-                var jkl = 4;
-            }
-            for (var k = j; k < thisevent.eventresmangler.length; k += thisevent.duration) {
-                var tilres = vistsol.resmangeltildelinger[thisevent.eventresmangler[k].index];
-                if (tilres) {
-                    var nyres = addnode("Resource", reses);
-                    nyres.setAttribute("Reference", resourcer[tilres].id);
-                    addnode("Role", nyres, thisevent.eventresmangler[k].role);
+                    var reses = addnode("Resources", ev);
+                    for (var k = j; k < thisevent.eventresmangler.length; k += thisevent.duration) {
+                        var tilres = vistsol.resmangeltildelinger[thisevent.eventresmangler[k].index];
+                        if (tilres) {
+                            var nyres = addnode("Resource", reses);
+                            nyres.setAttribute("Reference", resourcer[tilres].id);
+                            addnode("Role", nyres, thisevent.eventresmangler[k].role);
+                        }
+                    }
                 }
             }
         }
@@ -173,14 +228,25 @@ function choicemade(tidangivet: bool, mangelindex: number, dropdown) {
         var nyval = Number(dropdown.options[dropdown.selectedIndex].value);
         var oldval = vistsol.resmangeltildelinger[mangelindex];
         if (tidmangelindex < 0)
-            var tidindex = tidmangelindex*(-1) - 1
+            var tidindex = tidmangelindex * (-1) - 1
         else
             var tidindex = vistsol.tidmangeltildelinger[tidmangelindex];
         if (tidindex != null) {
-            if (oldval !== undefined)
-                vistsol.fratagresourcetileventtiltid(oldval, durationindex, tidindex, eventindex);
-            if (!isNaN(nyval))
-                vistsol.tildelresourcetileventtiltid(nyval, durationindex, tidindex, eventindex);
+            if (tidmangelindex < 0)//preassigned - skal assignes til hver tid i duration
+            {
+                for (var tidadder = 0; tidadder < events[eventindex].duration; tidadder++) {
+                    if (oldval !== undefined)
+                        vistsol.fratagresourcetileventtiltid(oldval, durationindex, tidindex + tidadder, eventindex);
+                    if (!isNaN(nyval))
+                        vistsol.tildelresourcetileventtiltid(nyval, durationindex, tidindex + tidadder, eventindex);
+                }
+            }
+            else {
+                if (oldval !== undefined)
+                    vistsol.fratagresourcetileventtiltid(oldval, durationindex, tidindex, eventindex);
+                if (!isNaN(nyval))
+                    vistsol.tildelresourcetileventtiltid(nyval, durationindex, tidindex, eventindex);
+            }
         }
         if (isNaN(nyval))
             vistsol.resmangeltildelinger[mangelindex] = null;
@@ -255,19 +321,34 @@ function lavtablerowhtml(solin: solution.Sol) {
         for (var durationindex = 0; durationindex < ievent.duration; durationindex++) {
             var navn = ievent.name;
             var tooltip = "";
-            if (ievent.duration > 1)
-                navn += " (" + (durationindex + 1) + "/" + ievent.duration + ")";
-            for (var j = 0, len = ievent.eventresourcer.length; j < len; j++)
-                tooltip += ievent.eventresourcer[j].name + ", ";
-            if (tooltip.length > 0)
-                htmltxt += "<tr title='" + tooltip.substr(0, tooltip.length - 2) + "'><td>";
-            else
-                htmltxt += "<tr><td>";
+
+
             if (ievent.preasigntime) {
-                var valgttid = timer[ievent.preasigntime.index + durationindex];
-                htmltxt += navn + "</td><td>Time:" + valgttid.name + "</td>";
+                if (durationindex == 0) {
+                    if (ievent.duration > 1)
+                        navn += " (" + ievent.duration + ")";
+                    for (var j = 0, len = ievent.eventresourcer.length; j < len; j++)
+                        tooltip += ievent.eventresourcer[j].name + ", ";
+                    if (tooltip.length > 0)
+                        htmltxt += "<tr title='" + tooltip.substr(0, tooltip.length - 2) + "'><td>";
+                    else
+                        htmltxt += "<tr><td>";
+
+                    var valgttid = timer[ievent.preasigntime.index + durationindex];
+                    htmltxt += navn + "</td><td>Time:" + valgttid.name + "</td>";
+
+                }
             }
             else {
+                if (ievent.duration > 1)
+                    navn += " (" + (durationindex + 1) + "/" + ievent.duration + ")";
+                for (var j = 0, len = ievent.eventresourcer.length; j < len; j++)
+                    tooltip += ievent.eventresourcer[j].name + ", ";
+                if (tooltip.length > 0)
+                    htmltxt += "<tr title='" + tooltip.substr(0, tooltip.length - 2) + "'><td>";
+                else
+                    htmltxt += "<tr><td>";
+
                 var tiddropi = tiddrop;
                 var tidvalg = solin.tidmangeltildelinger[ievent.eventtidmangler[durationindex].index];
                 if (tidvalg > -2)
@@ -275,7 +356,16 @@ function lavtablerowhtml(solin: solution.Sol) {
                 htmltxt += navn + "</td><td>Time:<select  data-eventindex=" + ievent.index + "  data-durationindex=" + durationindex + "  data-tidmangelindex=" + ievent.eventtidmangler[durationindex].index + "   onchange='choicemade(true," +
                     ievent.eventtidmangler[durationindex].index + ",this)'>" + tiddropi + "</td>";
             }
-            for (var mnglindex = durationindex; mnglindex < antalmngler ; mnglindex = mnglindex + ievent.duration) {
+            var fra = durationindex;
+            var countplusser = ievent.duration;
+            if (ievent.preasigntime) {//hvis preassigned skal der kun laves en række. 
+                //dvs duration =0=>lav række med resmangel drop for hver mangel. ellers er rækken lavet
+                if (durationindex == 0)
+                    countplusser = 1;
+                else
+                    fra = antalmngler;
+            }
+            for (var mnglindex = fra; mnglindex < antalmngler ; mnglindex = mnglindex + countplusser) {
                 var colrole = ievent.eventresmangler[mnglindex].role;
                 var restype = ievent.eventresmangler[mnglindex].resourcetype.id;
                 if (restypedropdown[restype] === undefined) {
