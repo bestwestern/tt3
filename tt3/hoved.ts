@@ -68,6 +68,12 @@ window.onload = () => {
     // lavxml();
 
 }
+function genberegn() {
+    vistsol.udregncon(true);
+    vistsol.udregncon(false);
+ $('#content').html(lavtablerowhtml(vistsol));
+  
+}
 function tildeltid0() {
     var nyvisning = false;
     for (var i = 0; i < events.length; i++) {

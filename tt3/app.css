@@ -1,9 +1,12 @@
 ﻿
-html, body
+html
 {
-    height: 100%;
+    
 }
+body{
 
+padding-bottom:200px;
+}
 
 #footer{
 background-color: #cdcdcd;
@@ -11,7 +14,7 @@ height: 200px;
 text-align: center;
 font-size:10px;
 font-family:Verdana;
-padding-top: 10px;
+padding-top: 5px;
 width: 100%;
 position:fixed;
 left: 0px;

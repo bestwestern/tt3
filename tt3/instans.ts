@@ -14,7 +14,8 @@ module instans {
         maximumduration: number;
         minimumamount: number;
         maximumamount: number;
-
+        appliestoresmangler: ResMangel[];
+        duration: number;
         costfunction: (afv: number[]) => number;
         //costfunction
     }
@@ -23,6 +24,8 @@ module instans {
         maximumduration: number;
         minimumamount: number;
         maximumamount: number;
+        appliestoresmangler: ResMangel[];
+        duration: number;
 
         appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
@@ -48,6 +51,7 @@ module instans {
     export class AssignResourceConstraint implements Constraint {
         appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
+        appliestoresmangler: ResMangel[];
         appliestoresgrou: ResourceGroup[];
         appliestores: Resource[];
         timegroups: TimeGroup[];
@@ -56,12 +60,15 @@ module instans {
         maximumduration: number;
         minimumamount: number;
         maximumamount: number;
+        duration: number;
 
         //    appliestoma: Mangel[];
         costfunction: (afv: number[]) => number;
         constructor(public id: string, public name: string, public weight: number, costfunction: string, public role: string) {
             this.appliestoevgrou = [];
+            this.appliestoresmangler = [];
             this.appliestoev = [];
+
             //   this.appliestoma = [];
             switch (costfunction.toLowerCase()) {
                 case "sum":
@@ -85,6 +92,8 @@ module instans {
         maximumduration: number;
         minimumamount: number;
         maximumamount: number;
+        appliestoresmangler: ResMangel[];
+        duration: number;
 
         costfunction: (afv: number[]) => number;
         constructor(public id: string, public name: string, public weight: number, costfunction: string) {
@@ -106,6 +115,8 @@ module instans {
         maximumduration: number;
         minimumamount: number;
         maximumamount: number;
+        appliestoresmangler: ResMangel[];
+        duration: number;
 
         appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
@@ -140,6 +151,8 @@ module instans {
         maximumduration: number;
         minimumamount: number;
         maximumamount: number;
+        appliestoresmangler: ResMangel[];
+        duration: number;
 
         appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
@@ -155,6 +168,7 @@ module instans {
             this.appliestoev = [];
             this.timegroups = [];
             this.timer = [];
+            
             switch (costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
@@ -178,6 +192,9 @@ module instans {
         maximumduration: number;
         minimumamount: number;
         maximumamount: number;
+        appliestoresmangler: ResMangel[];
+        duration: number;
+
         costfunction: (afv: number[]) => number;
         constructor(public id: string, public name: string, public weight: number, costfunction: string) {
             switch (costfunction.toLowerCase()) {
@@ -207,6 +224,8 @@ module instans {
         maximumduration: number;
         minimumamount: number;
         maximumamount: number;
+        appliestoresmangler: ResMangel[];
+        duration: number;
 
         constructor(public id: string, public name: string, public weight: number, costfunction: string) {
             this.appliestoevgrou = [];
@@ -742,12 +761,15 @@ module instans {
                 nycon.maximumduration = constraint["MaximumDuration"];
             if ("MaximumAmount" in constraint)
                 nycon.maximumamount = constraint["MaximumAmount"];
+            if ("Duration" in constraint)
+                nycon.duration = constraint["Duration"];
+         
             if (constraint["AppliesTo"]["Events"]) {
                 var appliesto = constraint["AppliesTo"];
                 //       if ("EventGroups" in appliesto) //if array
                 if (appliesto["Events"]["Event"] instanceof Array)
                     for (var key in appliesto["Events"]["Event"])
-                        nycon.appliestoevgrou.push(eventgrupper[evid.indexOf(appliesto["Events"]["Event"][key]["Reference"])]);
+                        nycon.appliestoev.push(events[evid.indexOf(appliesto["Events"]["Event"][key]["Reference"])]);
                 else
                     nycon.appliestoev.push(events[evid.indexOf(appliesto["Events"]["Event"]["Reference"])]);
             }
@@ -769,24 +791,7 @@ module instans {
                             nycon.appliestoev.push(gr.events[i]);
                 }
             }
-            /*  if (constraint["AppliesTo"]["ResourceGroups"]) {
-                  var appliesto = constraint["AppliesTo"];
-                  if (appliesto["EventGroups"]["ResourceGroups"] instanceof Array)
-                      for (var key in appliesto["ResourceGroups"]["ResourceGroup"]) {
-                          var gr = resourcegrupper[resgrup.indexOf(appliesto["ResourceGroups"]["ResourceGroup"][key]["Reference"])];
-                          nycon.appliestoresgrou.push(gr);
-                          for (var i = 0, len = gr.events.length; i < len; i++)
-                              if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
-                                  nycon.appliestoev.push(gr.events[i]);
-                      }
-                  else {
-                      var gr = eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"]["Reference"])];
-                      nycon.appliestoevgrou.push(gr);
-                      for (var i = 0, len = gr.events.length; i < len; i++)
-                          if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
-                              nycon.appliestoev.push(gr.events[i]);
-                  }
-              }*/
+
             if (constraint["Times"]) {
                 var t = constraint["Times"]["Time"];
                 if (t instanceof Array)
@@ -838,20 +843,18 @@ module instans {
                     nycon.appliestoresgrou.push(egr);
                 }
             }
-            /*              }
-                        }
-                        /*if (nycon instanceof AssignResourceConstraint) {
-                            var ac: AssignResourceConstraint = <AssignResourceConstraint> nycon;
-                            for (var i = 0, len = ac.appliestoev.length; i < len; i++) {
-                                var ev = ac.appliestoev[i];
-                                for (var j = 0; j < ev.eventmangler.length; j++) {
-                                    var evma = ev.eventmangler[j];
-                                    if (evma.role==ro)
-                                        ac.appliestoma.push(evma);
-                                    }
-                            }
-                            nycon = ac;
-                            }*/
+            switch (type) {
+                case "AssignResourceConstraint":
+                    var apptoev = nycon.appliestoev;
+                    for (var i = 0; i < apptoev.length; i++) {
+                        var thiseventmangler = apptoev[i].eventresmangler;
+                        for (var j = 0; j < thiseventmangler.length; j++)
+                            if (thiseventmangler[j].role == nycon.role)
+                                nycon.appliestoresmangler.push(thiseventmangler[j]);
+                    }
+                    nycon.appliestoresmangler.push
+                    break;
+            }
             if (ha)// if (nycon =prefertimes - angiv de mulige tider i eventsene
                 hardconstraints.push(nycon);
             else
