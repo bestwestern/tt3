@@ -109,12 +109,20 @@
                     var constr = constr;
                     for(var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
                         var eventafvigelse = 0;
-                        var eventtidmngler = constr.appliestoev[i].eventtidmangler;
-                        for(var j = 0; j < eventtidmngler.length; j++) {
-                            var tildelttid = this.tidmangeltildelinger[eventtidmngler[j].index];
-                            if(tildelttid != null) {
-                                if(constr.timer.indexOf(timer[tildelttid]) < 0) {
-                                    eventafvigelse++;
+                        var thisevent = constr.appliestoev[i];
+                        var startogslut = this.getdurations(thisevent);
+                        for(var k = 0; k < startogslut.length; k = k + 2) {
+                            var tjek = true;
+                            if("duration" in constr) {
+                                tjek = startogslut[k + 1] - startogslut[k] + 1 == constr["duration"];
+                            }
+                            if(tjek) {
+                                var tidmangelindex = thisevent.eventtidmangler[k].index;
+                                var tildelttid = this.tidmangeltildelinger[tidmangelindex];
+                                if(tildelttid != null) {
+                                    if(constr.timer.indexOf(timer[tildelttid]) < 0) {
+                                        eventafvigelse = eventafvigelse + startogslut[k + 1] - startogslut[k] + 1;
+                                    }
                                 }
                             }
                         }
@@ -138,19 +146,11 @@
                 assert(true, prop + " " + typeopsummering[prop]);
             }
         };
-        Sol.prototype.getspliteventafvigelse = function (thisevent, con) {
-            var mindur = con.minimumduration;
-            var minam = con.minimumamount;
-            var tmp = thisevent.id;
-            if(tmp == "x09_5_A_1") {
-                var her = 4;
-            }
-            var maxdur = con.maximumduration;
-            var maxam = con.maximumamount;
+        Sol.prototype.getdurations = function (thisevent) {
+            var startogslut = [];
             var igang = true;
             var searchindex = 0;
             var totalduration = thisevent.eventtidmangler.length;
-            var startogslut = [];
             while(igang) {
                 if(this.tidmangeltildelinger[thisevent.eventtidmangler[searchindex].index] != null) {
                     startogslut.push(searchindex);
@@ -195,6 +195,15 @@
                     }
                 }
             }
+            return startogslut;
+        };
+        Sol.prototype.getspliteventafvigelse = function (thisevent, con) {
+            var mindur = con.minimumduration;
+            var minam = con.minimumamount;
+            var tmp = thisevent.id;
+            var maxdur = con.maximumduration;
+            var maxam = con.maximumamount;
+            var startogslut = this.getdurations(thisevent);
             var afvigelser = 0;
             if(startogslut.length > 0) {
                 var str = thisevent.name;
