@@ -86,6 +86,18 @@ module solution {
                         constrafvigelser.push(eventafvigelse);
                     }
                 }
+
+                if (constr instanceof instans.DistributeSplitEventsConstraint) {
+                    type = "DistributeSplitEventsConstraint";
+
+                    var constr: instans.DistributeSplitEventsConstraint = <instans.DistributeSplitEventsConstraint>constr;
+                    for (var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
+                        var eventafvigelse = this.getdistributespliteventafvigelse(constr.appliestoev[i], <instans.SplitEventsConstraint> constr);
+                        if (eventafvigelse > 0)
+                            constrafvigelser.push(eventafvigelse);
+                    }
+                }
+
                 if (constr instanceof instans.AvoidClashesConstraint) {
                     var constr: instans.PreferTimesConstraint = <instans.AvoidClashesConstraint> constr;
                     type = "AvoidClashesConstraint";
@@ -134,7 +146,7 @@ module solution {
                                         eventafvigelse = eventafvigelse + startogslut[k + 1] - startogslut[k] + 1;
                             }
 
-                        }
+                        }                        
                         constrafvigelser.push(eventafvigelse);
                     }
                 }
@@ -225,10 +237,10 @@ module solution {
 
             if (startogslut.length > 0) {
 
-                var str = thisevent.name;
+                //    var str = thisevent.name;
                 for (var i = 0; i < startogslut.length; i = i + 2) {
                     var len = startogslut[i + 1] - startogslut[i] + 1;
-                    str += " længde:" + len.toString();
+                    //      str += " længde:" + len.toString();
                     if (len < mindur)
                         afvigelser++;
                     if (len > maxdur)
@@ -240,10 +252,31 @@ module solution {
                     afvigelser += ant - maxam;
                 if (ant < minam)
                     afvigelser += minam - ant;
-                str += " antal:" + ant.toString();
+                //      str += " antal:" + ant.toString();
                 // alert(str);
             }
             return afvigelser;
+        }
+
+        getdistributespliteventafvigelse(thisevent: instans.AEvent, con: instans.SplitEventsConstraint) {
+            var min = con.minimum;
+            var tmp = thisevent.id;
+            var max = con.maximum;
+            var dur = con.duration;
+            var startogslut = this.getdurations(thisevent);
+            if (startogslut.length > 0) {
+                // var str = thisevent.name;
+                var antalmedrigtigduration = 0;
+                for (var i = 0; i < startogslut.length; i = i + 2)
+                    if (startogslut[i + 1] - startogslut[i] + 1 == dur)
+                        antalmedrigtigduration++
+
+            }
+            if (antalmedrigtigduration > max)
+                return antalmedrigtigduration - max;
+            if (antalmedrigtigduration < min)
+                return min - antalmedrigtigduration;
+            return 0;
         }
 
         tildeltidtilevent(tidmangelindex: number, tidindex: number) {

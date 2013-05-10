@@ -1,4 +1,4 @@
-﻿var solution;
+var solution;
 (function (solution) {
     var tildeling = (function () {
         function tildeling() {
@@ -77,6 +77,16 @@
                             }
                         }
                         constrafvigelser.push(eventafvigelse);
+                    }
+                }
+                if(constr instanceof instans.DistributeSplitEventsConstraint) {
+                    type = "DistributeSplitEventsConstraint";
+                    var constr = constr;
+                    for(var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
+                        var eventafvigelse = this.getdistributespliteventafvigelse(constr.appliestoev[i], constr);
+                        if(eventafvigelse > 0) {
+                            constrafvigelser.push(eventafvigelse);
+                        }
                     }
                 }
                 if(constr instanceof instans.AvoidClashesConstraint) {
@@ -206,10 +216,8 @@
             var startogslut = this.getdurations(thisevent);
             var afvigelser = 0;
             if(startogslut.length > 0) {
-                var str = thisevent.name;
                 for(var i = 0; i < startogslut.length; i = i + 2) {
                     var len = startogslut[i + 1] - startogslut[i] + 1;
-                    str += " længde:" + len.toString();
                     if(len < mindur) {
                         afvigelser++;
                     }
@@ -224,9 +232,29 @@
                 if(ant < minam) {
                     afvigelser += minam - ant;
                 }
-                str += " antal:" + ant.toString();
             }
             return afvigelser;
+        };
+        Sol.prototype.getdistributespliteventafvigelse = function (thisevent, con) {
+            var min = con.minimum;
+            var tmp = thisevent.id;
+            var max = con.maximum;
+            var startogslut = this.getdurations(thisevent);
+            if(startogslut.length > 0) {
+                var antalmedrigtigduration = 0;
+                for(var i = 0; i < startogslut.length; i = i + 2) {
+                    if(startogslut[i + 1] - startogslut[i] + 1 == con.duration) {
+                        antalmedrigtigduration++;
+                    }
+                }
+            }
+            if(antalmedrigtigduration > max) {
+                return antalmedrigtigduration - max;
+            }
+            if(antalmedrigtigduration < min) {
+                return min - antalmedrigtigduration;
+            }
+            return 0;
         };
         Sol.prototype.tildeltidtilevent = function (tidmangelindex, tidindex) {
             var event = tidmangler[tidmangelindex].aevent;

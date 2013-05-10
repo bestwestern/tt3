@@ -71,6 +71,25 @@ var instans;
         return AssignTimeConstraint;
     })();
     instans.AssignTimeConstraint = AssignTimeConstraint;    
+    var SplitEventsConstraint = (function () {
+        function SplitEventsConstraint(id, name, weight, costfunction) {
+            this.id = id;
+            this.name = name;
+            this.weight = weight;
+            switch(costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
+            }
+            this.appliestoevgrou = [];
+            this.appliestoev = [];
+        }
+        return SplitEventsConstraint;
+    })();
+    instans.SplitEventsConstraint = SplitEventsConstraint;    
     var PreferResourcesConstraint = (function () {
         function PreferResourcesConstraint(id, name, weight, costfunction) {
             this.id = id;
@@ -113,8 +132,8 @@ var instans;
         return PreferTimesConstraint;
     })();
     instans.PreferTimesConstraint = PreferTimesConstraint;    
-    var SplitEventsConstraint = (function () {
-        function SplitEventsConstraint(id, name, weight, costfunction) {
+    var DistributeSplitEventsConstraint = (function () {
+        function DistributeSplitEventsConstraint(id, name, weight, costfunction) {
             this.id = id;
             this.name = name;
             this.weight = weight;
@@ -129,9 +148,9 @@ var instans;
             this.appliestoevgrou = [];
             this.appliestoev = [];
         }
-        return SplitEventsConstraint;
+        return DistributeSplitEventsConstraint;
     })();
-    instans.SplitEventsConstraint = SplitEventsConstraint;    
+    instans.DistributeSplitEventsConstraint = DistributeSplitEventsConstraint;    
     var SpreadEventsConstraint = (function () {
         function SpreadEventsConstraint(id, name, weight, costfunction) {
             this.id = id;
@@ -652,6 +671,9 @@ var instans;
             case "AssignTimeConstraint":
                 var nycon = new AssignTimeConstraint(id, na, we, co);
                 break;
+            case "DistributeSplitEventsConstraint":
+                var nycon = new DistributeSplitEventsConstraint(id, na, we, co);
+                break;
             case "LimitBusyTimesConstraint":
                 break;
             case "PreferTimesConstraint":
@@ -684,6 +706,12 @@ var instans;
             }
             if("MaximumDuration" in constraint) {
                 nycon.maximumduration = constraint["MaximumDuration"];
+            }
+            if("Minimum" in constraint) {
+                nycon.minimum = constraint["Minimum"];
+            }
+            if("Maximum" in constraint) {
+                nycon.maximum = constraint["Maximum"];
             }
             if("MaximumAmount" in constraint) {
                 nycon.maximumamount = constraint["MaximumAmount"];

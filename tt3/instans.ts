@@ -1,6 +1,5 @@
 /// <reference path="solution.ts" />
 /// <reference path="hoved.ts" />
-
 module instans {
     function sum(afvigelser: number[]) {
         var s = 0;
@@ -14,6 +13,8 @@ module instans {
         maximumduration: number;
         minimumamount: number;
         maximumamount: number;
+        minimum: number;
+        maximum: number;
         appliestoresmangler: ResMangel[];
         duration: number;
         costfunction: (afv: number[]) => number;
@@ -24,7 +25,9 @@ module instans {
         maximumduration: number;
         minimumamount: number;
         maximumamount: number;
-        appliestoresmangler: ResMangel[];
+        minimum: number;
+        maximum: number;
+     appliestoresmangler: ResMangel[];
         duration: number;
 
         appliestoevgrou: EventGroup[];
@@ -61,6 +64,8 @@ module instans {
         minimumamount: number;
         maximumamount: number;
         duration: number;
+        minimum: number;
+        maximum: number;
 
         //    appliestoma: Mangel[];
         costfunction: (afv: number[]) => number;
@@ -94,6 +99,8 @@ module instans {
         maximumamount: number;
         appliestoresmangler: ResMangel[];
         duration: number;
+        minimum: number;
+        maximum: number;
 
         costfunction: (afv: number[]) => number;
         constructor(public id: string, public name: string, public weight: number, costfunction: string) {
@@ -109,7 +116,71 @@ module instans {
             }
         }
     }
+    export class SplitEventsConstraint implements Constraint {
+        appliestoevgrou: EventGroup[];
+        appliestoev: AEvent[];
+        appliestoresgrou: ResourceGroup[];
+        appliestores: Resource[];
+        role: string;
+        timer: Time[];
+        timegroups: TimeGroup[];
+        minimumduration: number;
+        maximumduration: number;
+        minimumamount: number;
+        maximumamount: number;
+        appliestoresmangler: ResMangel[];
+        duration: number;
+        minimum: number;
+        maximum: number;
 
+        costfunction: (afv: number[]) => number;
+        constructor(public id: string, public name: string, public weight: number, costfunction: string) {
+            switch (costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
+            }
+            this.appliestoevgrou = [];
+            this.appliestoev = [];
+
+        }
+
+    }
+    export class SpreadEventsConstraint implements Constraint {
+        appliestoevgrou: EventGroup[];
+        appliestoev: AEvent[];
+        appliestoresgrou: ResourceGroup[];
+        appliestores: Resource[];
+        role: string;
+        timer: Time[];
+        timegroups: TimeGroup[];
+        minimumduration: number;
+        maximumduration: number;
+        minimumamount: number;
+        maximumamount: number;
+        appliestoresmangler: ResMangel[];
+        duration: number;
+        minimum: number;
+        maximum: number;
+
+        costfunction: (afv: number[]) => number;
+        constructor(public id: string, public name: string, public weight: number, costfunction: string) {
+            switch (costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
+            }
+            this.appliestoevgrou = [];
+         }
+
+    }
+    
     export class PreferResourcesConstraint implements Constraint {
         minimumduration: number;
         maximumduration: number;
@@ -117,6 +188,8 @@ module instans {
         maximumamount: number;
         appliestoresmangler: ResMangel[];
         duration: number;
+        minimum: number;
+        maximum: number;
 
         appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
@@ -153,6 +226,8 @@ module instans {
         maximumamount: number;
         appliestoresmangler: ResMangel[];
         duration: number;
+        minimum: number;
+        maximum: number;
 
         appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
@@ -180,7 +255,7 @@ module instans {
         }
     }
 
-    export class SplitEventsConstraint implements Constraint {
+    export class DistributeSplitEventsConstraint implements Constraint {
         appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
         appliestoresgrou: ResourceGroup[];
@@ -194,6 +269,8 @@ module instans {
         maximumamount: number;
         appliestoresmangler: ResMangel[];
         duration: number;
+        minimum: number;
+        maximum: number;
 
         costfunction: (afv: number[]) => number;
         constructor(public id: string, public name: string, public weight: number, costfunction: string) {
@@ -226,6 +303,8 @@ module instans {
         maximumamount: number;
         appliestoresmangler: ResMangel[];
         duration: number;
+        minimum: number;
+        maximum: number;
 
         constructor(public id: string, public name: string, public weight: number, costfunction: string) {
             this.appliestoevgrou = [];
@@ -726,6 +805,9 @@ module instans {
             case "AssignTimeConstraint":
                 var nycon = new AssignTimeConstraint(id, na, we, co);
                 break;
+            case "DistributeSplitEventsConstraint":
+                var nycon = new DistributeSplitEventsConstraint(id, na, we, co);
+                break;                
             case "LimitBusyTimesConstraint"://MANFLWE
                 break;
             case "PreferTimesConstraint":
@@ -759,6 +841,10 @@ module instans {
                 nycon.minimumduration = constraint["MinimumDuration"];
             if ("MaximumDuration" in constraint)
                 nycon.maximumduration = constraint["MaximumDuration"];
+            if ("Minimum" in constraint)
+                nycon.minimum = constraint["Minimum"];
+            if ("Maximum" in constraint)
+                nycon.maximum = constraint["Maximum"];
             if ("MaximumAmount" in constraint)
                 nycon.maximumamount = constraint["MaximumAmount"];
             if ("Duration" in constraint)
