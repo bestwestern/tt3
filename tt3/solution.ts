@@ -125,6 +125,18 @@ module solution {
                             constrafvigelser.push(eventafvigelse);
                     }
                 }
+                if (constr instanceof instans.SpreadEventsConstraint) {
+                    type = "SpreadEventsConstraint";
+                     var constr: instans.SplitEventsConstraint = <instans.SpreadEventsConstraint>constr;
+                     var starttider: number[]=[];
+                     for (var i = 0; i < constr.)
+                   for (var i = 0, antaleventgrsicon = constr.appliestoevgrou.length; i < antaleventgrsicon; i++) {
+                        var evgr = constr.appliestoevgrou[i];
+                        for (var j = 0; j < evgr.events.length; j++){
+                            fd
+                        }
+                    }
+                }
                 if (constr instanceof instans.PreferTimesConstraint) {
                     type = "PreferTimesConstraint";
                     var conduration = constr.duration;

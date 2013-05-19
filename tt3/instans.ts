@@ -27,7 +27,7 @@ module instans {
         maximumamount: number;
         minimum: number;
         maximum: number;
-     appliestoresmangler: ResMangel[];
+        appliestoresmangler: ResMangel[];
         duration: number;
 
         appliestoevgrou: EventGroup[];
@@ -116,7 +116,7 @@ module instans {
             }
         }
     }
-    export class SplitEventsConstraint implements Constraint {
+    export class DistributeSplitEventsConstraint implements Constraint {
         appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
         appliestoresgrou: ResourceGroup[];
@@ -149,38 +149,6 @@ module instans {
         }
 
     }
-    export class SpreadEventsConstraint implements Constraint {
-        appliestoevgrou: EventGroup[];
-        appliestoev: AEvent[];
-        appliestoresgrou: ResourceGroup[];
-        appliestores: Resource[];
-        role: string;
-        timer: Time[];
-        timegroups: TimeGroup[];
-        minimumduration: number;
-        maximumduration: number;
-        minimumamount: number;
-        maximumamount: number;
-        appliestoresmangler: ResMangel[];
-        duration: number;
-        minimum: number;
-        maximum: number;
-
-        costfunction: (afv: number[]) => number;
-        constructor(public id: string, public name: string, public weight: number, costfunction: string) {
-            switch (costfunction.toLowerCase()) {
-                case "sum":
-                    this.costfunction = sum;
-                    break;
-                default:
-                    alert('costfunction mangler!' + costfunction);
-                    break;
-            }
-            this.appliestoevgrou = [];
-         }
-
-    }
-    
     export class PreferResourcesConstraint implements Constraint {
         minimumduration: number;
         maximumduration: number;
@@ -243,7 +211,7 @@ module instans {
             this.appliestoev = [];
             this.timegroups = [];
             this.timer = [];
-            
+
             switch (costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
@@ -255,7 +223,7 @@ module instans {
         }
     }
 
-    export class DistributeSplitEventsConstraint implements Constraint {
+    export class SplitEventsConstraint implements Constraint {
         appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
         appliestoresgrou: ResourceGroup[];
@@ -293,10 +261,9 @@ module instans {
         appliestoev: AEvent[];
         appliestoresgrou: ResourceGroup[];
         appliestores: Resource[];
-        timegroups: TimeGroup[];
         role: string;
-        costfunction: (afv: number[]) => number;
         timer: Time[];
+        timegroups: TimeGroup[];
         minimumduration: number;
         maximumduration: number;
         minimumamount: number;
@@ -305,12 +272,10 @@ module instans {
         duration: number;
         minimum: number;
         maximum: number;
-
+        timegroupminimum: number[];//timegroupminimum[i]  minimum tilhørende timegroup i
+        timegroupmaximum: number[];//timegroupmaximum[i]  maxixmum tilhørende timegroup i
+        costfunction: (afv: number[]) => number;
         constructor(public id: string, public name: string, public weight: number, costfunction: string) {
-            this.appliestoevgrou = [];
-            this.timegroups = [];
-            this.timer = [];
-            this.appliestoev = [];
             switch (costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
@@ -319,8 +284,49 @@ module instans {
                     alert('costfunction mangler!' + costfunction);
                     break;
             }
+            this.appliestoevgrou = [];
+            this.timegroups = [];
+            this.timegroupmaximum = [];
+            this.timegroupminimum = [];
         }
+
     }
+
+
+
+    /*  export class SpreadEventsConstraint implements Constraint {
+          appliestoevgrou: EventGroup[];
+          appliestoev: AEvent[];
+          appliestoresgrou: ResourceGroup[];
+          appliestores: Resource[];
+          timegroups: TimeGroup[];
+          role: string;
+          costfunction: (afv: number[]) => number;
+          timer: Time[];
+          minimumduration: number;
+          maximumduration: number;
+          minimumamount: number;
+          maximumamount: number;
+          appliestoresmangler: ResMangel[];
+          duration: number;
+          minimum: number;
+          maximum: number;
+  
+          constructor(public id: string, public name: string, public weight: number, costfunction: string) {
+              this.appliestoevgrou = [];
+              this.timegroups = [];
+              this.timer = [];
+              this.appliestoev = [];
+              switch (costfunction.toLowerCase()) {
+                  case "sum":
+                      this.costfunction = sum;
+                      break;
+                  default:
+                      alert('costfunction mangler!' + costfunction);
+                      break;
+              }
+          }
+      }*/
 
 
     export class Entity {
@@ -807,7 +813,7 @@ module instans {
                 break;
             case "DistributeSplitEventsConstraint":
                 var nycon = new DistributeSplitEventsConstraint(id, na, we, co);
-                break;                
+                break;
             case "LimitBusyTimesConstraint"://MANFLWE
                 break;
             case "PreferTimesConstraint":
@@ -849,7 +855,7 @@ module instans {
                 nycon.maximumamount = constraint["MaximumAmount"];
             if ("Duration" in constraint)
                 nycon.duration = constraint["Duration"];
-         
+
             if (constraint["AppliesTo"]["Events"]) {
                 var appliesto = constraint["AppliesTo"];
                 //       if ("EventGroups" in appliesto) //if array
@@ -865,16 +871,18 @@ module instans {
                     for (var key in appliesto["EventGroups"]["EventGroup"]) {
                         var gr = eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"][key]["Reference"])];
                         nycon.appliestoevgrou.push(gr);
-                        for (var i = 0, len = gr.events.length; i < len; i++)
-                            if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
-                                nycon.appliestoev.push(gr.events[i]);
+                        if (nycon.appliestoev)//spreadevents har appliestoevgr men ikke appliestoev
+                            for (var i = 0, len = gr.events.length; i < len; i++)
+                                if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
+                                    nycon.appliestoev.push(gr.events[i]);
                     }
                 else {
                     var gr = eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"]["Reference"])];
                     nycon.appliestoevgrou.push(gr);
-                    for (var i = 0, len = gr.events.length; i < len; i++)
-                        if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
-                            nycon.appliestoev.push(gr.events[i]);
+                    if (nycon.appliestoev)//spreadevents har appliestoevgr men ikke appliestoev
+                        for (var i = 0, len = gr.events.length; i < len; i++)
+                            if (nycon.appliestoev.indexOf(gr.events[i]) == -1)
+                                nycon.appliestoev.push(gr.events[i]);
                 }
             }
 
@@ -892,17 +900,27 @@ module instans {
                     for (var key in tg) {
                         var tgr = tidsgrupper[tidgrupid.indexOf(tg[key]["Reference"])];
                         nycon.timegroups.push(tgr);
-                        for (var i = 0, len = tgr.timer.length; i < len; i++)
-                            if (nycon.timer.indexOf(tgr.timer[i]) == -1)
-                                nycon.timer.push(tgr.timer[i]);
+                        if ("Minimum" in tg[key]) {
+                            (<SpreadEventsConstraint>nycon).timegroupminimum.push(tg[key]["Minimum"]);
+                            (<SpreadEventsConstraint>nycon).timegroupmaximum.push(tg[key]["Maximum"]);
+                        }
+                        if (nycon.timer)//nødvendig fordi spreadevents har timegroups men ikke timer
+                            for (var i = 0, len = tgr.timer.length; i < len; i++)
+                                if (nycon.timer.indexOf(tgr.timer[i]) == -1)
+                                    nycon.timer.push(tgr.timer[i]);
                     }
                 }
                 else {
+                     if ("Minimum" in tg) {
+                        (<SpreadEventsConstraint>nycon).timegroupminimum.push(tg["Minimum"]);
+                        (<SpreadEventsConstraint>nycon).timegroupmaximum.push(tg["Maximum"]);
+                    }
                     var tgr = tidsgrupper[tidgrupid.indexOf(tg["Reference"])];
                     nycon.timegroups.push(tgr);
-                    for (var i = 0, len = tgr.timer.length; i < len; i++)
-                        if (nycon.timer.indexOf(tgr.timer[i]) == -1)
-                            nycon.timer.push(tgr.timer[i]);
+                    if (nycon.timer)//nødvendig fordi spreadevents har timegroups men ikke timer
+                        for (var i = 0, len = tgr.timer.length; i < len; i++)
+                            if (nycon.timer.indexOf(tgr.timer[i]) == -1)
+                                nycon.timer.push(tgr.timer[i]);
                 }
             }
 

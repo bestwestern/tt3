@@ -41,7 +41,7 @@ window.onload = function () {
         "SpainSchool", 
         "ItalyInstance1"
     ];
-    var alle = 0;
+    var alle = 1;
     if(alle) {
         for(var i = 0; i < filenames.length; i++) {
             events = [];

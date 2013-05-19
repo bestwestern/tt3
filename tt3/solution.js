@@ -239,11 +239,12 @@ var solution;
             var min = con.minimum;
             var tmp = thisevent.id;
             var max = con.maximum;
+            var dur = con.duration;
             var startogslut = this.getdurations(thisevent);
             if(startogslut.length > 0) {
                 var antalmedrigtigduration = 0;
                 for(var i = 0; i < startogslut.length; i = i + 2) {
-                    if(startogslut[i + 1] - startogslut[i] + 1 == con.duration) {
+                    if(startogslut[i + 1] - startogslut[i] + 1 == dur) {
                         antalmedrigtigduration++;
                     }
                 }

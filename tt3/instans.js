@@ -71,8 +71,8 @@ var instans;
         return AssignTimeConstraint;
     })();
     instans.AssignTimeConstraint = AssignTimeConstraint;    
-    var SplitEventsConstraint = (function () {
-        function SplitEventsConstraint(id, name, weight, costfunction) {
+    var DistributeSplitEventsConstraint = (function () {
+        function DistributeSplitEventsConstraint(id, name, weight, costfunction) {
             this.id = id;
             this.name = name;
             this.weight = weight;
@@ -87,9 +87,9 @@ var instans;
             this.appliestoevgrou = [];
             this.appliestoev = [];
         }
-        return SplitEventsConstraint;
+        return DistributeSplitEventsConstraint;
     })();
-    instans.SplitEventsConstraint = SplitEventsConstraint;    
+    instans.DistributeSplitEventsConstraint = DistributeSplitEventsConstraint;    
     var PreferResourcesConstraint = (function () {
         function PreferResourcesConstraint(id, name, weight, costfunction) {
             this.id = id;
@@ -132,8 +132,8 @@ var instans;
         return PreferTimesConstraint;
     })();
     instans.PreferTimesConstraint = PreferTimesConstraint;    
-    var DistributeSplitEventsConstraint = (function () {
-        function DistributeSplitEventsConstraint(id, name, weight, costfunction) {
+    var SplitEventsConstraint = (function () {
+        function SplitEventsConstraint(id, name, weight, costfunction) {
             this.id = id;
             this.name = name;
             this.weight = weight;
@@ -148,18 +148,14 @@ var instans;
             this.appliestoevgrou = [];
             this.appliestoev = [];
         }
-        return DistributeSplitEventsConstraint;
+        return SplitEventsConstraint;
     })();
-    instans.DistributeSplitEventsConstraint = DistributeSplitEventsConstraint;    
+    instans.SplitEventsConstraint = SplitEventsConstraint;    
     var SpreadEventsConstraint = (function () {
         function SpreadEventsConstraint(id, name, weight, costfunction) {
             this.id = id;
             this.name = name;
             this.weight = weight;
-            this.appliestoevgrou = [];
-            this.timegroups = [];
-            this.timer = [];
-            this.appliestoev = [];
             switch(costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
@@ -168,6 +164,10 @@ var instans;
                     alert('costfunction mangler!' + costfunction);
                     break;
             }
+            this.appliestoevgrou = [];
+            this.timegroups = [];
+            this.timegroupmaximum = [];
+            this.timegroupminimum = [];
         }
         return SpreadEventsConstraint;
     })();
@@ -735,18 +735,22 @@ var instans;
                     for(var key in appliesto["EventGroups"]["EventGroup"]) {
                         var gr = eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"][key]["Reference"])];
                         nycon.appliestoevgrou.push(gr);
-                        for(var i = 0, len = gr.events.length; i < len; i++) {
-                            if(nycon.appliestoev.indexOf(gr.events[i]) == -1) {
-                                nycon.appliestoev.push(gr.events[i]);
+                        if(nycon.appliestoev) {
+                            for(var i = 0, len = gr.events.length; i < len; i++) {
+                                if(nycon.appliestoev.indexOf(gr.events[i]) == -1) {
+                                    nycon.appliestoev.push(gr.events[i]);
+                                }
                             }
                         }
                     }
                 } else {
                     var gr = eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"]["Reference"])];
                     nycon.appliestoevgrou.push(gr);
-                    for(var i = 0, len = gr.events.length; i < len; i++) {
-                        if(nycon.appliestoev.indexOf(gr.events[i]) == -1) {
-                            nycon.appliestoev.push(gr.events[i]);
+                    if(nycon.appliestoev) {
+                        for(var i = 0, len = gr.events.length; i < len; i++) {
+                            if(nycon.appliestoev.indexOf(gr.events[i]) == -1) {
+                                nycon.appliestoev.push(gr.events[i]);
+                            }
                         }
                     }
                 }
@@ -767,18 +771,30 @@ var instans;
                     for(var key in tg) {
                         var tgr = tidsgrupper[tidgrupid.indexOf(tg[key]["Reference"])];
                         nycon.timegroups.push(tgr);
-                        for(var i = 0, len = tgr.timer.length; i < len; i++) {
-                            if(nycon.timer.indexOf(tgr.timer[i]) == -1) {
-                                nycon.timer.push(tgr.timer[i]);
+                        if("Minimum" in tg[key]) {
+                            (nycon).timegroupminimum.push(tg[key]["Minimum"]);
+                            (nycon).timegroupmaximum.push(tg[key]["Maximum"]);
+                        }
+                        if(nycon.timer) {
+                            for(var i = 0, len = tgr.timer.length; i < len; i++) {
+                                if(nycon.timer.indexOf(tgr.timer[i]) == -1) {
+                                    nycon.timer.push(tgr.timer[i]);
+                                }
                             }
                         }
                     }
                 } else {
+                    if("Minimum" in tg) {
+                        (nycon).timegroupminimum.push(tg["Minimum"]);
+                        (nycon).timegroupmaximum.push(tg["Maximum"]);
+                    }
                     var tgr = tidsgrupper[tidgrupid.indexOf(tg["Reference"])];
                     nycon.timegroups.push(tgr);
-                    for(var i = 0, len = tgr.timer.length; i < len; i++) {
-                        if(nycon.timer.indexOf(tgr.timer[i]) == -1) {
-                            nycon.timer.push(tgr.timer[i]);
+                    if(nycon.timer) {
+                        for(var i = 0, len = tgr.timer.length; i < len; i++) {
+                            if(nycon.timer.indexOf(tgr.timer[i]) == -1) {
+                                nycon.timer.push(tgr.timer[i]);
+                            }
                         }
                     }
                 }
