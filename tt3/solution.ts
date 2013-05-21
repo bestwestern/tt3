@@ -46,6 +46,7 @@ module solution {
                 }
             }
         }
+
         udregncon(hardcon: bool) {//frisk udregning (uden gemte tidligere værdier) bør måske ikke lave prefertimes hvis hardcon? - opdel udregn i hard og soft
             var constrarr: instans.Constraint[] = hardcon ? hardconstraints : softconstraints;
             var typeopsummering = {};
@@ -129,15 +130,17 @@ module solution {
                     type = "SpreadEventsConstraint";
                     var constr: instans.SpreadEventsConstraint = <instans.SpreadEventsConstraint>constr;
                     var starttider: number[] = [];
-                    var antaltimegroups = (<instans.SpreadEventsConstraint>constr).timegroupminimum.length;
                     for (var i = 0; i < antaltimegroups; i++)
                         starttider.push(0);
+                    var antaltimegroups = (<instans.SpreadEventsConstraint>constr).timegroupminimum.length;
                     for (var i = 0, antaleventgrsicon = constr.appliestoevgrou.length; i < antaleventgrsicon; i++) {
                         var evgr = constr.appliestoevgrou[i];
+                        for (var j = 0; j < antaltimegroups; j++)
+                            starttider[j] = 0;
                         for (var j = 0; j < evgr.events.length; j++) {
                             var assignedtider: instans.Time[] = [];
                             var ev = evgr.events[j];
-                            var evafvigelser = [];  
+                            var evafvigelser = [];
                             if (ev.preasigntime)
                                 assignedtider.push(ev.preasigntime);
                             else {
@@ -154,15 +157,18 @@ module solution {
                                 for (var l = 0; l < time.timegroups.length; l++) {
                                     var grindex = constr.timegroups.indexOf(time.timegroups[l]);
                                     if (grindex > -1)
-                                            starttider[grindex]++;
+                                        starttider[grindex]++;
                                 }
                             }
                             for (var k = 0; k < antaltimegroups; k++) {
                                 var ant = starttider[k];
-                                if (ant < (<instans.SpreadEventsConstraint>).timegroupminimum[k])
-
-                        }
+                                if (ant < (<instans.SpreadEventsConstraint> constr).timegroupminimum[k])
+                                    constrafvigelser.push((<instans.SpreadEventsConstraint> constr).timegroupminimum[k] - ant);
+                                else
+                                    if (ant > (<instans.SpreadEventsConstraint> constr).timegroupmaximum[k])
+                                        constrafvigelser.push(ant - (<instans.SpreadEventsConstraint> constr).timegroupmaximum[k]);
                             }
+                        }
                     }
                 }
                 if (constr instanceof instans.PreferTimesConstraint) {
@@ -178,7 +184,7 @@ module solution {
                             if ("duration" in constr)
                                 tjek = startogslut[k + 1] - startogslut[k] + 1 == constr["duration"];//rigtig længde?
                             if (tjek) {
-                                var tidmangelindex = thisevent.eventtidmangler[k].index;
+                                var tidmangelindex = thisevent.eventtidmangler[startogslut[k]].index;
                                 var tildelttid = this.tidmangeltildelinger[tidmangelindex];
                                 //     var tildelttid = this.tidmangeltildelinger[eventtidmngler[thisevent.eventtidmangler[k].index]];
                                 if (tildelttid != null)
@@ -197,6 +203,7 @@ module solution {
 
                     var li = document.createElement("li");
                     samlconstrafvigelse = constr.costfunction(constrafvigelser) * constr.weight;
+
                     li.appendChild(document.createTextNode(constr.id + ':' + samlconstrafvigelse.toString() + ':' + constrafvigelser.toString()));
                     var conliste = hardcon ? document.getElementById("hardcon") : document.getElementById("softcon");
                     conliste.insertBefore(li, conliste.firstChild);
@@ -209,6 +216,7 @@ module solution {
                     //                    appendChild(li);
                 }
             }
+            assert(true, '-----------');
             for (var prop in typeopsummering)
                 assert(true, prop + " " + typeopsummering[prop])
         }
@@ -297,7 +305,6 @@ module solution {
             }
             return afvigelser;
         }
-
         getdistributespliteventafvigelse(thisevent: instans.AEvent, con: instans.SplitEventsConstraint) {
             var min = con.minimum;
             var tmp = thisevent.id;
@@ -318,7 +325,28 @@ module solution {
                 return min - antalmedrigtigduration;
             return 0;
         }
-
+        randomtidtildel(antal: number) {
+            for (var i = 0; i < antal; i++) {
+                var tidmangelindex = Math.floor(Math.random() * tidmangler.length);
+                var tidindex = Math.floor(Math.random() * antaltider);
+                this.tildeltidtilevent(tidmangelindex, tidindex);
+            }
+        }
+        randontildelres(antal: number) {
+            for (var i = 0; i < antal; i++) {
+                var resmangelindex = Math.floor(Math.random() * resmangler.length);
+                if (this.resmangeltildelinger[resmangelindex] == undefined) {
+                    var typ = resmangler[resmangelindex].resourcetype;
+                    var grr = Math.floor(Math.random() * typ.resourcegroups.length);
+                    var r = typ.resourcegroups[grr].resourcer;
+                    var rr = Math.floor(Math.random() * r.length);
+                    var resindex = r[rr].index;
+                    vistsol.resmangeltildelinger[resmangelindex] = resindex;
+                }
+                else
+                    var her = 3;
+            }
+        }
         tildeltidtilevent(tidmangelindex: number, tidindex: number) {
             var event = tidmangler[tidmangelindex].aevent;
             var eventindex = event.index;

@@ -1,4 +1,4 @@
-var solution;
+﻿var solution;
 (function (solution) {
     var tildeling = (function () {
         function tildeling() {
@@ -9,6 +9,7 @@ var solution;
     })();
     solution.tildeling = tildeling;    
     var restider = (function () {
+        //tider[tidindex]
         function restider() {
             this.tider = [];
             for(var i = 0; i < antaltider; i++) {
@@ -27,6 +28,7 @@ var solution;
                 this.restiltid[i] = new restider();
             }
             for(var i = 0; i < antalevents; i++) {
+                //tildel preassigned res på events med preassigned tider
                 var thisevent = events[i];
                 if(thisevent.preasigntime) {
                     for(var durationindex = 0; durationindex < thisevent.duration; durationindex++) {
@@ -40,6 +42,7 @@ var solution;
             }
         }
         Sol.prototype.udregncon = function (hardcon) {
+            //frisk udregning (uden gemte tidligere værdier) bør måske ikke lave prefertimes hvis hardcon? - opdel udregn i hard og soft
             var constrarr = hardcon ? hardconstraints : softconstraints;
             var typeopsummering = {
             };
@@ -117,31 +120,45 @@ var solution;
                     type = "SpreadEventsConstraint";
                     var constr = constr;
                     var starttider = [];
-                    var antaltimegroups = (constr).timegroupminimum.length;
                     for(var i = 0; i < antaltimegroups; i++) {
                         starttider.push(0);
                     }
+                    var antaltimegroups = (constr).timegroupminimum.length;
                     for(var i = 0, antaleventgrsicon = constr.appliestoevgrou.length; i < antaleventgrsicon; i++) {
                         var evgr = constr.appliestoevgrou[i];
+                        for(var j = 0; j < antaltimegroups; j++) {
+                            starttider[j] = 0;
+                        }
                         for(var j = 0; j < evgr.events.length; j++) {
                             var assignedtider = [];
                             var ev = evgr.events[j];
+                            var evafvigelser = [];
                             if(ev.preasigntime) {
                                 assignedtider.push(ev.preasigntime);
                             } else {
                                 var durations = this.getdurations(ev);
                                 for(var k = 0; k < durations.length; k = k + 2) {
+                                    /* var tm = ev.eventtidmangler[durations[k]].index;
+                                    var tld = this.tidmangeltildelinger[tm];
+                                    var tid = timer[tld];*/
                                     assignedtider.push(timer[this.tidmangeltildelinger[ev.eventtidmangler[durations[k]].index]]);
                                 }
                             }
                             for(var k = 0; k < assignedtider.length; k++) {
                                 var time = assignedtider[k];
                                 for(var l = 0; l < time.timegroups.length; l++) {
-                                    var gr = time.timegroups[l];
-                                    var grindex = constr.timegroups.indexOf(gr);
+                                    var grindex = constr.timegroups.indexOf(time.timegroups[l]);
                                     if(grindex > -1) {
                                         starttider[grindex]++;
                                     }
+                                }
+                            }
+                            for(var k = 0; k < antaltimegroups; k++) {
+                                var ant = starttider[k];
+                                if(ant < (constr).timegroupminimum[k]) {
+                                    constrafvigelser.push((constr).timegroupminimum[k] - ant);
+                                } else if(ant > (constr).timegroupmaximum[k]) {
+                                    constrafvigelser.push(ant - (constr).timegroupmaximum[k]);
                                 }
                             }
                         }
@@ -159,10 +176,12 @@ var solution;
                             var tjek = true;
                             if("duration" in constr) {
                                 tjek = startogslut[k + 1] - startogslut[k] + 1 == constr["duration"];
-                            }
+                            }//rigtig længde?
+                            
                             if(tjek) {
-                                var tidmangelindex = thisevent.eventtidmangler[k].index;
+                                var tidmangelindex = thisevent.eventtidmangler[startogslut[k]].index;
                                 var tildelttid = this.tidmangeltildelinger[tidmangelindex];
+                                //     var tildelttid = this.tidmangeltildelinger[eventtidmngler[thisevent.eventtidmangler[k].index]];
                                 if(tildelttid != null) {
                                     if(constr.timer.indexOf(timer[tildelttid]) < 0) {
                                         eventafvigelse = eventafvigelse + startogslut[k + 1] - startogslut[k] + 1;
@@ -184,8 +203,10 @@ var solution;
                     } else {
                         typeopsummering[type] += samlconstrafvigelse;
                     }
-                }
+                    //                    appendChild(li);
+                                    }
             }
+            assert(true, '-----------');
             for(var prop in typeopsummering) {
                 assert(true, prop + " " + typeopsummering[prop]);
             }
@@ -206,7 +227,8 @@ var solution;
                         } else {
                             if(this.tidmangeltildelinger[thisevent.eventtidmangler[searchindex + 1].index] != null) {
                                 if(this.tidmangeltildelinger[thisevent.eventtidmangler[searchindex].index] + 1 == this.tidmangeltildelinger[thisevent.eventtidmangler[searchindex + 1].index]) {
-                                    var resourcerens = false;
+                                    var resourcerens = false;//nb imgen resmangler
+                                    
                                     for(var k = searchindex + 1; k < thisevent.eventresmangler.length; k += thisevent.duration) {
                                         var denneres = vistsol.resmangeltildelinger[thisevent.eventresmangler[k].index];
                                         var forrigeres = vistsol.resmangeltildelinger[thisevent.eventresmangler[k - 1].index];
@@ -250,8 +272,10 @@ var solution;
             var startogslut = this.getdurations(thisevent);
             var afvigelser = 0;
             if(startogslut.length > 0) {
+                //    var str = thisevent.name;
                 for(var i = 0; i < startogslut.length; i = i + 2) {
                     var len = startogslut[i + 1] - startogslut[i] + 1;
+                    //      str += " længde:" + len.toString();
                     if(len < mindur) {
                         afvigelser++;
                     }
@@ -266,7 +290,9 @@ var solution;
                 if(ant < minam) {
                     afvigelser += minam - ant;
                 }
-            }
+                //      str += " antal:" + ant.toString();
+                // alert(str);
+                            }
             return afvigelser;
         };
         Sol.prototype.getdistributespliteventafvigelse = function (thisevent, con) {
@@ -276,6 +302,7 @@ var solution;
             var dur = con.duration;
             var startogslut = this.getdurations(thisevent);
             if(startogslut.length > 0) {
+                // var str = thisevent.name;
                 var antalmedrigtigduration = 0;
                 for(var i = 0; i < startogslut.length; i = i + 2) {
                     if(startogslut[i + 1] - startogslut[i] + 1 == dur) {
@@ -290,6 +317,28 @@ var solution;
                 return min - antalmedrigtigduration;
             }
             return 0;
+        };
+        Sol.prototype.randomtidtildel = function (antal) {
+            for(var i = 0; i < antal; i++) {
+                var tidmangelindex = Math.floor(Math.random() * tidmangler.length);
+                var tidindex = Math.floor(Math.random() * antaltider);
+                this.tildeltidtilevent(tidmangelindex, tidindex);
+            }
+        };
+        Sol.prototype.randontildelres = function (antal) {
+            for(var i = 0; i < antal; i++) {
+                var resmangelindex = Math.floor(Math.random() * resmangler.length);
+                if(this.resmangeltildelinger[resmangelindex] == undefined) {
+                    var typ = resmangler[resmangelindex].resourcetype;
+                    var grr = Math.floor(Math.random() * typ.resourcegroups.length);
+                    var r = typ.resourcegroups[grr].resourcer;
+                    var rr = Math.floor(Math.random() * r.length);
+                    var resindex = r[rr].index;
+                    vistsol.resmangeltildelinger[resmangelindex] = resindex;
+                } else {
+                    var her = 3;
+                }
+            }
         };
         Sol.prototype.tildeltidtilevent = function (tidmangelindex, tidindex) {
             var event = tidmangler[tidmangelindex].aevent;
@@ -310,6 +359,7 @@ var solution;
                 }
             }
             for(var j = 0; j < event.eventresourcer.length; j++) {
+                //preassignede
                 var resindex = event.eventresourcer[j].index;
                 if(gltid !== undefined) {
                     this.fratagresourcetileventtiltid(resindex, durationindex, gltid, eventindex);
@@ -346,3 +396,114 @@ var solution;
     })();
     solution.Sol = Sol;    
 })(solution || (solution = {}));
+/*  var hardafv = 0;
+for (var c = 0, lencon = hardconstraints.length; c < lencon; c++) {
+var constr = hardconstraints[c];
+var constrafvigelser: number[] = [];
+var constrstraf = 0;
+if (constr instanceof instans.AssignTimeConstraint) {
+//     var constr: instans.AssignTimeConstraint = <instans.AssignTimeConstraint> constr;
+for (var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
+var even = constr.appliestoev[i];
+var eventafvigelse = 0;
+for (var j = 0, eventdura = even.duration; j < eventdura; j++)
+if (!even.solevent[j].sTime != undefined)
+eventafvigelse++;
+if (eventafvigelse > 0)
+constrafvigelser.push(eventafvigelse);
+}
+
+}
+else
+if (constr instanceof instans.AssignResourceConstraint) {
+for (var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
+var even = constr.appliestoev[i];
+var eventafvigelse = 0;
+for (var j = 0, eventdura = even.duration; j < eventdura; j++) {
+var soleven = even.solevent[j];
+for (var k = 0, eventmangllen = soleven.resourcer.length; k < eventmangllen; k++) {
+if (soleven.resourcer[k].resourceref == null) {
+if (soleven.resourcer[k].mangel.role == constr.role) {
+eventafvigelse++;
+}
+}
+else {
+// alert('jk');
+}
+}
+}
+if (eventafvigelse > 0)
+constrafvigelser.push(eventafvigelse);
+}
+
+}
+hardafv += constr.costfunction(constrafvigelser)*constr.weight;
+//       alert(hardafv.toString());
+}*/
+/* export class SolEvent {
+resourcer: SolResource[];
+
+constructor(public sEvent: instans.AEvent, public durationindeks: number,
+public sTime?: instans.Time,  sResourcer?: instans.Resource[] = []) {
+this.resourcer = [];
+for (var i = 0, len = sEvent.eventmangler.length; i < len; i++)
+this.resourcer.push(new SolResource(sEvent.eventmangler[i]));
+sEvent.solevent.push(this);
+}
+}*/
+/*  var hardafv = 0;
+for (var c = 0, lencon = hardconstraints.length; c < lencon; c++) {
+var constr = hardconstraints[c];
+var constrafvigelser: number[] = [];
+var constrstraf = 0;
+if (constr instanceof instans.AssignTimeConstraint) {
+//     var constr: instans.AssignTimeConstraint = <instans.AssignTimeConstraint> constr;
+for (var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
+var even = constr.appliestoev[i];
+var eventafvigelse = 0;
+for (var j = 0, eventdura = even.duration; j < eventdura; j++)
+if (!even.solevent[j].sTime != undefined)
+eventafvigelse++;
+if (eventafvigelse > 0)
+constrafvigelser.push(eventafvigelse);
+}
+
+}
+else
+if (constr instanceof instans.AssignResourceConstraint) {
+for (var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
+var even = constr.appliestoev[i];
+var eventafvigelse = 0;
+for (var j = 0, eventdura = even.duration; j < eventdura; j++) {
+var soleven = even.solevent[j];
+for (var k = 0, eventmangllen = soleven.resourcer.length; k < eventmangllen; k++) {
+if (soleven.resourcer[k].resourceref == null) {
+if (soleven.resourcer[k].mangel.role == constr.role) {
+eventafvigelse++;
+}
+}
+else {
+// alert('jk');
+}
+}
+}
+if (eventafvigelse > 0)
+constrafvigelser.push(eventafvigelse);
+}
+
+}
+hardafv += constr.costfunction(constrafvigelser)*constr.weight;
+//       alert(hardafv.toString());
+}*/
+/* export class SolEvent {
+resourcer: SolResource[];
+
+constructor(public sEvent: instans.AEvent, public durationindeks: number,
+public sTime?: instans.Time,  sResourcer?: instans.Resource[] = []) {
+this.resourcer = [];
+for (var i = 0, len = sEvent.eventmangler.length; i < len; i++)
+this.resourcer.push(new SolResource(sEvent.eventmangler[i]));
+sEvent.solevent.push(this);
+}
+}*/
+//@ sourceMappingURL=solution.js.map

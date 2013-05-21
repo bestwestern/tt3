@@ -71,8 +71,17 @@ window.onload = () => {
 function genberegn() {
     vistsol.udregncon(true);
     vistsol.udregncon(false);
- $('#content').html(lavtablerowhtml(vistsol));
-  
+    $('#content').html(lavtablerowhtml(vistsol));
+
+}
+function randomtid() {
+    var antal = $('#antalrandomtid').val();
+    $('#randomresbutton').remove();
+    vistsol.randomtidtildel(antal);
+}
+function randomres() {
+    var antal = $('#antalrandomtid').val();
+    vistsol.randontildelres(antal);
 }
 function tildeltid0() {
     var nyvisning = false;
@@ -143,7 +152,7 @@ function lavxml() {
             }
             else {
                 var nysolevent = true;
-                if (j >0) {
+                if (j > 0) {
                     var dennetid = vistsol.tidmangeltildelinger[thisevent.eventtidmangler[j].index];
                     var forrigetid = vistsol.tidmangeltildelinger[thisevent.eventtidmangler[j - 1].index]
                     if (dennetid == forrigetid + 1) {

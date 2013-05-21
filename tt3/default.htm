@@ -35,8 +35,11 @@
 <body>
     <div id="wrapper">
         <button onclick="genberegn();">Genberegn</button>
-       <button onclick="tildeltid0();">Tildel tid[0] til alle tidmangler uden tid</button>
+        <button onclick="tildeltid0();">Tildel tid[0] til alle tidmangler uden tid</button>
         <button onclick="lavxml();">Lav XML (kører først forrige knap)</button>
+        <button onclick="randomtid();">Tildel tilfældig tid</button>
+        <button id="randomresbutton" onclick="randomres();">Tildel tilfældig ressource</button>
+        <input type="text" value="500" id="antalrandomtid" />
         <ul id="results"></ul>
 
         <div id="content"></div>
