@@ -113,6 +113,40 @@ var solution;
                         }
                     }
                 }
+                if(constr instanceof instans.SpreadEventsConstraint) {
+                    type = "SpreadEventsConstraint";
+                    var constr = constr;
+                    var starttider = [];
+                    var antaltimegroups = (constr).timegroupminimum.length;
+                    for(var i = 0; i < antaltimegroups; i++) {
+                        starttider.push(0);
+                    }
+                    for(var i = 0, antaleventgrsicon = constr.appliestoevgrou.length; i < antaleventgrsicon; i++) {
+                        var evgr = constr.appliestoevgrou[i];
+                        for(var j = 0; j < evgr.events.length; j++) {
+                            var assignedtider = [];
+                            var ev = evgr.events[j];
+                            if(ev.preasigntime) {
+                                assignedtider.push(ev.preasigntime);
+                            } else {
+                                var durations = this.getdurations(ev);
+                                for(var k = 0; k < durations.length; k = k + 2) {
+                                    assignedtider.push(timer[this.tidmangeltildelinger[ev.eventtidmangler[durations[k]].index]]);
+                                }
+                            }
+                            for(var k = 0; k < assignedtider.length; k++) {
+                                var time = assignedtider[k];
+                                for(var l = 0; l < time.timegroups.length; l++) {
+                                    var gr = time.timegroups[l];
+                                    var grindex = constr.timegroups.indexOf(gr);
+                                    if(grindex > -1) {
+                                        starttider[grindex]++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
                 if(constr instanceof instans.PreferTimesConstraint) {
                     type = "PreferTimesConstraint";
                     var conduration = constr.duration;

@@ -127,14 +127,42 @@ module solution {
                 }
                 if (constr instanceof instans.SpreadEventsConstraint) {
                     type = "SpreadEventsConstraint";
-                     var constr: instans.SplitEventsConstraint = <instans.SpreadEventsConstraint>constr;
-                     var starttider: number[]=[];
-                     for (var i = 0; i < constr.)
-                   for (var i = 0, antaleventgrsicon = constr.appliestoevgrou.length; i < antaleventgrsicon; i++) {
+                    var constr: instans.SpreadEventsConstraint = <instans.SpreadEventsConstraint>constr;
+                    var starttider: number[] = [];
+                    var antaltimegroups = (<instans.SpreadEventsConstraint>constr).timegroupminimum.length;
+                    for (var i = 0; i < antaltimegroups; i++)
+                        starttider.push(0);
+                    for (var i = 0, antaleventgrsicon = constr.appliestoevgrou.length; i < antaleventgrsicon; i++) {
                         var evgr = constr.appliestoevgrou[i];
-                        for (var j = 0; j < evgr.events.length; j++){
-                            fd
+                        for (var j = 0; j < evgr.events.length; j++) {
+                            var assignedtider: instans.Time[] = [];
+                            var ev = evgr.events[j];
+                            var evafvigelser = [];  
+                            if (ev.preasigntime)
+                                assignedtider.push(ev.preasigntime);
+                            else {
+                                var durations = this.getdurations(ev);
+                                for (var k = 0; k < durations.length; k = k + 2) {
+                                    /* var tm = ev.eventtidmangler[durations[k]].index;
+                                     var tld = this.tidmangeltildelinger[tm];
+                                     var tid = timer[tld];*/
+                                    assignedtider.push(timer[this.tidmangeltildelinger[ev.eventtidmangler[durations[k]].index]])
+                                }
+                            }
+                            for (var k = 0; k < assignedtider.length; k++) {
+                                var time = assignedtider[k];
+                                for (var l = 0; l < time.timegroups.length; l++) {
+                                    var grindex = constr.timegroups.indexOf(time.timegroups[l]);
+                                    if (grindex > -1)
+                                            starttider[grindex]++;
+                                }
+                            }
+                            for (var k = 0; k < antaltimegroups; k++) {
+                                var ant = starttider[k];
+                                if (ant < (<instans.SpreadEventsConstraint>).timegroupminimum[k])
+
                         }
+                            }
                     }
                 }
                 if (constr instanceof instans.PreferTimesConstraint) {
@@ -158,7 +186,7 @@ module solution {
                                         eventafvigelse = eventafvigelse + startogslut[k + 1] - startogslut[k] + 1;
                             }
 
-                        }                        
+                        }
                         constrafvigelser.push(eventafvigelse);
                     }
                 }
