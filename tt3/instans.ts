@@ -184,6 +184,43 @@ module instans {
         }
 
     }
+    export class LinkEventsConstraint implements Constraint {
+        appliestoevgrou: EventGroup[];
+        appliestoev: AEvent[];
+        appliestoresmangler: ResMangel[];
+        appliestoresgrou: ResourceGroup[];
+        appliestores: Resource[];
+        timegroups: TimeGroup[];
+        timer: Time[];
+        minimumduration: number;
+        maximumduration: number;
+        minimumamount: number;
+        maximumamount: number;
+        duration: number;
+        minimum: number;
+        maximum: number;
+        role: string;
+
+        arraymedarrayaftidmangler: any[];
+        //nedenstående angiver længden på de events der udgør ovenstående. Dvs. hvor mange mangler der skal lægge på hver tid
+        arraymedeventlengths: number[];
+        costfunction: (afv: number[]) => number;
+        constructor(public id: string, public name: string, public weight: number,
+            costfunction: string) {
+            this.appliestoevgrou = [];
+            this.arraymedarrayaftidmangler = [];
+            this.arraymedeventlengths = [];
+            switch (costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
+            }
+        }
+    }
+
     export class PreferResourcesConstraint implements Constraint {
         minimumduration: number;
         maximumduration: number;
@@ -853,6 +890,10 @@ module instans {
                 break;
             case "LimitBusyTimesConstraint"://MANFLWE
                 break;
+
+            case "LinkEventsConstraint":
+                var nycon = new LinkEventsConstraint(id, na, we, co);
+                break;
             case "PreferTimesConstraint":
                 var nycon = new PreferTimesConstraint(id, na, we, co);
                 break;
@@ -1026,10 +1067,28 @@ module instans {
                                     if (thiseventmangler[j].role == nycon.role)
                                         tmp.push(thiseventmangler[j]);
                             }
-                            break;
                         }
                         (<AvoidSplitAssignmentsConstraint>nycon).arraymedarrayafresmangler.push(tmp);
                     }
+                    break;
+                case "LinkEventsConstraint":
+                    var apptoevgrs = nycon.appliestoevgrou;
+                    for (var k = 0; k < apptoevgrs.length; k++) {
+                        var apptoevgr = apptoevgrs[k];
+                        var tmp = [];
+                        (<LinkEventsConstraint>nycon).arraymedeventlengths.push((<EventGroup>apptoevgr).events[0].duration);
+                        for (var l = 0; l < apptoevgr.events.length; l++) {
+                            var apptoev = apptoevgr.events;
+                            for (var i = 0; i < apptoev.length; i++) {
+                                var thiseventtidmangler = apptoev[i].eventtidmangler;
+                                for (var j = 0; j < thiseventtidmangler.length; j++)
+                                    tmp.push(thiseventtidmangler[j]);
+                            }
+                        }
+                        (<LinkEventsConstraint >nycon).arraymedarrayaftidmangler.push(tmp);
+                    }
+                    break;
+
             }
             if (ha)// if (nycon =prefertimes - angiv de mulige tider i eventsene
                 hardconstraints.push(nycon);

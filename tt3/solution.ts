@@ -106,7 +106,6 @@ module solution {
                         if (restilarr.length > 1)
                             constrafvigelser.push(restilarr.length - 1);
                     }
-
                 }
                 if (constr instanceof instans.AvoidClashesConstraint) {
                     var constr: instans.PreferTimesConstraint = <instans.AvoidClashesConstraint> constr;
@@ -123,7 +122,6 @@ module solution {
                 }
                 if (constr instanceof instans.DistributeSplitEventsConstraint) {
                     type = "DistributeSplitEventsConstraint";
-
                     var constr: instans.DistributeSplitEventsConstraint = <instans.DistributeSplitEventsConstraint>constr;
                     for (var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
                         var eventafvigelse = this.getdistributespliteventafvigelse(constr.appliestoev[i], <instans.SplitEventsConstraint> constr);
@@ -131,10 +129,35 @@ module solution {
                             constrafvigelser.push(eventafvigelse);
                     }
                 }
+                if (constr instanceof instans.LinkEventsConstraint) {
+                    type = "LinkEventsConstraint ";
+                    var constr: instans.LinkEventsConstraint = <instans.LinkEventsConstraint > constr;
+                    var arrmedarrmedmangler = (<instans.LinkEventsConstraint >constr).arraymedarrayaftidmangler;
+                    for (var i = 0; i < arrmedarrmedmangler.length; i++) {
+                        var mnglarr: instans.TidMangel[] = arrmedarrmedmangler[i];
+                        var arrmedantaltidindex: number[] = [];
+                        for (var j = 0; j < mnglarr.length; j++) {
+                            var thistidindex = this.tidmangeltildelinger[mnglarr[j].index];
+                            if (thistidindex != null) {
+                                if (arrmedantaltidindex[thistidindex])
+                                    arrmedantaltidindex[thistidindex]++;
+                                else
+                                    arrmedantaltidindex[thistidindex] = 1;
+                            }
+                        }
+                        var afv = 0;
+                        var rigtigtantal = (<instans.LinkEventsConstraint>constr).arraymedeventlengths[i];
+                        for (var key in arrmedantaltidindex) {
+                            if (arrmedantaltidindex[key] != rigtigtantal)
+                                afv++;
+                        }
+                        if (afv)
+                            constrafvigelser.push(afv);
+                    }
+                }
 
                 if (constr instanceof instans.SplitEventsConstraint) {
                     type = "SplitEventsConstraint";
-
                     var constr: instans.SplitEventsConstraint = <instans.SplitEventsConstraint>constr;
                     for (var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
                         var eventafvigelse = this.getspliteventafvigelse(constr.appliestoev[i], <instans.SplitEventsConstraint> constr);
