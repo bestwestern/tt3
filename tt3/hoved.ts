@@ -5,7 +5,8 @@
 test ved indsættelse af event i appliestoevent, som allerede findes i en gruppe i appliestogroup
 Lav resource angivelse og: test ved angivelse af resource i preferresource (ikke resourcegr)
 lav preassigned kolonne
-bør solutionevent pege på forældreevent*/
+bør solutionevent pege på forældreevent
+*/
 var timer: instans.Time[];
 var vistsol: solution.Sol;
 var tidsgrupper: instans.TimeGroup[];
@@ -123,7 +124,7 @@ function lavxml() {
     //  xmlDoc.documentElement.removeChild(y);
     var solgroupndoe = xmlDoc.getElementsByTagName("SolutionGroups")[0];
     var solgroup = xmlDoc.createElement("SolutionGroup");
-    solgroup.setAttribute("Id", "Runessol");
+    solgroup.setAttribute("Id", "Runessol" + Math.random() * 1000);
     var solref = xmlDoc.createElement("Solution");
     solref.setAttribute("Reference", xmlinstans);
     var eventsnode = addnode("Events", solref);

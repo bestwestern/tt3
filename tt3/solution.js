@@ -82,13 +82,25 @@
                         constrafvigelser.push(eventafvigelse);
                     }
                 }
-                if(constr instanceof instans.DistributeSplitEventsConstraint) {
-                    type = "DistributeSplitEventsConstraint";
+                if(constr instanceof instans.AvoidSplitAssignmentsConstraint) {
+                    type = "AvoidSplitAssignmentsConstraint";
                     var constr = constr;
-                    for(var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
-                        var eventafvigelse = this.getdistributespliteventafvigelse(constr.appliestoev[i], constr);
-                        if(eventafvigelse > 0) {
-                            constrafvigelser.push(eventafvigelse);
+                    var arrmedarrmedmangler = (constr).arraymedarrayafresmangler;
+                    for(var i = 0; i < arrmedarrmedmangler.length; i++) {
+                        var mnglarr = arrmedarrmedmangler[i];
+                        var restilarr = [];
+                        for(var j = 0; j < mnglarr.length; j++) {
+                            var resind = this.resmangeltildelinger[mnglarr[j].index];
+                            if(resind != undefined) {
+                                if(restilarr.indexOf(resind) == -1) {
+                                    restilarr.push(resind);
+                                }
+                            } else {
+                                var her = 3;
+                            }
+                        }
+                        if(restilarr.length > 1) {
+                            constrafvigelser.push(restilarr.length - 1);
                         }
                     }
                 }
@@ -106,6 +118,16 @@
                         constrafvigelser.push(resafvigelse);
                     }
                 }
+                if(constr instanceof instans.DistributeSplitEventsConstraint) {
+                    type = "DistributeSplitEventsConstraint";
+                    var constr = constr;
+                    for(var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
+                        var eventafvigelse = this.getdistributespliteventafvigelse(constr.appliestoev[i], constr);
+                        if(eventafvigelse > 0) {
+                            constrafvigelser.push(eventafvigelse);
+                        }
+                    }
+                }
                 if(constr instanceof instans.SplitEventsConstraint) {
                     type = "SplitEventsConstraint";
                     var constr = constr;
@@ -114,6 +136,53 @@
                         if(eventafvigelse > 0) {
                             constrafvigelser.push(eventafvigelse);
                         }
+                    }
+                }
+                if(constr instanceof instans.PreferResourcesConstraint) {
+                    type = "PreferResourcesConstraint";
+                    var constr = constr;
+                    var resmngler = constr.appliestoresmangler;
+                    for(var i = 0; i < resmngler.length; i++) {
+                        var eventafvigelse = 0;
+                        var resind = this.resmangeltildelinger[resmngler[i].index];
+                        if(resind != undefined) {
+                            if(constr.appliestores.indexOf(resourcer[resind]) < 0) {
+                                if(resmngler[i].aevent.preasigntime) {
+                                    eventafvigelse += resmngler[i].aevent.duration;
+                                } else {
+                                    eventafvigelse++;
+                                }
+                            }
+                        }
+                        constrafvigelser.push(eventafvigelse);
+                    }
+                }
+                if(constr instanceof instans.PreferTimesConstraint) {
+                    type = "PreferTimesConstraint";
+                    var conduration = constr.duration;
+                    var constr = constr;
+                    for(var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
+                        var eventafvigelse = 0;
+                        var thisevent = constr.appliestoev[i];
+                        var startogslut = this.getdurations(thisevent);
+                        for(var k = 0; k < startogslut.length; k = k + 2) {
+                            var tjek = true;
+                            if("duration" in constr) {
+                                tjek = startogslut[k + 1] - startogslut[k] + 1 == constr["duration"];
+                            }//rigtig længde?
+                            
+                            if(tjek) {
+                                var tidmangelindex = thisevent.eventtidmangler[startogslut[k]].index;
+                                var tildelttid = this.tidmangeltildelinger[tidmangelindex];
+                                //     var tildelttid = this.tidmangeltildelinger[eventtidmngler[thisevent.eventtidmangler[k].index]];
+                                if(tildelttid != null) {
+                                    if(constr.timer.indexOf(timer[tildelttid]) < 0) {
+                                        eventafvigelse = eventafvigelse + startogslut[k + 1] - startogslut[k] + 1;
+                                    }
+                                }
+                            }
+                        }
+                        constrafvigelser.push(eventafvigelse);
                     }
                 }
                 if(constr instanceof instans.SpreadEventsConstraint) {
@@ -162,34 +231,6 @@
                                 }
                             }
                         }
-                    }
-                }
-                if(constr instanceof instans.PreferTimesConstraint) {
-                    type = "PreferTimesConstraint";
-                    var conduration = constr.duration;
-                    var constr = constr;
-                    for(var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
-                        var eventafvigelse = 0;
-                        var thisevent = constr.appliestoev[i];
-                        var startogslut = this.getdurations(thisevent);
-                        for(var k = 0; k < startogslut.length; k = k + 2) {
-                            var tjek = true;
-                            if("duration" in constr) {
-                                tjek = startogslut[k + 1] - startogslut[k] + 1 == constr["duration"];
-                            }//rigtig længde?
-                            
-                            if(tjek) {
-                                var tidmangelindex = thisevent.eventtidmangler[startogslut[k]].index;
-                                var tildelttid = this.tidmangeltildelinger[tidmangelindex];
-                                //     var tildelttid = this.tidmangeltildelinger[eventtidmngler[thisevent.eventtidmangler[k].index]];
-                                if(tildelttid != null) {
-                                    if(constr.timer.indexOf(timer[tildelttid]) < 0) {
-                                        eventafvigelse = eventafvigelse + startogslut[k + 1] - startogslut[k] + 1;
-                                    }
-                                }
-                            }
-                        }
-                        constrafvigelser.push(eventafvigelse);
                     }
                 }
                 if(constrafvigelser.length > 0) {
@@ -335,6 +376,12 @@
                     var rr = Math.floor(Math.random() * r.length);
                     var resindex = r[rr].index;
                     vistsol.resmangeltildelinger[resmangelindex] = resindex;
+                    if(resmangler[resmangelindex].aevent.preasigntime) {
+                        var ev = resmangler[resmangelindex].aevent;
+                        for(var tidadder = 0; tidadder < ev.duration; tidadder++) {
+                            vistsol.tildelresourcetileventtiltid(resindex, 0, ev.preasigntime.index + tidadder, ev.index);
+                        }
+                    }
                 } else {
                     var her = 3;
                 }

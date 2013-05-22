@@ -34,6 +34,26 @@ var instans;
         return AvoidClashesConstraint;
     })();
     instans.AvoidClashesConstraint = AvoidClashesConstraint;    
+    var AvoidSplitAssignmentsConstraint = (function () {
+        function AvoidSplitAssignmentsConstraint(id, name, weight, costfunction, role) {
+            this.id = id;
+            this.name = name;
+            this.weight = weight;
+            this.role = role;
+            this.appliestoevgrou = [];
+            this.arraymedarrayafresmangler = [];
+            switch(costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
+            }
+        }
+        return AvoidSplitAssignmentsConstraint;
+    })();
+    instans.AvoidSplitAssignmentsConstraint = AvoidSplitAssignmentsConstraint;    
     var AssignResourceConstraint = (function () {
         function AssignResourceConstraint(id, name, weight, costfunction, role) {
             this.id = id;
@@ -95,14 +115,16 @@ var instans;
     })();
     instans.DistributeSplitEventsConstraint = DistributeSplitEventsConstraint;    
     var PreferResourcesConstraint = (function () {
-        function PreferResourcesConstraint(id, name, weight, costfunction) {
+        function PreferResourcesConstraint(id, name, weight, costfunction, role) {
             this.id = id;
             this.name = name;
             this.weight = weight;
+            this.role = role;
             this.appliestoevgrou = [];
             this.appliestoev = [];
             this.appliestoresgrou = [];
             this.appliestores = [];
+            this.appliestoresmangler = [];
             switch(costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
@@ -750,7 +772,7 @@ var instans;
                 var nycon = new SpreadEventsConstraint(id, na, we, co);
                 break;
             case "PreferResourcesConstraint":
-                var nycon = new PreferResourcesConstraint(id, na, we, co);
+                var nycon = new PreferResourcesConstraint(id, na, we, co, ro);
                 break;
             case "SplitEventsConstraint":
                 var nycon = new SplitEventsConstraint(id, na, we, co);
@@ -760,6 +782,9 @@ var instans;
                 break;
             case "AvoidClashesConstraint":
                 var nycon = new AvoidClashesConstraint(id, na, we, co);
+                break;
+            case "AvoidSplitAssignmentsConstraint":
+                var nycon = new AvoidSplitAssignmentsConstraint(id, na, we, co, ro);
                 break;
             default:
                 // alert constraint ikke understøttet    var fddfdfsk = constraint["jk"]["jk"];
@@ -872,7 +897,7 @@ var instans;
                     }
                 }
             }
-            if(constraint["Resource"]) {
+            if(constraint["Resources"]) {
                 alert('nu skal resource under lavconstraints kodes!');
                 //implemter
                             }
@@ -893,8 +918,13 @@ var instans;
                         }
                     }
                 } else {
-                    var egr = resourcegrupper[resgrupid.indexOf(appliesto["ResourceGroup"]["Reference"])];
-                    nycon.appliestoresgrou.push(egr);
+                    var rgr = resourcegrupper[resgrupid.indexOf(appliesto["ResourceGroup"]["Reference"])];
+                    nycon.appliestoresgrou.push(rgr);
+                    for(var i = 0, len = rgr.resourcer.length; i < len; i++) {
+                        if(nycon.appliestores.indexOf(rgr.resourcer[i]) == -1) {
+                            nycon.appliestores.push(rgr.resourcer[i]);
+                        }
+                    }
                 }
             }
             switch(type) {
@@ -908,8 +938,37 @@ var instans;
                             }
                         }
                     }
-                    nycon.appliestoresmangler.push;
                     break;
+                case "PreferResourcesConstraint":
+                    var apptoev = nycon.appliestoev;
+                    for(var i = 0; i < apptoev.length; i++) {
+                        var thiseventmangler = apptoev[i].eventresmangler;
+                        for(var j = 0; j < thiseventmangler.length; j++) {
+                            if(thiseventmangler[j].role == nycon.role) {
+                                nycon.appliestoresmangler.push(thiseventmangler[j]);
+                            }
+                        }
+                    }
+                    break;
+                case "AvoidSplitAssignmentsConstraint":
+                    var apptoevgrs = nycon.appliestoevgrou;
+                    for(var k = 0; k < apptoevgrs.length; k++) {
+                        var apptoevgr = apptoevgrs[k];
+                        var tmp = [];
+                        for(var l = 0; l < apptoevgr.events.length; l++) {
+                            var apptoev = apptoevgr.events;
+                            for(var i = 0; i < apptoev.length; i++) {
+                                var thiseventmangler = apptoev[i].eventresmangler;
+                                for(var j = 0; j < thiseventmangler.length; j++) {
+                                    if(thiseventmangler[j].role == nycon.role) {
+                                        tmp.push(thiseventmangler[j]);
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                        (nycon).arraymedarrayafresmangler.push(tmp);
+                    }
             }
             if(ha) {
                 // if (nycon =prefertimes - angiv de mulige tider i eventsene

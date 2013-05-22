@@ -38,9 +38,41 @@ module instans {
         appliestores: Resource[];
         role: string;
         costfunction: (afv: number[]) => number;
-        constructor(public id: string, public name: string, public weight: number, costfunction: string) {
+        constructor(public id: string, public name: string, public weight: number,
+            costfunction: string) {
             this.appliestoresgrou = [];
             this.appliestores = [];
+            switch (costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
+            }
+        }
+    }
+    export class AvoidSplitAssignmentsConstraint implements Constraint {
+        appliestoevgrou: EventGroup[];
+        appliestoev: AEvent[];
+        appliestoresmangler: ResMangel[];
+        appliestoresgrou: ResourceGroup[];
+        appliestores: Resource[];
+        timegroups: TimeGroup[];
+        timer: Time[];
+        minimumduration: number;
+        maximumduration: number;
+        minimumamount: number;
+        maximumamount: number;
+        duration: number;
+        minimum: number;
+        maximum: number;
+        arraymedarrayafresmangler: any[];
+        costfunction: (afv: number[]) => number;
+        constructor(public id: string, public name: string, public weight: number,
+            costfunction: string, public role: string) {
+            this.appliestoevgrou = [];
+            this.arraymedarrayafresmangler = [];
             switch (costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
@@ -69,7 +101,8 @@ module instans {
 
         //    appliestoma: Mangel[];
         costfunction: (afv: number[]) => number;
-        constructor(public id: string, public name: string, public weight: number, costfunction: string, public role: string) {
+        constructor(public id: string, public name: string, public weight: number,
+            costfunction: string, public role: string) {
             this.appliestoevgrou = [];
             this.appliestoresmangler = [];
             this.appliestoev = [];
@@ -103,7 +136,8 @@ module instans {
         maximum: number;
 
         costfunction: (afv: number[]) => number;
-        constructor(public id: string, public name: string, public weight: number, costfunction: string) {
+        constructor(public id: string, public name: string, public weight: number,
+            costfunction: string) {
             this.appliestoevgrou = [];
             this.appliestoev = [];
             switch (costfunction.toLowerCase()) {
@@ -134,7 +168,8 @@ module instans {
         maximum: number;
 
         costfunction: (afv: number[]) => number;
-        constructor(public id: string, public name: string, public weight: number, costfunction: string) {
+        constructor(public id: string, public name: string, public weight: number,
+            costfunction: string) {
             switch (costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
@@ -165,13 +200,14 @@ module instans {
         timer: Time[];
         timegroups: TimeGroup[];
         appliestores: Resource[];
-        role: string;
         costfunction: (afv: number[]) => number;
-        constructor(public id: string, public name: string, public weight: number, costfunction: string) {
+        constructor(public id: string, public name: string, public weight: number,
+            costfunction: string, public role: string) {
             this.appliestoevgrou = [];
             this.appliestoev = [];
             this.appliestoresgrou = [];
             this.appliestores = [];
+            this.appliestoresmangler = [];
             switch (costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
@@ -206,7 +242,8 @@ module instans {
 
         role: string;
         costfunction: (afv: number[]) => number;
-        constructor(public id: string, public name: string, public weight: number, costfunction: string) {
+        constructor(public id: string, public name: string, public weight: number,
+            costfunction: string) {
             this.appliestoevgrou = [];
             this.appliestoev = [];
             this.timegroups = [];
@@ -823,7 +860,7 @@ module instans {
                 var nycon = new SpreadEventsConstraint(id, na, we, co);
                 break;
             case "PreferResourcesConstraint":
-                var nycon = new PreferResourcesConstraint(id, na, we, co);
+                var nycon = new PreferResourcesConstraint(id, na, we, co, ro);
                 break;
             case "SplitEventsConstraint":
                 var nycon = new SplitEventsConstraint(id, na, we, co);
@@ -834,6 +871,12 @@ module instans {
             case "AvoidClashesConstraint":
                 var nycon = new AvoidClashesConstraint(id, na, we, co);
                 break;
+            case "AvoidSplitAssignmentsConstraint":
+                var nycon = new AvoidSplitAssignmentsConstraint(id, na, we, co, ro);
+                break;
+
+
+
             default:
 
                 // alert constraint ikke understøttet    var fddfdfsk = constraint["jk"]["jk"];
@@ -911,7 +954,7 @@ module instans {
                     }
                 }
                 else {
-                     if ("Minimum" in tg) {
+                    if ("Minimum" in tg) {
                         (<SpreadEventsConstraint>nycon).timegroupminimum.push(tg["Minimum"]);
                         (<SpreadEventsConstraint>nycon).timegroupmaximum.push(tg["Maximum"]);
                     }
@@ -924,7 +967,7 @@ module instans {
                 }
             }
 
-            if (constraint["Resource"]) {
+            if (constraint["Resources"]) {
                 alert('nu skal resource under lavconstraints kodes!');
 
                 //implemter
@@ -943,8 +986,11 @@ module instans {
                                 nycon.appliestores.push(rgr.resourcer[i]);
                     }
                 else {
-                    var egr: ResourceGroup = resourcegrupper[resgrupid.indexOf(appliesto["ResourceGroup"]["Reference"])];
-                    nycon.appliestoresgrou.push(egr);
+                    var rgr: ResourceGroup = resourcegrupper[resgrupid.indexOf(appliesto["ResourceGroup"]["Reference"])];
+                    nycon.appliestoresgrou.push(rgr);
+                    for (var i = 0, len = rgr.resourcer.length; i < len; i++)
+                        if (nycon.appliestores.indexOf(rgr.resourcer[i]) == -1)
+                            nycon.appliestores.push(rgr.resourcer[i]);
                 }
             }
             switch (type) {
@@ -956,8 +1002,34 @@ module instans {
                             if (thiseventmangler[j].role == nycon.role)
                                 nycon.appliestoresmangler.push(thiseventmangler[j]);
                     }
-                    nycon.appliestoresmangler.push
                     break;
+                case "PreferResourcesConstraint":
+                    var apptoev = nycon.appliestoev;
+                    for (var i = 0; i < apptoev.length; i++) {
+                        var thiseventmangler = apptoev[i].eventresmangler;
+                        for (var j = 0; j < thiseventmangler.length; j++)
+                            if (thiseventmangler[j].role == nycon.role)
+                                nycon.appliestoresmangler.push(thiseventmangler[j]);
+                    }
+                    break;
+
+                case "AvoidSplitAssignmentsConstraint":
+                    var apptoevgrs = nycon.appliestoevgrou;
+                    for (var k = 0; k < apptoevgrs.length; k++) {
+                        var apptoevgr = apptoevgrs[k];
+                        var tmp = [];
+                        for (var l = 0; l < apptoevgr.events.length; l++) {
+                            var apptoev = apptoevgr.events;
+                            for (var i = 0; i < apptoev.length; i++) {
+                                var thiseventmangler = apptoev[i].eventresmangler;
+                                for (var j = 0; j < thiseventmangler.length; j++)
+                                    if (thiseventmangler[j].role == nycon.role)
+                                        tmp.push(thiseventmangler[j]);
+                            }
+                            break;
+                        }
+                        (<AvoidSplitAssignmentsConstraint>nycon).arraymedarrayafresmangler.push(tmp);
+                    }
             }
             if (ha)// if (nycon =prefertimes - angiv de mulige tider i eventsene
                 hardconstraints.push(nycon);
