@@ -303,8 +303,8 @@ module solution {
                         var evgr = constr.appliestoevgrou[i];
                         for (var j = 0; j < antaltimegroups; j++)
                             starttider[j] = 0;
+                        var assignedtider: instans.Time[] = [];
                         for (var j = 0; j < evgr.events.length; j++) {
-                            var assignedtider: instans.Time[] = [];
                             var ev = evgr.events[j];
                             var evafvigelser = [];
                             if (ev.preasigntime)
@@ -318,29 +318,30 @@ module solution {
                                     assignedtider.push(timer[this.tidmangeltildelinger[ev.eventtidmangler[durations[k]].index]])
                                 }
                             }
-                            for (var k = 0; k < assignedtider.length; k++) {
-                                var time = assignedtider[k];
-                                for (var l = 0; l < time.timegroups.length; l++) {
-                                    var grindex = constr.timegroups.indexOf(time.timegroups[l]);
-                                    if (grindex > -1)
-                                        starttider[grindex]++;
-                                }
+                        }
+                        for (var k = 0; k < assignedtider.length; k++) {
+                            var time = assignedtider[k];
+                            for (var l = 0; l < time.timegroups.length; l++) {
+                                var grindex = constr.timegroups.indexOf(time.timegroups[l]);
+                                if (grindex > -1)
+                                    starttider[grindex]++;
                             }
-                            for (var k = 0; k < antaltimegroups; k++) {
-                                var ant = starttider[k];
-                                var f = 0;
-                                if (ant < (<instans.SpreadEventsConstraint> constr).timegroupminimum[k]) {
-                                    constrafvigelser.push((<instans.SpreadEventsConstraint> constr).timegroupminimum[k] - ant);
+                        }
+                        for (var k = 0; k < antaltimegroups; k++) {
+                            var ant = starttider[k];
+                            var f = 0;
+                            if (ant < (<instans.SpreadEventsConstraint> constr).timegroupminimum[k]) {
+                                constrafvigelser.push((<instans.SpreadEventsConstraint> constr).timegroupminimum[k] - ant);
+                                f = 1;
+                            }
+                            else
+                                if (ant > (<instans.SpreadEventsConstraint> constr).timegroupmaximum[k]) {
+                                    constrafvigelser.push(ant - (<instans.SpreadEventsConstraint> constr).timegroupmaximum[k]);
                                     f = 1;
                                 }
-                                else
-                                    if (ant > (<instans.SpreadEventsConstraint> constr).timegroupmaximum[k]) {
-                                        constrafvigelser.push(ant - (<instans.SpreadEventsConstraint> constr).timegroupmaximum[k]);
-                                        f = 1;
-                                    }
-                                if (f)
-                                    spreadarr.push(evgr.id + ":" + constrafvigelser[constrafvigelser.length - 1]);
-                            }
+                            if (f)
+                                spreadarr.push(evgr.id + ":" + constrafvigelser[constrafvigelser.length - 1]);
+
                         }
                     }
                 }
