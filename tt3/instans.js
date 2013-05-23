@@ -3,6 +3,8 @@
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+/// <reference path="solution.ts" />
+/// <reference path="hoved.ts" />
 var instans;
 (function (instans) {
     function sum(afvigelser) {
@@ -12,6 +14,7 @@ var instans;
         }
         return s;
     }
+    //costfunction
     var AvoidClashesConstraint = (function () {
         function AvoidClashesConstraint(id, name, weight, costfunction) {
             this.id = id;
@@ -51,6 +54,27 @@ var instans;
         return AvoidSplitAssignmentsConstraint;
     })();
     instans.AvoidSplitAssignmentsConstraint = AvoidSplitAssignmentsConstraint;    
+    var AvoidUnavailableTimesConstraint = (function () {
+        function AvoidUnavailableTimesConstraint(id, name, weight, costfunction) {
+            this.id = id;
+            this.name = name;
+            this.weight = weight;
+            this.appliestoresgrou = [];
+            this.appliestores = [];
+            this.timegroups = [];
+            this.timer = [];
+            switch(costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
+            }
+        }
+        return AvoidUnavailableTimesConstraint;
+    })();
+    instans.AvoidUnavailableTimesConstraint = AvoidUnavailableTimesConstraint;    
     var AssignResourceConstraint = (function () {
         function AssignResourceConstraint(id, name, weight, costfunction, role) {
             this.id = id;
@@ -60,6 +84,7 @@ var instans;
             this.appliestoevgrou = [];
             this.appliestoresmangler = [];
             this.appliestoev = [];
+            //   this.appliestoma = [];
             switch(costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
@@ -110,14 +135,51 @@ var instans;
         return DistributeSplitEventsConstraint;
     })();
     instans.DistributeSplitEventsConstraint = DistributeSplitEventsConstraint;    
+    var LimitBusyTimesConstraint = (function () {
+        function LimitBusyTimesConstraint(id, name, weight, costfunction) {
+            this.id = id;
+            this.name = name;
+            this.weight = weight;
+            this.appliestoresgrou = [];
+            this.appliestores = [];
+            this.timegroups = [];
+            switch(costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
+            }
+        }
+        return LimitBusyTimesConstraint;
+    })();
+    instans.LimitBusyTimesConstraint = LimitBusyTimesConstraint;    
+    var LimitWorkloadConstraint = (function () {
+        function LimitWorkloadConstraint(id, name, weight, costfunction) {
+            this.id = id;
+            this.name = name;
+            this.weight = weight;
+            this.appliestoresgrou = [];
+            this.appliestores = [];
+            switch(costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
+            }
+        }
+        return LimitWorkloadConstraint;
+    })();
+    instans.LimitWorkloadConstraint = LimitWorkloadConstraint;    
     var LinkEventsConstraint = (function () {
         function LinkEventsConstraint(id, name, weight, costfunction) {
             this.id = id;
             this.name = name;
             this.weight = weight;
             this.appliestoevgrou = [];
-            this.arraymedarrayaftidmangler = [];
-            this.arraymedeventlengths = [];
             switch(costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
@@ -214,6 +276,39 @@ var instans;
         return SpreadEventsConstraint;
     })();
     instans.SpreadEventsConstraint = SpreadEventsConstraint;    
+    /*  export class SpreadEventsConstraint implements Constraint {
+    appliestoevgrou: EventGroup[];
+    appliestoev: AEvent[];
+    appliestoresgrou: ResourceGroup[];
+    appliestores: Resource[];
+    timegroups: TimeGroup[];
+    role: string;
+    costfunction: (afv: number[]) => number;
+    timer: Time[];
+    minimumduration: number;
+    maximumduration: number;
+    minimumamount: number;
+    maximumamount: number;
+    appliestoresmangler: ResMangel[];
+    duration: number;
+    minimum: number;
+    maximum: number;
+    
+    constructor(public id: string, public name: string, public weight: number, costfunction: string) {
+    this.appliestoevgrou = [];
+    this.timegroups = [];
+    this.timer = [];
+    this.appliestoev = [];
+    switch (costfunction.toLowerCase()) {
+    case "sum":
+    this.costfunction = sum;
+    break;
+    default:
+    alert('costfunction mangler!' + costfunction);
+    break;
+    }
+    }
+    }*/
     var Entity = (function () {
         function Entity(id, name) {
             this.id = id;
@@ -322,7 +417,10 @@ var instans;
             this.eventresmangler = [];
             this.eventtidmangler = [];
             this.index = events.length;
-        }
+            /*  if (duration >1) {
+            alert('bingo');
+            }*/
+                    }
         return AEvent;
     })();
     instans.AEvent = AEvent;    
@@ -356,6 +454,7 @@ var instans;
     })();
     instans.ResMangel = ResMangel;    
     function readinstance(nobj) {
+        //bør lave tjek på resgroup om array eller ej
         hardconstraints = [];
         softconstraints = [];
         timer = [];
@@ -430,6 +529,8 @@ var instans;
                 for(var key in tmpg) {
                     var k = tmpg[key];
                     if(k["Reference"]) {
+                        //hvis der findes reference så er der flere og de bliver loopet
+                        //hvis ikke er tidsgruppen k
                         k = k["Reference"];
                     }
                     var tmg = tidsgrupper[tidgruppeid.indexOf(k)];
@@ -478,6 +579,7 @@ var instans;
         }
         tmp = res["Resource"];
         for(var key in tmp) {
+            //vil fejl ved kun 1 resource
             var curres = tmp[key];
             var nyres = new Resource(curres["Name"], curres["Id"], resourcetyper[restypeid.indexOf(curres["ResourceType"]["Reference"])]);
             for(var key2 in curres["ResourceGroups"]["ResourceGroup"]) {
@@ -556,6 +658,9 @@ var instans;
             } else {
                 var hje = 3;
             }
+            if(curev["Workload"]) {
+                var her = 3;
+            }
             for(var key2 in curev["Course"]) {
                 var evg = curev["Course"][key2];
                 if(evgruppeid.indexOf(evg) > -1) {
@@ -621,6 +726,8 @@ var instans;
         xmlhttp.open("GET", url, false);
         xmlhttp.send(null);
         xmlDoc = xmlhttp.responseXML;
+        /* console.log(url);
+        console.log(xmlDoc.childNodes[0].nodeName);*/
         var bingo = -1;
         for(var i = 0, len = xmlDoc.childNodes.length; i < len; i++) {
             if(xmlDoc.childNodes[i].nodeName === 'HighSchoolTimetableArchive') {
@@ -634,9 +741,23 @@ var instans;
         } else {
             assert(true, 'kunne ikke læse ' + url);
         }
+        /* else {
+        for (var i = 0; i <2; i++)
+        assert(true, i + xmlDoc.childNodes[i].nodeName)
+        }*/
+        //alert(xmlDoc.childNodes[0].baseName);
+        /*     for (var i = 0; i < xmlDoc.childNodes.length; i++) {
+        if (xmlDoc.childNodes[i].baseName === 'HighSchoolTimetableArchive') {
+        data = XML2jsobj(xmlDoc.childNodes[i]);
+        readinstance(data);
+        i = xmlDoc.childNodes.length;
+        
+        }
+        }*/
         function XML2jsobj(node) {
             var data = {
             };
+            // append a value
             function Add(name, value) {
                 if(data[name]) {
                     if(data[name].constructor != Array) {
@@ -650,15 +771,19 @@ var instans;
                 }
             }
             ;
-            var c, cn;
+            // element attributes
+                        var c, cn;
             for(c = 0; cn = node.attributes[c]; c++) {
                 Add(cn.name, cn.value);
             }
+            // child elements
             for(c = 0; cn = node.childNodes[c]; c++) {
                 if(cn.nodeType == 1) {
                     if(cn.childNodes.length == 1 && cn.firstChild.nodeType == 3) {
+                        // text value
                         Add(cn.nodeName, cn.firstChild.nodeValue);
                     } else {
+                        // sub-object
                         Add(cn.nodeName, XML2jsobj(cn));
                     }
                 }
@@ -694,11 +819,13 @@ var instans;
                     alert('fejlx v res event');
                 }
             } else {
+                //var fddfdfsk = nobj["jk"]["jk"];
                 alert('fejl v res event');
             }
         }
     }
     function lavcon(constraint, type, evgruppeid, evid, resid, resgrupid, tidid, tidgrupid) {
+        //var nycon: Constraint;
         var na = constraint["Name"];
         var id = constraint["Id"];
         var we = constraint["Weight"];
@@ -713,10 +840,23 @@ var instans;
             case "AssignTimeConstraint":
                 var nycon = new AssignTimeConstraint(id, na, we, co);
                 break;
+            case "AvoidUnavailableTimesConstraint":
+                var nycon = new AvoidUnavailableTimesConstraint(id, na, we, co);
+                break;
+            case "AvoidClashesConstraint":
+                var nycon = new AvoidClashesConstraint(id, na, we, co);
+                break;
+            case "AvoidSplitAssignmentsConstraint":
+                var nycon = new AvoidSplitAssignmentsConstraint(id, na, we, co, ro);
+                break;
             case "DistributeSplitEventsConstraint":
                 var nycon = new DistributeSplitEventsConstraint(id, na, we, co);
                 break;
             case "LimitBusyTimesConstraint":
+                var nycon = new LimitBusyTimesConstraint(id, na, we, co);
+                break;
+            case "LimitWorkloadConstraint":
+                var nycon = new LimitWorkloadConstraint(id, na, we, co);
                 break;
             case "LinkEventsConstraint":
                 var nycon = new LinkEventsConstraint(id, na, we, co);
@@ -736,13 +876,8 @@ var instans;
             case "DistributeSplitEventsConstraint":
                 assert(na, true);
                 break;
-            case "AvoidClashesConstraint":
-                var nycon = new AvoidClashesConstraint(id, na, we, co);
-                break;
-            case "AvoidSplitAssignmentsConstraint":
-                var nycon = new AvoidSplitAssignmentsConstraint(id, na, we, co, ro);
-                break;
             default:
+                // alert constraint ikke understøttet    var fddfdfsk = constraint["jk"]["jk"];
                 break;
         }
         if(nycon) {
@@ -769,6 +904,7 @@ var instans;
             }
             if(constraint["AppliesTo"]["Events"]) {
                 var appliesto = constraint["AppliesTo"];
+                //       if ("EventGroups" in appliesto) //if array
                 if(appliesto["Events"]["Event"] instanceof Array) {
                     for(var key in appliesto["Events"]["Event"]) {
                         nycon.appliestoev.push(events[evid.indexOf(appliesto["Events"]["Event"][key]["Reference"])]);
@@ -784,6 +920,7 @@ var instans;
                         var gr = eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"][key]["Reference"])];
                         nycon.appliestoevgrou.push(gr);
                         if(nycon.appliestoev) {
+                            //spreadevents har appliestoevgr men ikke appliestoev
                             for(var i = 0, len = gr.events.length; i < len; i++) {
                                 if(nycon.appliestoev.indexOf(gr.events[i]) == -1) {
                                     nycon.appliestoev.push(gr.events[i]);
@@ -795,6 +932,7 @@ var instans;
                     var gr = eventgrupper[evgruppeid.indexOf(appliesto["EventGroups"]["EventGroup"]["Reference"])];
                     nycon.appliestoevgrou.push(gr);
                     if(nycon.appliestoev) {
+                        //spreadevents har appliestoevgr men ikke appliestoev
                         for(var i = 0, len = gr.events.length; i < len; i++) {
                             if(nycon.appliestoev.indexOf(gr.events[i]) == -1) {
                                 nycon.appliestoev.push(gr.events[i]);
@@ -805,13 +943,18 @@ var instans;
             }
             if(constraint["Times"]) {
                 var t = constraint["Times"]["Time"];
-                if(t instanceof Array) {
-                    for(var key in t) {
-                        nycon.timer.push(timer[tidid.indexOf(t[key]["Reference"])]);
+                if(t) {
+                    if(t instanceof Array) {
+                        for(var key in t) {
+                            nycon.timer.push(timer[tidid.indexOf(t[key]["Reference"])]);
+                        }
+                    } else {
+                        nycon.timer.push(timer[tidid.indexOf(t["Reference"])]);
                     }
                 } else {
-                    nycon.timer.push(timer[tidid.indexOf(t["Reference"])]);
-                }
+                    var her = 4;
+                }//ingen tid i denne constraint - kan slettes??
+                
             }
             if(constraint["TimeGroups"]) {
                 var tg = constraint["TimeGroups"]["TimeGroup"];
@@ -824,6 +967,7 @@ var instans;
                             (nycon).timegroupmaximum.push(tg[key]["Maximum"]);
                         }
                         if(nycon.timer) {
+                            //nødvendig fordi spreadevents (o.a.) har timegroups men ikke timer
                             for(var i = 0, len = tgr.timer.length; i < len; i++) {
                                 if(nycon.timer.indexOf(tgr.timer[i]) == -1) {
                                     nycon.timer.push(tgr.timer[i]);
@@ -839,6 +983,7 @@ var instans;
                     var tgr = tidsgrupper[tidgrupid.indexOf(tg["Reference"])];
                     nycon.timegroups.push(tgr);
                     if(nycon.timer) {
+                        //nødvendig fordi spreadevents har timegroups men ikke timer
                         for(var i = 0, len = tgr.timer.length; i < len; i++) {
                             if(nycon.timer.indexOf(tgr.timer[i]) == -1) {
                                 nycon.timer.push(tgr.timer[i]);
@@ -847,9 +992,22 @@ var instans;
                     }
                 }
             }
-            if(constraint["Resources"]) {
-                alert('nu skal resource under lavconstraints kodes!');
-            }
+            if(constraint["Resources"] || constraint["AppliesTo"]["Resources"]) {
+                if(constraint["Resources"]) {
+                    var appliesto = constraint["Resources"]["Resource"];
+                } else {
+                    var appliesto = constraint["AppliesTo"]["Resources"]["Resource"];
+                }
+                if(appliesto instanceof Array) {
+                    for(var key in appliesto) {
+                        nycon.appliestores.push(resourcer[resid.indexOf(appliesto[key]["Reference"])]);
+                    }
+                } else {
+                    //VIRKER DETTE??
+                    nycon.appliestores.push(resourcer[resid.indexOf(appliesto["Reference"])]);
+                }
+                //implemter
+                            }
             if(constraint["AppliesTo"]["ResourceGroups"] || constraint["ResourceGroups"]) {
                 if(constraint["ResourceGroups"]) {
                     var appliesto = constraint["ResourceGroups"];
@@ -918,26 +1076,9 @@ var instans;
                         (nycon).arraymedarrayafresmangler.push(tmp);
                     }
                     break;
-                case "LinkEventsConstraint":
-                    var apptoevgrs = nycon.appliestoevgrou;
-                    for(var k = 0; k < apptoevgrs.length; k++) {
-                        var apptoevgr = apptoevgrs[k];
-                        var tmp = [];
-                        (nycon).arraymedeventlengths.push((apptoevgr).events[0].duration);
-                        for(var l = 0; l < apptoevgr.events.length; l++) {
-                            var apptoev = apptoevgr.events;
-                            for(var i = 0; i < apptoev.length; i++) {
-                                var thiseventtidmangler = apptoev[i].eventtidmangler;
-                                for(var j = 0; j < thiseventtidmangler.length; j++) {
-                                    tmp.push(thiseventtidmangler[j]);
-                                }
-                            }
-                        }
-                        (nycon).arraymedarrayaftidmangler.push(tmp);
-                    }
-                    break;
             }
             if(ha) {
+                // if (nycon =prefertimes - angiv de mulige tider i eventsene
                 hardconstraints.push(nycon);
             } else {
                 softconstraints.push(nycon);
@@ -945,3 +1086,4 @@ var instans;
         }
     }
 })(instans || (instans = {}));
+//@ sourceMappingURL=instans.js.map

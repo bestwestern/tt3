@@ -62,7 +62,8 @@ window.onload = () => {
                 $('#content').html(lavtablerowhtml(vistsol));
             assert(true, events.length.toString());*/
         }
-    instans.readxml("XML/" + filenames[6] + ".xml");
+    var filnavn = filenames[2];
+    instans.readxml("XML/" + filnavn+ ".xml");
     vistsol = new solution.Sol();
     $('#content').html(lavtablerowhtml(vistsol));
     // vistsol.udregnhard();

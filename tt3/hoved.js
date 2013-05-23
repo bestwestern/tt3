@@ -1,3 +1,12 @@
+﻿/// <reference path="solution.ts" />
+/// <reference path="instans.ts" />
+/// <reference path="jquery.d.ts" />
+/*TODO:
+test ved indsættelse af event i appliestoevent, som allerede findes i en gruppe i appliestogroup
+Lav resource angivelse og: test ved angivelse af resource i preferresource (ikke resourcegr)
+lav preassigned kolonne
+bør solutionevent pege på forældreevent
+*/
 var timer;
 var vistsol;
 var tidsgrupper;
@@ -17,6 +26,10 @@ var counter = 0;
 var xmlDoc;
 var xmlinstans;
 window.onload = function () {
+    /* if (typeof (Worker) !== "undefined")
+    alert('worker virker');
+    else
+    alert('not');*/
     var test = [];
     test[3] = [
         5
@@ -46,12 +59,19 @@ window.onload = function () {
         for(var i = 0; i < filenames.length; i++) {
             events = [];
             instans.readxml("XML/" + filenames[i] + ".xml");
-        }
+            /*vistsol = new solution.Sol();
+            if (events.length > 0)
+            $('#content').html(lavtablerowhtml(vistsol));
+            assert(true, events.length.toString());*/
+                    }
     }
-    instans.readxml("XML/" + filenames[6] + ".xml");
+    var filnavn = filenames[2];
+    instans.readxml("XML/" + filnavn + ".xml");
     vistsol = new solution.Sol();
     $('#content').html(lavtablerowhtml(vistsol));
-};
+    // vistsol.udregnhard();
+    // lavxml();
+    };
 function genberegn() {
     vistsol.udregncon(true);
     vistsol.udregncon(false);
@@ -74,6 +94,7 @@ function tildeltid0() {
             for(var j = 0; j < thisevent.duration; j++) {
                 var tildtid = timer[vistsol.tidmangeltildelinger[thisevent.eventtidmangler[j].index]];
                 if(!tildtid) {
+                    // vistsol.tidmangeltildelinger[i] = 0;
                     vistsol.tildeltidtilevent(thisevent.eventtidmangler[j].index, 0);
                     nyvisning = true;
                 }
@@ -87,9 +108,21 @@ function tildeltid0() {
     }
 }
 function lavxml() {
+    /* console.log('node ' + i.toString() + ':' + xmlDoc.childNodes[i].nodeName);
+    var thisnode = xmlDoc.childNodes[i];
+    for (var j = 0, len2 = thisnode.childNodes.length; j < len2; j++) {
+    var thisnode2 = thisnode.childNodes[j];
+    console.log('undernode ' + j.toString() + ':' + thisnode2.nodeName);
+    for (var k = 0, len3 = thisnode2.childNodes.length; k < len3; k++) {
+    console.log('undernode2 ' + k.toString() + ':' + thisnode2.childNodes[k].nodeName);
+    
+    }
+    }*/
     tildeltid0();
     var serializer = new XMLSerializer();
+    //slet mens test - går stærkere
     var y = xmlDoc.getElementsByTagName("Instances")[0];
+    //  xmlDoc.documentElement.removeChild(y);
     var solgroupndoe = xmlDoc.getElementsByTagName("SolutionGroups")[0];
     var solgroup = xmlDoc.createElement("SolutionGroup");
     solgroup.setAttribute("Id", "Runessol" + Math.random() * 1000);
@@ -104,9 +137,11 @@ function lavxml() {
         for(var j = 0; j < thisevent.duration; j++) {
             if(thisevent.preasigntime) {
                 if(j == 0) {
+                    //kun 1
                     var ev = addnode("Event", eventsnode);
                     ev.setAttribute("Reference", thisevent.id);
-                    addnode("Duration", ev, thisevent.duration.toString());
+                    addnode("Duration", ev, thisevent.duration.toString())//skal laves duration=duration hvis preasignedtid
+                    ;
                     var tin = addnode("Time", ev);
                     tin.setAttribute("Reference", timer[thisevent.preasigntime.index].id);
                     var reses = addnode("Resources", ev);
@@ -142,7 +177,8 @@ function lavxml() {
                 if(nysolevent) {
                     var ev = addnode("Event", eventsnode);
                     ev.setAttribute("Reference", thisevent.id);
-                    addnode("Duration", ev, "1");
+                    addnode("Duration", ev, "1")//skal øge duration hvis ens
+                    ;
                     var tin = addnode("Time", ev);
                     var tildtid = vistsol.tidmangeltildelinger[thisevent.eventtidmangler[j].index];
                     tin.setAttribute("Reference", timer[tildtid].id);
@@ -165,7 +201,19 @@ function lavxml() {
     addnode("Description", metadata, "Speciale");
     solgroup.appendChild(metadata);
     solgroup.appendChild(solref);
+    /*  var metadata_contr = xmlDoc.createElement("Contributor");
+    var metadata_contr_txt = xmlDoc.createTextNode("Contri");
+    
+    metadata_contr.appendChild(metadata_contr_txt);
+    metadata.appendChild(metadata_contr);
+    
+    x = metadata_contr.childNodes[0];
+    console.log(x.nodeName);
+    x.nodeValue = "contr";
+    console.log(x.nodeValue);*/
     solgroupndoe.appendChild(solgroup);
+    /*   var wind =  serializer.serializeToString(xmlDoc);
+    var fejl = wind.substr(102616);*/
     window.open('data:text/xml,' + serializer.serializeToString(xmlDoc));
 }
 function addnode(navn, parent, txt) {
@@ -175,6 +223,8 @@ function addnode(navn, parent, txt) {
         tx.nodeValue = txt;
         ch.appendChild(tx);
     }
+    /* else
+    tx = xmlDoc.createElement(navn);*/
     parent.appendChild(ch);
     return ch;
 }
@@ -187,6 +237,7 @@ function choicemade(tidangivet, mangelindex, dropdown) {
         if(isNaN(nyval)) {
             nyval = -1;
         }
+        //var oldval = vistsol.tidmangeltildelinger[mangelindex];
         vistsol.tildeltidtilevent(mangelindex, nyval);
     } else {
         var nyval = Number(dropdown.options[dropdown.selectedIndex].value);
@@ -197,7 +248,8 @@ function choicemade(tidangivet, mangelindex, dropdown) {
             var tidindex = vistsol.tidmangeltildelinger[tidmangelindex];
         }
         if(tidindex != null) {
-            if(tidmangelindex < 0) {
+            if(tidmangelindex < 0)//preassigned - skal assignes til hver tid i duration
+             {
                 for(var tidadder = 0; tidadder < events[eventindex].duration; tidadder++) {
                     if(oldval !== undefined) {
                         vistsol.fratagresourcetileventtiltid(oldval, durationindex, tidindex + tidadder, eventindex);
@@ -224,7 +276,41 @@ function choicemade(tidangivet, mangelindex, dropdown) {
     $('#content').html(lavtablerowhtml(vistsol));
     vistsol.udregncon(true);
     vistsol.udregncon(false);
-}
+    /*if (tidangivet)
+    var arr = vistsol.tidmangeltildelinger;
+    else
+    var arr = vistsol.resmangeltildelinger;
+    var nyval = Number(dropdown.options[dropdown.selectedIndex].value);
+    var oldval = arr[mangelindex];
+    if (tidangivet && oldval !== undefined) {
+    for (var resindex = 0; resindex < antalresourcer; resindex++) {
+    var tmp = vistsol.restiltid[resindex].tider[oldval];
+    for (var j = 0; j < tmp.durationindex.length;   j++) {
+    if (tmp.durationindex[j] == durationindex && tmp.eventindex[j] == eventindex) {
+    vistsol.fratagresourcetileventtiltid(resindex, durationindex, oldval, eventindex);
+    vistsol.tildelresourcetileventtiltid(resindex, durationindex, nyval, eventindex);
+    }
+    }
+    }
+    }
+    else {
+    var tidindex = vistsol.tidmangeltildelinger[tidmangelindex];
+    if (tidindex != null) {
+    if (oldval !== undefined)
+    vistsol.fratagresourcetileventtiltid(oldval, durationindex, tidindex, eventindex);
+    if (!isNaN(nyval))
+    vistsol.tildelresourcetileventtiltid(nyval, durationindex, tidindex, eventindex);
+    }
+    }
+    if (isNaN(nyval))
+    arr[mangelindex] = null;
+    else
+    arr[mangelindex] = nyval;
+    //  vistsol.tildeltidtilevent(77, 0);
+    $('#content').html(lavtablerowhtml(vistsol));
+    vistsol.udregncon(true);
+    vistsol.udregncon(false);*/
+    }
 function assert(value, desc) {
     var resultsList = document.getElementById("results");
     if(!resultsList) {
@@ -239,6 +325,7 @@ function assert(value, desc) {
 }
 function lavtablerowhtml(solin) {
     var htmltxt = "<table><thead><tr><td>Event</td><td>Time</td></tr></thead>";
+    //  var solevents = solin.solevents;
     var roles = [];
     var restypedropdown = {
     };
@@ -292,6 +379,8 @@ function lavtablerowhtml(solin) {
             var fra = durationindex;
             var countplusser = ievent.duration;
             if(ievent.preasigntime) {
+                //hvis preassigned skal der kun laves en række.
+                //dvs duration =0=>lav række med resmangel drop for hver mangel. ellers er rækken lavet
                 if(durationindex == 0) {
                     countplusser = 1;
                 } else {
@@ -303,7 +392,8 @@ function lavtablerowhtml(solin) {
                 var restype = ievent.eventresmangler[mnglindex].resourcetype.id;
                 if(restypedropdown[restype] === undefined) {
                     var resids = [];
-                    var selecthtml = "<option>Not chosen</option>";
+                    var selecthtml = "<option>Not chosen</option>";//style = 'background-color: blue'
+                    
                     var resgrs = ievent.eventresmangler[mnglindex].resourcetype.resourcegroups;
                     for(var l = 0, antgr = resgrs.length; l < antgr; l++) {
                         var resgr = resgrs[l].resourcer;
@@ -327,10 +417,12 @@ function lavtablerowhtml(solin) {
                     var tidmangelindex = ievent.eventtidmangler[durationindex].index;
                 } else {
                     var tidmangelindex = -(ievent.preasigntime.index + durationindex) - 1;
-                }
+                }//negativ såfremt preassignet tid
+                
                 htmltxt += "<td> " + colrole + ":<select data-eventindex=" + ievent.index + "  data-durationindex=" + durationindex + "  data-tidmangelindex=" + tidmangelindex + " onchange='choicemade(false," + ievent.eventresmangler[mnglindex].index + ",this)'>>" + drop + "</td>";
             }
         }
     }
     return htmltxt + "</table>";
 }
+//@ sourceMappingURL=hoved.js.map

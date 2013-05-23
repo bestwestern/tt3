@@ -129,26 +129,109 @@ module solution {
                             constrafvigelser.push(eventafvigelse);
                     }
                 }
+                if (constr instanceof instans.AvoidUnavailableTimesConstraint) {
+                    type = "AvoidUnavailableTimesConstraint";
+                    var ctimer: instans.Time[] = constr.timer;
+                    var anttimer = ctimer.length;
+                    var constr: instans.AvoidUnavailableTimesConstraint = <instans.AvoidUnavailableTimesConstraint>constr;
+                    for (var i = 0; i < constr.appliestores.length; i++) {
+                        var thisres = constr.appliestores[i];
+                        var resafv = 0;
+                        var thisrestiltid: restider = this.restiltid[thisres.index];
+                        for (var j = 0; j < anttimer; j++) {
+                            if (thisrestiltid.tider[ctimer[j].index].eventindex.length > 0)
+                                resafv++;
+                        }
+                        if (resafv)
+                            constrafvigelser.push(resafv);
+                    }
+                }
+
+                if (constr instanceof instans.LimitBusyTimesConstraint) {
+                    type = "LimitBusyTimesConstraint";
+                    var ctimegroups: instans.TimeGroup[] = constr.timegroups;
+                    var antgr = ctimegroups.length;
+                    var max = constr.maximum;
+                    var min = constr.minimum;
+                    var constr: instans.LimitBusyTimesConstraint = <instans.LimitBusyTimesConstraint >constr;
+                    for (var i = 0; i < constr.appliestores.length; i++) {
+                        var thisres = constr.appliestores[i];
+                        var thisrestiltid: restider = this.restiltid[thisres.index];
+                        for (var j = 0; j < antgr; j++) {
+                            var tgload = 0;
+                            var tgtimer = ctimegroups[j].timer;
+                            for (var k = 0; k < tgtimer.length; k++)
+                                if (thisrestiltid.tider[tgtimer[k].index].eventindex.length > 0)
+                                    tgload++;
+                            if (tgload > max)
+                                constrafvigelser.push(tgload - max);
+                            else
+                                if (tgload < min)
+                                    constrafvigelser.push(min - tgload);
+                        }
+
+                    }
+                }
+
+                if (constr instanceof instans.LimitWorkloadConstraint) {
+                    type = "LimitWorkloadConstraint ";
+                    var constr: instans.LimitWorkloadConstraint = <instans.LimitWorkloadConstraint  >constr;
+                    var max = constr.maximum;
+                    var min = constr.minimum;
+                    for (var i = 0; i < constr.appliestores.length; i++) {
+                        var thisres = constr.appliestores[i];
+                        var reswl = 0;
+                        var thisrestiltid: restider = this.restiltid[thisres.index];
+                        for (var j = 0; j < antaltider; j++) {
+                            var thistildel: tildeling = thisrestiltid.tider[j];
+                            for (var k = 0; k < thistildel.eventindex.length; k++) {
+                                reswl += events[thistildel.eventindex[k]].workload || 1;
+                            }
+                        }
+                        if (reswl > max)
+                            constrafvigelser.push(reswl - max)
+                        else
+                            if (reswl < min)
+                                constrafvigelser.push(min - reswl);
+
+
+
+                    }
+                }
+
+
                 if (constr instanceof instans.LinkEventsConstraint) {
                     type = "LinkEventsConstraint ";
                     var constr: instans.LinkEventsConstraint = <instans.LinkEventsConstraint > constr;
-                    var arrmedarrmedmangler = (<instans.LinkEventsConstraint >constr).arraymedarrayaftidmangler;
-                    for (var i = 0; i < arrmedarrmedmangler.length; i++) {
-                        var mnglarr: instans.TidMangel[] = arrmedarrmedmangler[i];
-                        var arrmedantaltidindex: number[] = [];
-                        for (var j = 0; j < mnglarr.length; j++) {
-                            var thistidindex = this.tidmangeltildelinger[mnglarr[j].index];
-                            if (thistidindex != null) {
-                                if (arrmedantaltidindex[thistidindex])
-                                    arrmedantaltidindex[thistidindex]++;
-                                else
-                                    arrmedantaltidindex[thistidindex] = 1;
+                    var evgrs = constr.appliestoevgrou;
+                    for (var i = 0; i < evgrs.length; i++) {
+                        var evgr = evgrs[i];
+                        var evdur = evgr.events[0].duration;
+                        var alletider = [];
+                        var arrmedarraymedtiderforevents: any[] = [];
+                        for (var j = 0; j < evgr.events.length; j++) {
+                            var thisev = evgr.events[j];
+                            var thiseventstider: number[] = [];
+                            var thiseventmangler = thisev.eventtidmangler;
+                            for (var k = 0; k < thiseventmangler.length; k++) {
+                                var thistidindex = this.tidmangeltildelinger[thiseventmangler[k].index];
+                                if (thistidindex != null) {
+                                    if (thiseventstider.indexOf(thistidindex) == -1)
+                                        thiseventstider.push(thistidindex);
+                                    if (alletider.indexOf(thistidindex) == -1)
+                                        alletider.push(thistidindex);
+                                }
                             }
+                            arrmedarraymedtiderforevents.push(thiseventstider);
                         }
                         var afv = 0;
-                        var rigtigtantal = (<instans.LinkEventsConstraint>constr).arraymedeventlengths[i];
-                        for (var key in arrmedantaltidindex) {
-                            if (arrmedantaltidindex[key] != rigtigtantal)
+                        for (var j = 0; j < alletider.length; j++) {
+                            var thistid = alletider[j];
+                            for (var k = 0; k < arrmedarraymedtiderforevents.length; k++) {
+                                if (arrmedarraymedtiderforevents[k].indexOf(thistid) == -1)
+                                    k = arrmedarraymedtiderforevents.length + 1;
+                            }
+                            if (k > arrmedarraymedtiderforevents.length)
                                 afv++;
                         }
                         if (afv)
@@ -210,6 +293,7 @@ module solution {
                 }
                 if (constr instanceof instans.SpreadEventsConstraint) {
                     type = "SpreadEventsConstraint";
+                    var spreadarr = [];
                     var constr: instans.SpreadEventsConstraint = <instans.SpreadEventsConstraint>constr;
                     var starttider: number[] = [];
                     for (var i = 0; i < antaltimegroups; i++)
@@ -244,11 +328,18 @@ module solution {
                             }
                             for (var k = 0; k < antaltimegroups; k++) {
                                 var ant = starttider[k];
-                                if (ant < (<instans.SpreadEventsConstraint> constr).timegroupminimum[k])
+                                var f = 0;
+                                if (ant < (<instans.SpreadEventsConstraint> constr).timegroupminimum[k]) {
                                     constrafvigelser.push((<instans.SpreadEventsConstraint> constr).timegroupminimum[k] - ant);
+                                    f = 1;
+                                }
                                 else
-                                    if (ant > (<instans.SpreadEventsConstraint> constr).timegroupmaximum[k])
+                                    if (ant > (<instans.SpreadEventsConstraint> constr).timegroupmaximum[k]) {
                                         constrafvigelser.push(ant - (<instans.SpreadEventsConstraint> constr).timegroupmaximum[k]);
+                                        f = 1;
+                                    }
+                                if (f)
+                                    spreadarr.push(evgr.id + ":" + constrafvigelser[constrafvigelser.length - 1]);
                             }
                         }
                     }
@@ -277,6 +368,8 @@ module solution {
             assert(true, '-----------');
             for (var prop in typeopsummering)
                 assert(true, prop + " " + typeopsummering[prop])
+            for (var i = 0; i < spreadarr.length; i++)
+                assert(true, spreadarr[i]);
         }
         getdurations(thisevent: instans.AEvent) {
             var startogslut: number[] = [];

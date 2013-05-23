@@ -83,6 +83,41 @@ module instans {
             }
         }
     }
+    export class AvoidUnavailableTimesConstraint implements Constraint {
+        appliestoevgrou: EventGroup[];
+        appliestoev: AEvent[];
+        appliestoresmangler: ResMangel[];
+        appliestoresgrou: ResourceGroup[];
+        appliestores: Resource[];
+        timegroups: TimeGroup[];
+        timer: Time[];
+        minimumduration: number;
+        maximumduration: number;
+        minimumamount: number;
+        maximumamount: number;
+        duration: number;
+        minimum: number;
+        maximum: number;
+        arraymedarrayafresmangler: any[];
+        role: string;
+        costfunction: (afv: number[]) => number;
+        constructor(public id: string, public name: string, public weight: number,
+            costfunction: string) {
+            this.appliestoresgrou = [];
+            this.appliestores = [];
+            this.timegroups = [];
+            this.timer = [];
+
+            switch (costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
+            }
+        }
+    }
     export class AssignResourceConstraint implements Constraint {
         appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
@@ -184,6 +219,72 @@ module instans {
         }
 
     }
+
+    export class LimitBusyTimesConstraint implements Constraint {
+        appliestoevgrou: EventGroup[];
+        appliestoev: AEvent[];
+        appliestoresmangler: ResMangel[];
+        appliestoresgrou: ResourceGroup[];
+        appliestores: Resource[];
+        timegroups: TimeGroup[];
+        timer: Time[];
+        minimumduration: number;
+        maximumduration: number;
+        minimumamount: number;
+        maximumamount: number;
+        duration: number;
+        minimum: number;
+        maximum: number;
+        role: string;
+        costfunction: (afv: number[]) => number;
+        constructor(public id: string, public name: string, public weight: number,
+            costfunction: string) {
+            this.appliestoresgrou = [];
+            this.appliestores = [];
+            this.timegroups = [];
+            switch (costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
+            }
+        }
+    }
+
+      export class LimitWorkloadConstraint implements Constraint {
+          appliestoevgrou: EventGroup[];
+          appliestoev: AEvent[];
+          appliestoresmangler: ResMangel[];
+          appliestoresgrou: ResourceGroup[];
+          appliestores: Resource[];
+          timegroups: TimeGroup[];
+          timer: Time[];
+          minimumduration: number;
+          maximumduration: number;
+          minimumamount: number;
+          maximumamount: number;
+          duration: number;
+          minimum: number;
+          maximum: number;
+          role: string;
+          costfunction: (afv: number[]) => number;
+          constructor(public id: string, public name: string, public weight: number,
+              costfunction: string) {
+              this.appliestoresgrou = [];
+              this.appliestores = [];
+              switch (costfunction.toLowerCase()) {
+                  case "sum":
+                      this.costfunction = sum;
+                      break;
+                  default:
+                      alert('costfunction mangler!' + costfunction);
+                      break;
+              }
+          }
+      }
+
     export class LinkEventsConstraint implements Constraint {
         appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
@@ -200,16 +301,10 @@ module instans {
         minimum: number;
         maximum: number;
         role: string;
-
-        arraymedarrayaftidmangler: any[];
-        //nedenstående angiver længden på de events der udgør ovenstående. Dvs. hvor mange mangler der skal lægge på hver tid
-        arraymedeventlengths: number[];
         costfunction: (afv: number[]) => number;
         constructor(public id: string, public name: string, public weight: number,
             costfunction: string) {
             this.appliestoevgrou = [];
-            this.arraymedarrayaftidmangler = [];
-            this.arraymedeventlengths = [];
             switch (costfunction.toLowerCase()) {
                 case "sum":
                     this.costfunction = sum;
@@ -709,6 +804,8 @@ module instans {
             }
             else
                 var hje = 3;
+            if (curev["Workload"])
+                var her = 3;
             for (var key2 in curev["Course"]) {
                 var evg = curev["Course"][key2];
                 if (evgruppeid.indexOf(evg) > -1) {
@@ -885,12 +982,26 @@ module instans {
             case "AssignTimeConstraint":
                 var nycon = new AssignTimeConstraint(id, na, we, co);
                 break;
+            case "AvoidUnavailableTimesConstraint":
+                var nycon = new AvoidUnavailableTimesConstraint(id, na, we, co);
+                break;
+            case "AvoidClashesConstraint":
+                var nycon = new AvoidClashesConstraint(id, na, we, co);
+                break;
+            case "AvoidSplitAssignmentsConstraint":
+                var nycon = new AvoidSplitAssignmentsConstraint(id, na, we, co, ro);
+                break;
+
             case "DistributeSplitEventsConstraint":
                 var nycon = new DistributeSplitEventsConstraint(id, na, we, co);
                 break;
-            case "LimitBusyTimesConstraint"://MANFLWE
+            case "LimitBusyTimesConstraint":
+                var nycon = new LimitBusyTimesConstraint(id, na, we, co);
                 break;
-
+               case "LimitWorkloadConstraint":
+                   var nycon = new LimitWorkloadConstraint(id, na, we, co);
+                   break;
+   
             case "LinkEventsConstraint":
                 var nycon = new LinkEventsConstraint(id, na, we, co);
                 break;
@@ -908,12 +1019,6 @@ module instans {
                 break;
             case "DistributeSplitEventsConstraint":
                 assert(na, true);
-                break;
-            case "AvoidClashesConstraint":
-                var nycon = new AvoidClashesConstraint(id, na, we, co);
-                break;
-            case "AvoidSplitAssignmentsConstraint":
-                var nycon = new AvoidSplitAssignmentsConstraint(id, na, we, co, ro);
                 break;
 
 
@@ -972,11 +1077,14 @@ module instans {
 
             if (constraint["Times"]) {
                 var t = constraint["Times"]["Time"];
-                if (t instanceof Array)
-                    for (var key in t)
-                        nycon.timer.push(timer[tidid.indexOf(t[key]["Reference"])]);
+                if (t)
+                    if (t instanceof Array)
+                        for (var key in t)
+                            nycon.timer.push(timer[tidid.indexOf(t[key]["Reference"])]);
+                    else
+                        nycon.timer.push(timer[tidid.indexOf(t["Reference"])]);
                 else
-                    nycon.timer.push(timer[tidid.indexOf(t["Reference"])]);
+                    var her = 4;//ingen tid i denne constraint - kan slettes??
             }
             if (constraint["TimeGroups"]) {
                 var tg = constraint["TimeGroups"]["TimeGroup"];
@@ -988,7 +1096,7 @@ module instans {
                             (<SpreadEventsConstraint>nycon).timegroupminimum.push(tg[key]["Minimum"]);
                             (<SpreadEventsConstraint>nycon).timegroupmaximum.push(tg[key]["Maximum"]);
                         }
-                        if (nycon.timer)//nødvendig fordi spreadevents har timegroups men ikke timer
+                        if (nycon.timer)//nødvendig fordi spreadevents (o.a.) har timegroups men ikke timer
                             for (var i = 0, len = tgr.timer.length; i < len; i++)
                                 if (nycon.timer.indexOf(tgr.timer[i]) == -1)
                                     nycon.timer.push(tgr.timer[i]);
@@ -1008,8 +1116,17 @@ module instans {
                 }
             }
 
-            if (constraint["Resources"]) {
-                alert('nu skal resource under lavconstraints kodes!');
+            if (constraint["Resources"] || constraint["AppliesTo"]["Resources"]) {
+                if (constraint["Resources"])
+                    var appliesto = constraint["Resources"]["Resource"];
+                else
+                    var appliesto = constraint["AppliesTo"]["Resources"]["Resource"];
+                if (appliesto instanceof Array)
+                    for (var key in appliesto)
+                        nycon.appliestores.push(resourcer[resid.indexOf(appliesto[key]["Reference"])]);//VIRKER DETTE??
+                else
+                    nycon.appliestores.push(resourcer[resid.indexOf(appliesto["Reference"])]);
+
 
                 //implemter
             }
@@ -1071,23 +1188,7 @@ module instans {
                         (<AvoidSplitAssignmentsConstraint>nycon).arraymedarrayafresmangler.push(tmp);
                     }
                     break;
-                case "LinkEventsConstraint":
-                    var apptoevgrs = nycon.appliestoevgrou;
-                    for (var k = 0; k < apptoevgrs.length; k++) {
-                        var apptoevgr = apptoevgrs[k];
-                        var tmp = [];
-                        (<LinkEventsConstraint>nycon).arraymedeventlengths.push((<EventGroup>apptoevgr).events[0].duration);
-                        for (var l = 0; l < apptoevgr.events.length; l++) {
-                            var apptoev = apptoevgr.events;
-                            for (var i = 0; i < apptoev.length; i++) {
-                                var thiseventtidmangler = apptoev[i].eventtidmangler;
-                                for (var j = 0; j < thiseventtidmangler.length; j++)
-                                    tmp.push(thiseventtidmangler[j]);
-                            }
-                        }
-                        (<LinkEventsConstraint >nycon).arraymedarrayaftidmangler.push(tmp);
-                    }
-                    break;
+
 
             }
             if (ha)// if (nycon =prefertimes - angiv de mulige tider i eventsene
