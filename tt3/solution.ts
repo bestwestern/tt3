@@ -48,8 +48,9 @@ module solution {
         }
 
         udregncon(hardcon: bool) {//frisk udregning (uden gemte tidligere værdier) bør måske ikke lave prefertimes hvis hardcon? - opdel udregn i hard og soft
-            var constrarr: instans.Constraint[] = hardcon ? hardconstraints : softconstraints;
+             var constrarr: instans.Constraint[] = hardcon ? hardconstraints : softconstraints;
             var typeopsummering = {};
+            var fejldetaljer: any = {};
 
             for (var c = 0, lencon = constrarr.length; c < lencon; c++) {
                 var constr = constrarr[c];
@@ -60,17 +61,38 @@ module solution {
 
                 if (constr instanceof instans.AssignResourceConstraint) {
                     type = "AssignResourceConstraint";
+                    var detarr = [];
                     var constr: instans.AssignResouceConstraint = <instans.AssignTimeConstraint> constr;
                     var resmngler = constr.appliestoresmangler;
                     for (var i = 0; i < resmngler.length; i++) {
-                        var eventafvigelse = 0;
+                        var sletmig = constr.id + '__' + resmngler[i].aevent.name;
+                        var sletev = resmngler[i].aevent;
+                        var sletma = resmngler[i];
                         if (this.resmangeltildelinger[resmngler[i].index] == null) {
                             if (resmngler[i].aevent.preasigntime)
-                                eventafvigelse += resmngler[i].aevent.duration;
+                                constrafvigelser.push(resmngler[i].aevent.duration);
                             else
-                                eventafvigelse++;
+                                constrafvigelser.push(1);
+                            var afv = constrafvigelser[constrafvigelser.length - 1];
+                            if (fejldetaljer[sletmig])
+                                fejldetaljer[sletmig] += constrafvigelser[constrafvigelser.length - 1];
+                            else
+                                fejldetaljer[sletmig] = constrafvigelser[constrafvigelser.length - 1];
+                            var k = 4;
+                            /*   if (resmngler[i].aevent.preasigntime)
+                                   eventafvigelse += resmngler[i].aevent.duration;
+                               else
+                                   eventafvigelse++;
+                           }
+                           if (eventafvigelse) {
+                               if (constr.id + '__' + resmangler[i].aevent.name in fejldetaljer)
+                                   fejldetaljer[]+=eventafvigelse;
+                               else
+                                   fejldetaljer[constr.id + '__' + resmngler[i].aevent.name] = eventafvigelse;
+                               constrafvigelser.push(eventafvigelse);
+                               //detarr.push(resourcer[resmngler[i]..id + ":" + constrafvigelser[constrafvigelser.length - 1]);
+                            */
                         }
-                        constrafvigelser.push(eventafvigelse);
                     }
                 }
                 if (constr instanceof instans.AssignTimeConstraint) {
@@ -329,18 +351,13 @@ module solution {
                         }
                         for (var k = 0; k < antaltimegroups; k++) {
                             var ant = starttider[k];
-                            var f = 0;
                             if (ant < (<instans.SpreadEventsConstraint> constr).timegroupminimum[k]) {
                                 constrafvigelser.push((<instans.SpreadEventsConstraint> constr).timegroupminimum[k] - ant);
-                                f = 1;
                             }
                             else
                                 if (ant > (<instans.SpreadEventsConstraint> constr).timegroupmaximum[k]) {
                                     constrafvigelser.push(ant - (<instans.SpreadEventsConstraint> constr).timegroupmaximum[k]);
-                                    f = 1;
                                 }
-                            if (f)
-                                spreadarr.push(evgr.id + ":" + constrafvigelser[constrafvigelser.length - 1]);
 
                         }
                     }
@@ -368,9 +385,9 @@ module solution {
             }
             assert(true, '-----------');
             for (var prop in typeopsummering)
-                assert(true, prop + " " + typeopsummering[prop])
-            for (var i = 0; i < spreadarr.length; i++)
-                assert(true, spreadarr[i]);
+                assert(true, prop + " " + typeopsummering[prop]);
+            for (var prop in fejldetaljer)
+                assert(true, prop + " : " + fejldetaljer[prop]);
         }
         getdurations(thisevent: instans.AEvent) {
             var startogslut: number[] = [];
@@ -488,11 +505,15 @@ module solution {
             for (var i = 0; i < antal; i++) {
                 var resmangelindex = Math.floor(Math.random() * resmangler.length);
                 if (this.resmangeltildelinger[resmangelindex] == undefined) {
-                    var typ = resmangler[resmangelindex].resourcetype;
-                    var grr = Math.floor(Math.random() * typ.resourcegroups.length);
-                    var r = typ.resourcegroups[grr].resourcer;
-                    var rr = Math.floor(Math.random() * r.length);
-                    var resindex = r[rr].index;
+                    var resindex = -1;
+                    while (resindex < 0) {
+                        var typ = resmangler[resmangelindex].resourcetype;
+                        var grr = Math.floor(Math.random() * typ.resourcegroups.length);
+                        var r = typ.resourcegroups[grr].resourcer;
+                        var rr = Math.floor(Math.random() * r.length);
+                        if (r[rr])
+                            resindex = r[rr].index;
+                    }
                     vistsol.resmangeltildelinger[resmangelindex] = resindex;
                     if (resmangler[resmangelindex].aevent.preasigntime) {
                         var ev = resmangler[resmangelindex].aevent;

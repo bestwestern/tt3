@@ -17,6 +17,7 @@ var counter = 0;
 var xmlDoc;
 var xmlinstans;
 window.onload = function () {
+    "use strict";
     var test = [];
     test[3] = [
         5
@@ -48,7 +49,7 @@ window.onload = function () {
             instans.readxml("XML/" + filenames[i] + ".xml");
         }
     }
-    var filnavn = filenames[3];
+    var filnavn = filenames[5];
     instans.readxml("XML/" + filnavn + ".xml");
     vistsol = new solution.Sol();
     $('#content').html(lavtablerowhtml(vistsol));
@@ -150,7 +151,7 @@ function lavxml() {
                     var reses = addnode("Resources", ev);
                     for(var k = j; k < thisevent.eventresmangler.length; k += thisevent.duration) {
                         var tilres = vistsol.resmangeltildelinger[thisevent.eventresmangler[k].index];
-                        if(tilres) {
+                        if(tilres != undefined) {
                             var nyres = addnode("Resource", reses);
                             nyres.setAttribute("Reference", resourcer[tilres].id);
                             addnode("Role", nyres, thisevent.eventresmangler[k].role);
@@ -335,3 +336,4 @@ function lavtablerowhtml(solin) {
     }
     return htmltxt + "</table>";
 }
+//@ sourceMappingURL=hoved.js.map

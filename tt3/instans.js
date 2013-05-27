@@ -472,7 +472,7 @@ var instans;
         tmp = times["Time"];
         for(var key in tmp) {
             var curtime = tmp[key];
-            var nytime = new Time(curtime["Id"], curtime["Name"]);
+            var nytime = new Time(curtime["Name"], curtime["Id"]);
             if(curtime["Week"]) {
                 var tmg = tidsgrupper[tidgruppeid.indexOf(curtime["Week"]["Reference"])];
                 nytime.timegroups.push(tmg);
@@ -1010,3 +1010,4 @@ var instans;
         }
     }
 })(instans || (instans = {}));
+//@ sourceMappingURL=instans.js.map

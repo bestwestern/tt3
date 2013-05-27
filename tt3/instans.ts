@@ -253,37 +253,37 @@ module instans {
         }
     }
 
-      export class LimitWorkloadConstraint implements Constraint {
-          appliestoevgrou: EventGroup[];
-          appliestoev: AEvent[];
-          appliestoresmangler: ResMangel[];
-          appliestoresgrou: ResourceGroup[];
-          appliestores: Resource[];
-          timegroups: TimeGroup[];
-          timer: Time[];
-          minimumduration: number;
-          maximumduration: number;
-          minimumamount: number;
-          maximumamount: number;
-          duration: number;
-          minimum: number;
-          maximum: number;
-          role: string;
-          costfunction: (afv: number[]) => number;
-          constructor(public id: string, public name: string, public weight: number,
-              costfunction: string) {
-              this.appliestoresgrou = [];
-              this.appliestores = [];
-              switch (costfunction.toLowerCase()) {
-                  case "sum":
-                      this.costfunction = sum;
-                      break;
-                  default:
-                      alert('costfunction mangler!' + costfunction);
-                      break;
-              }
-          }
-      }
+    export class LimitWorkloadConstraint implements Constraint {
+        appliestoevgrou: EventGroup[];
+        appliestoev: AEvent[];
+        appliestoresmangler: ResMangel[];
+        appliestoresgrou: ResourceGroup[];
+        appliestores: Resource[];
+        timegroups: TimeGroup[];
+        timer: Time[];
+        minimumduration: number;
+        maximumduration: number;
+        minimumamount: number;
+        maximumamount: number;
+        duration: number;
+        minimum: number;
+        maximum: number;
+        role: string;
+        costfunction: (afv: number[]) => number;
+        constructor(public id: string, public name: string, public weight: number,
+            costfunction: string) {
+            this.appliestoresgrou = [];
+            this.appliestores = [];
+            switch (costfunction.toLowerCase()) {
+                case "sum":
+                    this.costfunction = sum;
+                    break;
+                default:
+                    alert('costfunction mangler!' + costfunction);
+                    break;
+            }
+        }
+    }
 
     export class LinkEventsConstraint implements Constraint {
         appliestoevgrou: EventGroup[];
@@ -659,7 +659,7 @@ module instans {
         tmp = times["Time"];
         for (var key in tmp) {
             var curtime = tmp[key];
-            var nytime = new Time(curtime["Id"], curtime["Name"]);
+            var nytime = new Time(curtime["Name"], curtime["Id"]);
             if (curtime["Week"]) {
                 var tmg = tidsgrupper[tidgruppeid.indexOf(curtime["Week"]["Reference"])];
                 nytime.timegroups.push(tmg);
@@ -998,10 +998,10 @@ module instans {
             case "LimitBusyTimesConstraint":
                 var nycon = new LimitBusyTimesConstraint(id, na, we, co);
                 break;
-               case "LimitWorkloadConstraint":
-                   var nycon = new LimitWorkloadConstraint(id, na, we, co);
-                   break;
-   
+            case "LimitWorkloadConstraint":
+                var nycon = new LimitWorkloadConstraint(id, na, we, co);
+                break;
+
             case "LinkEventsConstraint":
                 var nycon = new LinkEventsConstraint(id, na, we, co);
                 break;

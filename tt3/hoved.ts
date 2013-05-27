@@ -7,6 +7,7 @@ Lav resource angivelse og: test ved angivelse af resource i preferresource (ikke
 lav preassigned kolonne
 bør solutionevent pege på forældreevent
 */
+
 var timer: instans.Time[];
 var vistsol: solution.Sol;
 var tidsgrupper: instans.TimeGroup[];
@@ -26,6 +27,9 @@ var counter = 0;
 var xmlDoc: any;
 var xmlinstans;
 window.onload = () => {
+    "use strict";
+    //  obj1.x = 9; // throws a TypeError
+
     /* if (typeof (Worker) !== "undefined")
          alert('worker virker');
      else
@@ -62,8 +66,8 @@ window.onload = () => {
                 $('#content').html(lavtablerowhtml(vistsol));
             assert(true, events.length.toString());*/
         }
-    var filnavn = filenames[3];
-    instans.readxml("XML/" + filnavn+ ".xml");
+    var filnavn = filenames[5];
+    instans.readxml("XML/" + filnavn + ".xml");
     vistsol = new solution.Sol();
     $('#content').html(lavtablerowhtml(vistsol));
     // vistsol.udregnhard();
@@ -183,7 +187,7 @@ function lavxml() {
                     var reses = addnode("Resources", ev);
                     for (var k = j; k < thisevent.eventresmangler.length; k += thisevent.duration) {
                         var tilres = vistsol.resmangeltildelinger[thisevent.eventresmangler[k].index];
-                        if (tilres) {
+                        if (tilres != undefined) {
                             var nyres = addnode("Resource", reses);
                             nyres.setAttribute("Reference", resourcer[tilres].id);
                             addnode("Role", nyres, thisevent.eventresmangler[k].role);
