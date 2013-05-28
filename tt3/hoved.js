@@ -114,7 +114,7 @@ function lavxml() {
                     var reses = addnode("Resources", ev);
                     for(var k = 0; k < thisevent.eventresmangler.length; k++) {
                         var tilres = vistsol.resmangeltildelinger[thisevent.eventresmangler[k].index];
-                        if(tilres) {
+                        if(tilres != undefined) {
                             var nyres = addnode("Resource", reses);
                             nyres.setAttribute("Reference", resourcer[tilres].id);
                             addnode("Role", nyres, thisevent.eventresmangler[k].role);

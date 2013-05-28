@@ -48,7 +48,7 @@ module solution {
         }
 
         udregncon(hardcon: bool) {//frisk udregning (uden gemte tidligere værdier) bør måske ikke lave prefertimes hvis hardcon? - opdel udregn i hard og soft
-             var constrarr: instans.Constraint[] = hardcon ? hardconstraints : softconstraints;
+            var constrarr: instans.Constraint[] = hardcon ? hardconstraints : softconstraints;
             var typeopsummering = {};
             var fejldetaljer: any = {};
 
@@ -61,37 +61,27 @@ module solution {
 
                 if (constr instanceof instans.AssignResourceConstraint) {
                     type = "AssignResourceConstraint";
-                    var detarr = [];
                     var constr: instans.AssignResouceConstraint = <instans.AssignTimeConstraint> constr;
                     var resmngler = constr.appliestoresmangler;
                     for (var i = 0; i < resmngler.length; i++) {
-                        var sletmig = constr.id + '__' + resmngler[i].aevent.name;
-                        var sletev = resmngler[i].aevent;
-                        var sletma = resmngler[i];
                         if (this.resmangeltildelinger[resmngler[i].index] == null) {
                             if (resmngler[i].aevent.preasigntime)
                                 constrafvigelser.push(resmngler[i].aevent.duration);
                             else
                                 constrafvigelser.push(1);
-                            var afv = constrafvigelser[constrafvigelser.length - 1];
-                            if (fejldetaljer[sletmig])
-                                fejldetaljer[sletmig] += constrafvigelser[constrafvigelser.length - 1];
-                            else
-                                fejldetaljer[sletmig] = constrafvigelser[constrafvigelser.length - 1];
-                            var k = 4;
                             /*   if (resmngler[i].aevent.preasigntime)
-                                   eventafvigelse += resmngler[i].aevent.duration;
-                               else
-                                   eventafvigelse++;
-                           }
-                           if (eventafvigelse) {
-                               if (constr.id + '__' + resmangler[i].aevent.name in fejldetaljer)
-                                   fejldetaljer[]+=eventafvigelse;
-                               else
-                                   fejldetaljer[constr.id + '__' + resmngler[i].aevent.name] = eventafvigelse;
-                               constrafvigelser.push(eventafvigelse);
-                               //detarr.push(resourcer[resmngler[i]..id + ":" + constrafvigelser[constrafvigelser.length - 1]);
-                            */
+                             eventafvigelse += resmngler[i].aevent.duration;
+                         else
+                             eventafvigelse++;
+                     }
+                     if (eventafvigelse) {
+                         if (constr.id + '__' + resmangler[i].aevent.name in fejldetaljer)
+                             fejldetaljer[]+=eventafvigelse;
+                         else
+                             fejldetaljer[constr.id + '__' + resmngler[i].aevent.name] = eventafvigelse;
+                         constrafvigelser.push(eventafvigelse);
+                         //detarr.push(resourcer[resmngler[i]..id + ":" + constrafvigelser[constrafvigelser.length - 1]);
+                      */
                         }
                     }
                 }
@@ -202,19 +192,65 @@ module solution {
                     var min = constr.minimum;
                     for (var i = 0; i < constr.appliestores.length; i++) {
                         var thisres = constr.appliestores[i];
+                        var medregnedeevents = [];
                         var reswl = 0;
                         var thisrestiltid: restider = this.restiltid[thisres.index];
                         for (var j = 0; j < antaltider; j++) {
                             var thistildel: tildeling = thisrestiltid.tider[j];
                             for (var k = 0; k < thistildel.eventindex.length; k++) {
-                                reswl += events[thistildel.eventindex[k]].workload || 1;
+                                var evindx = thistildel.eventindex[k];
+                                if (medregnedeevents.indexOf(evindx) == -1) {
+                                    var thisev = events[evindx];
+                                    medregnedeevents.push(evindx);
+                                    var resm = thisev.eventresmangler;
+                                    for (var l = 0; l < resm.length; l++) {
+                                        if (this.resmangeltildelinger[resm[l].index] == thisres.index) {
+                                            if (resm[l].workload != null)
+                                                reswl += resm[l].workload;
+                                            else
+                                                if (thisev.workload != null)
+                                                    reswl += thisev.workload;
+                                                else
+                                                    reswl++;
+                                        }
+                                    }
+                                    for (var l = 0; l < thisev.eventresourcer.length; l++) {//preassigned
+                                        if (thisev.eventresourcer[l] === thisres) {
+                                            if (thisev.eventresworkloads[l] !== null)
+                                                reswl += thisev.eventresworkloads[l] / thisev.duration ;
+                                            else
+                                                if (thisev.workload != null)
+                                                    reswl += thisev.workload/thisev.duration ;
+                                                else
+                                                    reswl += thisev.duration;
+                                        }
+                                    }
+
+
+                                }
+                                /*
+                                if (events[thistildel.eventindex[k]].workload != null)
+                                    reswl += events[thistildel.eventindex[k]].workload;
+                                else
+                                    reswl++;*/
                             }
                         }
-                        if (reswl > max)
+                        var sletmig = thisres.id + "___" + constr.id;
+                        if (reswl > max) {
                             constrafvigelser.push(reswl - max)
+                            fejldetaljer[sletmig] = reswl - max;
+                        }
                         else
-                            if (reswl < min)
+                            if (reswl < min) {
                                 constrafvigelser.push(min - reswl);
+                                fejldetaljer[sletmig] = min - reswl;
+                            }
+                        /*
+                       if (fejldetaljer[sletmig])
+                           fejldetaljer[sletmig] += constrafvigelser[constrafvigelser.length - 1];
+                       else
+                           fejldetaljer[sletmig] = constrafvigelser[constrafvigelser.length - 1];
+                       var k = 4;*/
 
 
 

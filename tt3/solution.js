@@ -53,26 +53,15 @@ var solution;
                 var type = "";
                 if(constr instanceof instans.AssignResourceConstraint) {
                     type = "AssignResourceConstraint";
-                    var detarr = [];
                     var constr = constr;
                     var resmngler = constr.appliestoresmangler;
                     for(var i = 0; i < resmngler.length; i++) {
-                        var sletmig = constr.id + '__' + resmngler[i].aevent.name;
-                        var sletev = resmngler[i].aevent;
-                        var sletma = resmngler[i];
                         if(this.resmangeltildelinger[resmngler[i].index] == null) {
                             if(resmngler[i].aevent.preasigntime) {
                                 constrafvigelser.push(resmngler[i].aevent.duration);
                             } else {
                                 constrafvigelser.push(1);
                             }
-                            var afv = constrafvigelser[constrafvigelser.length - 1];
-                            if(fejldetaljer[sletmig]) {
-                                fejldetaljer[sletmig] += constrafvigelser[constrafvigelser.length - 1];
-                            } else {
-                                fejldetaljer[sletmig] = constrafvigelser[constrafvigelser.length - 1];
-                            }
-                            var k = 4;
                         }
                     }
                 }
@@ -188,18 +177,47 @@ var solution;
                     var min = constr.minimum;
                     for(var i = 0; i < constr.appliestores.length; i++) {
                         var thisres = constr.appliestores[i];
+                        var medregnedeevents = [];
                         var reswl = 0;
                         var thisrestiltid = this.restiltid[thisres.index];
                         for(var j = 0; j < antaltider; j++) {
                             var thistildel = thisrestiltid.tider[j];
                             for(var k = 0; k < thistildel.eventindex.length; k++) {
-                                reswl += events[thistildel.eventindex[k]].workload || 1;
+                                var evindx = thistildel.eventindex[k];
+                                if(medregnedeevents.indexOf(evindx) == -1) {
+                                    var thisev = events[evindx];
+                                    medregnedeevents.push(evindx);
+                                    var resm = thisev.eventresmangler;
+                                    for(var l = 0; l < resm.length; l++) {
+                                        if(this.resmangeltildelinger[resm[l].index] == thisres.index) {
+                                            if(resm[l].workload != null) {
+                                                reswl += resm[l].workload;
+                                            } else if(thisev.workload != null) {
+                                                reswl += thisev.workload;
+                                            } else {
+                                                reswl++;
+                                            }
+                                        }
+                                    }
+                                    for(var l = 0; l < thisev.eventresourcer.length; l++) {
+                                        if(thisev.eventresourcer[l] === thisres) {
+                                            if(thisev.workload != null) {
+                                                reswl += thisev.workload * thisev.duration;
+                                            } else {
+                                                reswl += thisev.duration;
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
+                        var sletmig = thisres.id + "___" + constr.id;
                         if(reswl > max) {
                             constrafvigelser.push(reswl - max);
+                            fejldetaljer[sletmig] = reswl - max;
                         } else if(reswl < min) {
                             constrafvigelser.push(min - reswl);
+                            fejldetaljer[sletmig] = min - reswl;
                         }
                     }
                 }

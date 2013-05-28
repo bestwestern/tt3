@@ -559,6 +559,7 @@ module instans {
     export class AEvent {
         index: number;
         eventresourcer: Resource[];//preassignede
+        eventresworkloads: number[];//preassignede resourcer workloads - dvs skal have så mange index som ovenstående
         eventresmangler: ResMangel[];//hvis 3 mangler (mangel 1 er lokale) og duration er 4, 
         //så vil resmangel [4],[5],[6],[7] være lokalemanglerne for de 4 durationindex
         //NB! Hvis preassignedtime så vil der ikke være en mangel for hver duration!
@@ -574,9 +575,7 @@ module instans {
             this.eventresmangler = [];
             this.eventtidmangler = [];
             this.index = events.length;
-            /*  if (duration >1) {
-                  alert('bingo');
-              }*/
+            this.eventresworkloads = [];
         }
     }
     export class TidMangel {
@@ -597,6 +596,11 @@ module instans {
                 alert('fejl ved indlæsningh af mangel ' + role + ',' + resourcetype.name);
             this.index = resmangler.length;
             resmangler.push(this);
+
+
+            /*  if (duration >1) {
+                  alert('bingo');
+              }*/
         }
     }
     export function readinstance(nobj: Object) {//bør lave tjek på resgroup om array eller ej
@@ -796,16 +800,17 @@ module instans {
                 if (!preassigntime)
                     alert('Preassigned tid ikke fundet for ' + curev["Name"]);
             }
-
-            var nyev = new AEvent(curev["Id"], curev["Name"], Number(curev["Duration"]), curev["Workload"], preassigntime);
+            if (curev["Workload"] == null)
+                var wl = null;
+            else
+                wl = Number(curev["Workload"]);
+             var nyev = new AEvent(curev["Id"], curev["Name"], Number(curev["Duration"]), wl, preassigntime);
             if (!preassigntime) {
                 for (var i = 0; i < nyev.duration; i++)
                     nyev.eventtidmangler.push(new TidMangel(nyev, i));
             }
             else
                 var hje = 3;
-            if (curev["Workload"])
-                var her = 3;
             for (var key2 in curev["Course"]) {
                 var evg = curev["Course"][key2];
                 if (evgruppeid.indexOf(evg) > -1) {
@@ -942,6 +947,8 @@ module instans {
                 if (!curres.preass)
                     curres.preass = [];
                 curres.preass.push(nyev);
+                var wl = thisres["Workload"];
+                nyev.eventresworkloads.push(wl);
             }
             else
                 alert('fejl5 ved indlæsning af resource for ');
@@ -950,11 +957,15 @@ module instans {
             if ("Role" in thisres && "ResourceType" in thisres) {
                 var curtype = resourcetyper[typeid.indexOf(thisres["ResourceType"]["Reference"])];
                 if (curtype) {
+                    if (thisres["Workload"] == null)
+                        var wl = null;
+                    else
+                        wl = Number(thisres["Workload"]);                    
                     if (nyev.preasigntime)
-                        nyev.eventresmangler.push(new ResMangel(thisres["Role"], curtype, nyev, null, thisres["Workload"]));
+                        nyev.eventresmangler.push(new ResMangel(thisres["Role"], curtype, nyev, null, wl));
                     else
                         for (var i = 0, len = nyev.duration; i < len; i++)
-                            nyev.eventresmangler.push(new ResMangel(thisres["Role"], curtype, nyev, i, thisres["Workload"]));
+                            nyev.eventresmangler.push(new ResMangel(thisres["Role"], curtype, nyev, i, wl));
                 }
                 else
                     alert('fejlx v res event');

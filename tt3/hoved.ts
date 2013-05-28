@@ -148,7 +148,7 @@ function lavxml() {
                     var reses = addnode("Resources", ev);
                     for (var k = 0; k < thisevent.eventresmangler.length; k++) {
                         var tilres = vistsol.resmangeltildelinger[thisevent.eventresmangler[k].index];
-                        if (tilres) {
+                        if (tilres != undefined) {
                             var nyres = addnode("Resource", reses);
                             nyres.setAttribute("Reference", resourcer[tilres].id);
                             addnode("Role", nyres, thisevent.eventresmangler[k].role);
@@ -178,10 +178,8 @@ function lavxml() {
                 if (nysolevent) {
                     var ev = addnode("Event", eventsnode);
                     ev.setAttribute("Reference", thisevent.id);
-
                     addnode("Duration", ev, "1");//skal øge duration hvis ens 
                     var tin = addnode("Time", ev);
-
                     var tildtid = vistsol.tidmangeltildelinger[thisevent.eventtidmangler[j].index];
                     tin.setAttribute("Reference", timer[tildtid].id);
                     var reses = addnode("Resources", ev);
