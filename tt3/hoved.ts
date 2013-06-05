@@ -67,6 +67,7 @@ window.onload = () => {
             assert(true, events.length.toString());*/
         }
     var filnavn = filenames[5];
+    filnavn = "testmedworkloadlimitlig0";
     instans.readxml("XML/" + filnavn + ".xml");
     vistsol = new solution.Sol();
     $('#content').html(lavtablerowhtml(vistsol));

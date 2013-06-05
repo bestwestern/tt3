@@ -50,6 +50,7 @@ window.onload = function () {
         }
     }
     var filnavn = filenames[5];
+    filnavn = "testmedworkloadlimitlig0";
     instans.readxml("XML/" + filnavn + ".xml");
     vistsol = new solution.Sol();
     $('#content').html(lavtablerowhtml(vistsol));
@@ -336,4 +337,3 @@ function lavtablerowhtml(solin) {
     }
     return htmltxt + "</table>";
 }
-//@ sourceMappingURL=hoved.js.map

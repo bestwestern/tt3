@@ -216,13 +216,19 @@ module solution {
                                     }
                                     for (var l = 0; l < thisev.eventresourcer.length; l++) {//preassigned
                                         if (thisev.eventresourcer[l] === thisres) {
-                                            if (thisev.eventresworkloads[l] !== null)
-                                                reswl += thisev.eventresworkloads[l] / thisev.duration ;
-                                            else
-                                                if (thisev.workload != null)
-                                                    reswl += thisev.workload/thisev.duration ;
-                                                else
+                                            if (thisev.eventresworkloads[l] !== null) {
+                                                reswl += thisev.eventresworkloads[l] * thisev.duration;
+                                            }
+                                            else {
+
+                                                if (thisev.workload != null) {
+                                                    reswl += thisev.workload * thisev.duration;
+                                                }
+                                                else {
                                                     reswl += thisev.duration;
+
+                                                }
+                                            }
                                         }
                                     }
 
@@ -235,6 +241,7 @@ module solution {
                                     reswl++;*/
                             }
                         }
+                        reswl = Math.ceil(reswl);
                         var sletmig = thisres.id + "___" + constr.id;
                         if (reswl > max) {
                             constrafvigelser.push(reswl - max)

@@ -201,16 +201,21 @@ var solution;
                                     }
                                     for(var l = 0; l < thisev.eventresourcer.length; l++) {
                                         if(thisev.eventresourcer[l] === thisres) {
-                                            if(thisev.workload != null) {
-                                                reswl += thisev.workload * thisev.duration;
+                                            if(thisev.eventresworkloads[l] !== null) {
+                                                reswl += thisev.eventresworkloads[l] * thisev.duration;
                                             } else {
-                                                reswl += thisev.duration;
+                                                if(thisev.workload != null) {
+                                                    reswl += thisev.workload * thisev.duration;
+                                                } else {
+                                                    reswl += thisev.duration;
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
                         }
+                        reswl = Math.ceil(reswl);
                         var sletmig = thisres.id + "___" + constr.id;
                         if(reswl > max) {
                             constrafvigelser.push(reswl - max);
@@ -575,4 +580,3 @@ var solution;
     })();
     solution.Sol = Sol;    
 })(solution || (solution = {}));
-//@ sourceMappingURL=solution.js.map
