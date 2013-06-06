@@ -205,13 +205,17 @@ module solution {
                                     var resm = thisev.eventresmangler;
                                     for (var l = 0; l < resm.length; l++) {
                                         if (this.resmangeltildelinger[resm[l].index] == thisres.index) {
+                                            if (thisev.preasigntime)
+                                                var duration = thisev.duration;
+                                            else
+                                                var duration = 1;
                                             if (resm[l].workload != null)
-                                                reswl += resm[l].workload;
+                                                reswl += resm[l].workload / thisev.duration * duration;
                                             else
                                                 if (thisev.workload != null)
-                                                    reswl += thisev.workload;
+                                                    reswl += thisev.workload / thisev.duration * duration;
                                                 else
-                                                    reswl++;
+                                                    reswl += duration;
                                         }
                                     }
                                     for (var l = 0; l < thisev.eventresourcer.length; l++) {//preassigned
