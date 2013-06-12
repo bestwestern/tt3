@@ -206,7 +206,7 @@ var solution;
                                     }
                                     for(var l = 0; l < thisev.eventresourcer.length; l++) {
                                         if(thisev.eventresourcer[l] === thisres) {
-                                            if(thisev.eventresworkloads[l] !== null) {
+                                            if(thisev.eventresworkloads[l] != null) {
                                                 reswl += thisev.eventresworkloads[l] * thisev.duration;
                                             } else {
                                                 if(thisev.workload != null) {

@@ -49,8 +49,7 @@ window.onload = function () {
             instans.readxml("XML/" + filenames[i] + ".xml");
         }
     }
-    var filnavn = filenames[5];
-    filnavn = "testmedworkloadlimitlig0";
+    var filnavn = filenames[1];
     instans.readxml("XML/" + filnavn + ".xml");
     vistsol = new solution.Sol();
     $('#content').html(lavtablerowhtml(vistsol));
