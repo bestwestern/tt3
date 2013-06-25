@@ -69,19 +69,6 @@ module solution {
                                 constrafvigelser.push(resmngler[i].aevent.duration);
                             else
                                 constrafvigelser.push(1);
-                            /*   if (resmngler[i].aevent.preasigntime)
-                             eventafvigelse += resmngler[i].aevent.duration;
-                         else
-                             eventafvigelse++;
-                     }
-                     if (eventafvigelse) {
-                         if (constr.id + '__' + resmangler[i].aevent.name in fejldetaljer)
-                             fejldetaljer[]+=eventafvigelse;
-                         else
-                             fejldetaljer[constr.id + '__' + resmngler[i].aevent.name] = eventafvigelse;
-                         constrafvigelser.push(eventafvigelse);
-                         //detarr.push(resourcer[resmngler[i]..id + ":" + constrafvigelser[constrafvigelser.length - 1]);
-                      */
                         }
                     }
                 }
@@ -184,6 +171,48 @@ module solution {
 
                     }
                 }
+                if (constr instanceof instans.LimitIdleTimesConstraint) {
+                    type = "LimitIdleTimesConstraint";
+                    var ctimegroups: instans.TimeGroup[] = constr.timegroups;
+                    var antgr = ctimegroups.length;
+                    var max = constr.maximum;
+                    var min = constr.minimum;
+                    var constr: instans.LimitBusyTimesConstraint = <instans.LimitIdleTimesConstraint >constr;
+                    for (var i = 0; i < constr.appliestores.length; i++) {
+                        var thisres = constr.appliestores[i];
+                        var thisresafv = 0;
+                        var thisrestiltidtider = this.restiltid[thisres.index].tider;
+                        for (var j = 0; j < ctimegroups.length; j++) {
+                            var thistgtimer = ctimegroups[j].timer;
+                            var gridletimes = 0;
+                            var startfra = -1;
+                            var tjekindex = 0;
+                            while (startfra < 0 && tjekindex < thistgtimer.length) {
+                                if (thisrestiltidtider[thistgtimer[tjekindex++].index].eventindex.length)
+                                    startfra = tjekindex - 1;
+                            }
+                            if (startfra > -1) {
+                                var stopved = -1;
+                                tjekindex = thistgtimer.length - 1;
+                                while (stopved < 0 && tjekindex > -1)
+                                    if (thisrestiltidtider[thistgtimer[tjekindex--].index].eventindex.length)
+                                        stopved = tjekindex + 1;
+                                if (startfra > -1 && stopved > -1)
+                                    for (var k = startfra + 1; k < stopved; k++)
+                                        if (!thisrestiltidtider[thistgtimer[k].index].eventindex.length)
+                                            gridletimes++;
+                                if (gridletimes < min)
+                                    thisresafv += (min - gridletimes);
+                                else
+                                    if (gridletimes > max)
+                                        thisresafv += (gridletimes - max);
+                            }
+
+                        }
+                        if (thisresafv)
+                            constrafvigelser.push(thisresafv);
+                    }
+                }
 
                 if (constr instanceof instans.LimitWorkloadConstraint) {
                     type = "LimitWorkloadConstraint ";
@@ -246,22 +275,13 @@ module solution {
                             }
                         }
                         reswl = Math.ceil(reswl);
-                        var sletmig = thisres.id + "___" + constr.id;
-                        if (reswl > max) {
+if (reswl > max) {
                             constrafvigelser.push(reswl - max)
-                            fejldetaljer[sletmig] = reswl - max;
                         }
                         else
                             if (reswl < min) {
                                 constrafvigelser.push(min - reswl);
-                                fejldetaljer[sletmig] = min - reswl;
-                            }
-                        /*
-                       if (fejldetaljer[sletmig])
-                           fejldetaljer[sletmig] += constrafvigelser[constrafvigelser.length - 1];
-                       else
-                           fejldetaljer[sletmig] = constrafvigelser[constrafvigelser.length - 1];
-                       var k = 4;*/
+                             }
 
 
 

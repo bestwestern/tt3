@@ -7,6 +7,34 @@ module instans {
             s += afvigelser[i];
         return s;
     }
+    function squaresum(afvigelser: number[]) {
+        var s = 0;
+        for (var i = 0, len = afvigelser.length; i < len; i++)
+            s += afvigelser[i];
+        return s * s;
+    }
+    function sumsquares(afvigelser: number[]) {
+        var s = 0;
+        for (var i = 0, len = afvigelser.length; i < len; i++)
+            s += afvigelser[i] * afvigelser[i];
+        return s;
+    }
+    function returnercostfunction(navn: string) {
+        switch (navn.toLocaleLowerCase()) {
+            case "sum":
+                return sum;
+                break;
+            case "squaresum":
+                return squaresum;
+                break;
+            case "sumsquares":
+                return sumsquares;
+                break;
+            default:
+                alert(navn + ' linje 25 mangler!');
+                break;
+        }
+    }
     export interface Constraint {//behøver ikke slette de ekstra appliesto - bliver ikke anvendt fordi de ikke er i construct
         id: string; name: string; weight: number; appliestoevgrou: EventGroup[]; appliestoev: AEvent[]; appliestoresgrou: ResourceGroup[];
         appliestores: Resource[]; role: string; timer: Time[]; timegroups: TimeGroup[]; minimumduration: number;
@@ -42,14 +70,7 @@ module instans {
             costfunction: string) {
             this.appliestoresgrou = [];
             this.appliestores = [];
-            switch (costfunction.toLowerCase()) {
-                case "sum":
-                    this.costfunction = sum;
-                    break;
-                default:
-                    alert('costfunction mangler!' + costfunction);
-                    break;
-            }
+            this.costfunction = returnercostfunction(costfunction);
         }
     }
     export class AvoidSplitAssignmentsConstraint implements Constraint {
@@ -73,14 +94,7 @@ module instans {
             costfunction: string, public role: string) {
             this.appliestoevgrou = [];
             this.arraymedarrayafresmangler = [];
-            switch (costfunction.toLowerCase()) {
-                case "sum":
-                    this.costfunction = sum;
-                    break;
-                default:
-                    alert('costfunction mangler!' + costfunction);
-                    break;
-            }
+            this.costfunction = returnercostfunction(costfunction);
         }
     }
     export class AvoidUnavailableTimesConstraint implements Constraint {
@@ -107,15 +121,7 @@ module instans {
             this.appliestores = [];
             this.timegroups = [];
             this.timer = [];
-
-            switch (costfunction.toLowerCase()) {
-                case "sum":
-                    this.costfunction = sum;
-                    break;
-                default:
-                    alert('costfunction mangler!' + costfunction);
-                    break;
-            }
+            this.costfunction = returnercostfunction(costfunction);
         }
     }
     export class AssignResourceConstraint implements Constraint {
@@ -141,16 +147,7 @@ module instans {
             this.appliestoevgrou = [];
             this.appliestoresmangler = [];
             this.appliestoev = [];
-
-            //   this.appliestoma = [];
-            switch (costfunction.toLowerCase()) {
-                case "sum":
-                    this.costfunction = sum;
-                    break;
-                default:
-                    alert('costfunction mangler!' + costfunction);
-                    break;
-            }
+            this.costfunction = returnercostfunction(costfunction);
         }
     }
 
@@ -175,14 +172,7 @@ module instans {
             costfunction: string) {
             this.appliestoevgrou = [];
             this.appliestoev = [];
-            switch (costfunction.toLowerCase()) {
-                case "sum":
-                    this.costfunction = sum;
-                    break;
-                default:
-                    alert('costfunction mangler!' + costfunction);
-                    break;
-            }
+            this.costfunction = returnercostfunction(costfunction);
         }
     }
     export class DistributeSplitEventsConstraint implements Constraint {
@@ -205,14 +195,7 @@ module instans {
         costfunction: (afv: number[]) => number;
         constructor(public id: string, public name: string, public weight: number,
             costfunction: string) {
-            switch (costfunction.toLowerCase()) {
-                case "sum":
-                    this.costfunction = sum;
-                    break;
-                default:
-                    alert('costfunction mangler!' + costfunction);
-                    break;
-            }
+            this.costfunction = returnercostfunction(costfunction);
             this.appliestoevgrou = [];
             this.appliestoev = [];
 
@@ -242,17 +225,34 @@ module instans {
             this.appliestoresgrou = [];
             this.appliestores = [];
             this.timegroups = [];
-            switch (costfunction.toLowerCase()) {
-                case "sum":
-                    this.costfunction = sum;
-                    break;
-                default:
-                    alert('costfunction mangler!' + costfunction);
-                    break;
-            }
+            this.costfunction = returnercostfunction(costfunction);
         }
     }
-
+    export class LimitIdleTimesConstraint implements Constraint {
+        appliestoevgrou: EventGroup[];
+        appliestoev: AEvent[];
+        appliestoresmangler: ResMangel[];
+        appliestoresgrou: ResourceGroup[];
+        appliestores: Resource[];
+        timegroups: TimeGroup[];
+        timer: Time[];
+        minimumduration: number;
+        maximumduration: number;
+        minimumamount: number;
+        maximumamount: number;
+        duration: number;
+        minimum: number;
+        maximum: number;
+        role: string;
+        costfunction: (afv: number[]) => number;
+        constructor(public id: string, public name: string, public weight: number,
+            costfunction: string) {
+            this.timegroups = [];
+            this.appliestoresgrou = [];
+            this.appliestores = [];
+            this.costfunction = returnercostfunction(costfunction);
+        }
+    }
     export class LimitWorkloadConstraint implements Constraint {
         appliestoevgrou: EventGroup[];
         appliestoev: AEvent[];
@@ -274,14 +274,7 @@ module instans {
             costfunction: string) {
             this.appliestoresgrou = [];
             this.appliestores = [];
-            switch (costfunction.toLowerCase()) {
-                case "sum":
-                    this.costfunction = sum;
-                    break;
-                default:
-                    alert('costfunction mangler!' + costfunction);
-                    break;
-            }
+            this.costfunction = returnercostfunction(costfunction);
         }
     }
 
@@ -305,14 +298,7 @@ module instans {
         constructor(public id: string, public name: string, public weight: number,
             costfunction: string) {
             this.appliestoevgrou = [];
-            switch (costfunction.toLowerCase()) {
-                case "sum":
-                    this.costfunction = sum;
-                    break;
-                default:
-                    alert('costfunction mangler!' + costfunction);
-                    break;
-            }
+            this.costfunction = returnercostfunction(costfunction);
         }
     }
 
@@ -340,14 +326,7 @@ module instans {
             this.appliestoresgrou = [];
             this.appliestores = [];
             this.appliestoresmangler = [];
-            switch (costfunction.toLowerCase()) {
-                case "sum":
-                    this.costfunction = sum;
-                    break;
-                default:
-                    alert('costfunction mangler!' + costfunction);
-                    break;
-            }
+            this.costfunction = returnercostfunction(costfunction);
         }
     }
 
@@ -380,15 +359,7 @@ module instans {
             this.appliestoev = [];
             this.timegroups = [];
             this.timer = [];
-
-            switch (costfunction.toLowerCase()) {
-                case "sum":
-                    this.costfunction = sum;
-                    break;
-                default:
-                    alert('costfunction mangler!' + costfunction);
-                    break;
-            }
+            this.costfunction = returnercostfunction(costfunction);
         }
     }
 
@@ -408,17 +379,9 @@ module instans {
         duration: number;
         minimum: number;
         maximum: number;
-
         costfunction: (afv: number[]) => number;
         constructor(public id: string, public name: string, public weight: number, costfunction: string) {
-            switch (costfunction.toLowerCase()) {
-                case "sum":
-                    this.costfunction = sum;
-                    break;
-                default:
-                    alert('costfunction mangler!' + costfunction);
-                    break;
-            }
+            this.costfunction = returnercostfunction(costfunction);
             this.appliestoevgrou = [];
             this.appliestoev = [];
 
@@ -445,14 +408,7 @@ module instans {
         timegroupmaximum: number[];//timegroupmaximum[i]  maxixmum tilhørende timegroup i
         costfunction: (afv: number[]) => number;
         constructor(public id: string, public name: string, public weight: number, costfunction: string) {
-            switch (costfunction.toLowerCase()) {
-                case "sum":
-                    this.costfunction = sum;
-                    break;
-                default:
-                    alert('costfunction mangler!' + costfunction);
-                    break;
-            }
+            this.costfunction = returnercostfunction(costfunction);
             this.appliestoevgrou = [];
             this.timegroups = [];
             this.timegroupmaximum = [];
@@ -804,7 +760,7 @@ module instans {
                 var wl = null;
             else
                 wl = Number(curev["Workload"]);
-             var nyev = new AEvent(curev["Id"], curev["Name"], Number(curev["Duration"]), wl, preassigntime);
+            var nyev = new AEvent(curev["Id"], curev["Name"], Number(curev["Duration"]), wl, preassigntime);
             if (!preassigntime) {
                 for (var i = 0; i < nyev.duration; i++)
                     nyev.eventtidmangler.push(new TidMangel(nyev, i));
@@ -960,7 +916,7 @@ module instans {
                     if (thisres["Workload"] == null)
                         var wl = null;
                     else
-                        wl = Number(thisres["Workload"]);                    
+                        wl = Number(thisres["Workload"]);
                     if (nyev.preasigntime)
                         nyev.eventresmangler.push(new ResMangel(thisres["Role"], curtype, nyev, null, wl));
                     else
@@ -1008,6 +964,9 @@ module instans {
                 break;
             case "LimitBusyTimesConstraint":
                 var nycon = new LimitBusyTimesConstraint(id, na, we, co);
+                break;
+            case "LimitIdleTimesConstraint":
+                var nycon = new LimitIdleTimesConstraint(id, na, we, co);
                 break;
             case "LimitWorkloadConstraint":
                 var nycon = new LimitWorkloadConstraint(id, na, we, co);
