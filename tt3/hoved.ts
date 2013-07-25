@@ -1,11 +1,12 @@
+Ôªø/// <reference path="Scripts/typings/jquery/jquery.d.ts" />
 /// <reference path="solution.ts" />
 /// <reference path="instans.ts" />
-/// <reference path="jquery.d.ts" />
+
 /*TODO: 
-test ved indsÊttelse af event i appliestoevent, som allerede findes i en gruppe i appliestogroup
+test ved inds√¶ttelse af event i appliestoevent, som allerede findes i en gruppe i appliestogroup
 Lav resource angivelse og: test ved angivelse af resource i preferresource (ikke resourcegr)
 lav preassigned kolonne
-b¯r solutionevent pege pÂ forÊldreevent
+b√∏r solutionevent pege p√• for√¶ldreevent
 */
 
 var timer: instans.Time[];
@@ -125,7 +126,7 @@ function lavxml() {
     tildeltid0();
     var serializer = new XMLSerializer();
 
-    //slet mens test - gÂr stÊrkere
+    //slet mens test - g√•r st√¶rkere
     var y = xmlDoc.getElementsByTagName("Instances")[0];
     //  xmlDoc.documentElement.removeChild(y);
     var solgroupndoe = xmlDoc.getElementsByTagName("SolutionGroups")[0];
@@ -179,7 +180,7 @@ function lavxml() {
                 if (nysolevent) {
                     var ev = addnode("Event", eventsnode);
                     ev.setAttribute("Reference", thisevent.id);
-                    addnode("Duration", ev, "1");//skal ¯ge duration hvis ens 
+                    addnode("Duration", ev, "1");//skal √∏ge duration hvis ens 
                     var tin = addnode("Time", ev);
                     var tildtid = vistsol.tidmangeltildelinger[thisevent.eventtidmangler[j].index];
                     tin.setAttribute("Reference", timer[tildtid].id);
@@ -220,7 +221,7 @@ function lavxml() {
        var fejl = wind.substr(102616);*/
     window.open('data:text/xml,' + serializer.serializeToString(xmlDoc));
 }
-function addnode(navn: string, parent: any, txt?: string, ) {
+function addnode(navn: string, parent: any, txt?: string ) {
     var ch = xmlDoc.createElement(navn);
     if (txt) {
         var tx = xmlDoc.createTextNode("ch");
@@ -378,8 +379,8 @@ function lavtablerowhtml(solin: solution.Sol) {
             }
             var fra = durationindex;
             var countplusser = ievent.duration;
-            if (ievent.preasigntime) {//hvis preassigned skal der kun laves en rÊkke. 
-                //dvs duration =0=>lav rÊkke med resmangel drop for hver mangel. ellers er rÊkken lavet
+            if (ievent.preasigntime) {//hvis preassigned skal der kun laves en r√¶kke. 
+                //dvs duration =0=>lav r√¶kke med resmangel drop for hver mangel. ellers er r√¶kken lavet
                 if (durationindex == 0)
                     countplusser = 1;
                 else
@@ -411,7 +412,7 @@ function lavtablerowhtml(solin: solution.Sol) {
                 if (ievent.eventtidmangler[durationindex] != undefined)
                     var tidmangelindex = ievent.eventtidmangler[durationindex].index;
                 else
-                    var tidmangelindex = -(ievent.preasigntime.index + durationindex) - 1;//negativ sÂfremt preassignet tid
+                    var tidmangelindex = -(ievent.preasigntime.index + durationindex) - 1;//negativ s√•fremt preassignet tid
                 htmltxt += "<td> " + colrole + ":<select data-eventindex=" + ievent.index + "  data-durationindex=" + durationindex + "  data-tidmangelindex=" + tidmangelindex + " onchange='choicemade(false," +
                    ievent.eventresmangler[mnglindex].index + ",this)'>>" + drop + "</td>"
             }

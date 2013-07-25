@@ -26,10 +26,11 @@
     <Content Include="instans.min.js">
       <DependentUpon>instans.ts</DependentUpon>
     </Content>
-    <TypeScriptCompile Include="jquery.d.ts" />
-    <Content Include="jquery.d.js">
-      <DependentUpon>jquery.d.ts</DependentUpon>
-    </Content>
+    <Content Include="packages.config" />
+    <None Include="Scripts\jquery-2.0.3.intellisense.js" />
+    <Content Include="Scripts\jquery-2.0.3.js" />
+    <Content Include="Scripts\jquery-2.0.3.min.js" />
+    <Content Include="Scripts\typings\jquery\jquery.d.ts" />
     <Content Include="solution.min.js">
       <DependentUpon>solution.ts</DependentUpon>
     </Content>
@@ -63,6 +64,7 @@
     <Content Include="instans.min.js.map">
       <DependentUpon>instans.js</DependentUpon>
     </Content>
+    <Content Include="Scripts\jquery-2.0.3.min.map" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>

@@ -1,4 +1,4 @@
-/// <reference path="instans.ts" /> 
+ï»¿/// <reference path="instans.ts" /> 
 /// <reference path="hoved.ts" />
 declare var x;
 
@@ -32,7 +32,7 @@ module solution {
             this.restiltid = [];
             for (var i = 0; i < antalresourcer; i++)
                 this.restiltid[i] = new restider();
-            for (var i = 0; i < antalevents; i++) {//tildel preassigned res på events med preassigned tider
+            for (var i = 0; i < antalevents; i++) {//tildel preassigned res pÃ¥ events med preassigned tider
                 var thisevent = events[i];
                 if (thisevent.preasigntime) {
                     for (var durationindex = 0; durationindex < thisevent.duration; durationindex++)
@@ -47,7 +47,7 @@ module solution {
             }
         }
 
-        udregncon(hardcon: bool) {//frisk udregning (uden gemte tidligere værdier) bør måske ikke lave prefertimes hvis hardcon? - opdel udregn i hard og soft
+        udregncon(hardcon: bool) {//frisk udregning (uden gemte tidligere vÃ¦rdier) bÃ¸r mÃ¥ske ikke lave prefertimes hvis hardcon? - opdel udregn i hard og soft
             var constrarr: instans.Constraint[] = hardcon ? hardconstraints : softconstraints;
             var typeopsummering = {};
             var fejldetaljer: any = {};
@@ -61,7 +61,7 @@ module solution {
 
                 if (constr instanceof instans.AssignResourceConstraint) {
                     type = "AssignResourceConstraint";
-                    var constr: instans.AssignResouceConstraint = <instans.AssignTimeConstraint> constr;
+                    var constr: instans.AssignResourceConstraint = <instans.AssignResourceConstraint> constr;
                     var resmngler = constr.appliestoresmangler;
                     for (var i = 0; i < resmngler.length; i++) {
                         if (this.resmangeltildelinger[resmngler[i].index] == null) {
@@ -366,7 +366,7 @@ if (reswl > max) {
                         for (var k = 0; k < startogslut.length; k = k + 2) {
                             var tjek = true;
                             if ("duration" in constr)
-                                tjek = startogslut[k + 1] - startogslut[k] + 1 == constr["duration"];//rigtig længde?
+                                tjek = startogslut[k + 1] - startogslut[k] + 1 == constr["duration"];//rigtig lÃ¦ngde?
                             if (tjek) {
                                 var tidmangelindex = thisevent.eventtidmangler[startogslut[k]].index;
                                 var tildelttid = this.tidmangeltildelinger[tidmangelindex];
@@ -524,7 +524,7 @@ if (reswl > max) {
                 //    var str = thisevent.name;
                 for (var i = 0; i < startogslut.length; i = i + 2) {
                     var len = startogslut[i + 1] - startogslut[i] + 1;
-                    //      str += " længde:" + len.toString();
+                    //      str += " lÃ¦ngde:" + len.toString();
                     if (len < mindur)
                         afvigelser++;
                     if (len > maxdur)

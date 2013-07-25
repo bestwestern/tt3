@@ -1,4 +1,4 @@
-/// <reference path="solution.ts" />
+ï»¿/// <reference path="solution.ts" />
 /// <reference path="hoved.ts" />
 module instans {
     function sum(afvigelser: number[]) {
@@ -35,7 +35,7 @@ module instans {
                 break;
         }
     }
-    export interface Constraint {//behøver ikke slette de ekstra appliesto - bliver ikke anvendt fordi de ikke er i construct
+    export interface Constraint {//behÃ¸ver ikke slette de ekstra appliesto - bliver ikke anvendt fordi de ikke er i construct
         id: string; name: string; weight: number; appliestoevgrou: EventGroup[]; appliestoev: AEvent[]; appliestoresgrou: ResourceGroup[];
         appliestores: Resource[]; role: string; timer: Time[]; timegroups: TimeGroup[]; minimumduration: number;
         maximumduration: number;
@@ -404,8 +404,8 @@ module instans {
         duration: number;
         minimum: number;
         maximum: number;
-        timegroupminimum: number[];//timegroupminimum[i]  minimum tilhørende timegroup i
-        timegroupmaximum: number[];//timegroupmaximum[i]  maxixmum tilhørende timegroup i
+        timegroupminimum: number[];//timegroupminimum[i]  minimum tilhÃ¸rende timegroup i
+        timegroupmaximum: number[];//timegroupmaximum[i]  maxixmum tilhÃ¸rende timegroup i
         costfunction: (afv: number[]) => number;
         constructor(public id: string, public name: string, public weight: number, costfunction: string) {
             this.costfunction = returnercostfunction(costfunction);
@@ -457,7 +457,7 @@ module instans {
     export class Entity {
         constructor(public id: string, public name: string) {
             if (id === undefined || name === undefined)
-                alert('Fejl ved indlæsning af ' + id + ',' + name);
+                alert('Fejl ved indlÃ¦sning af ' + id + ',' + name);
         }
     }
     export class Time extends Entity {
@@ -515,10 +515,10 @@ module instans {
     export class AEvent {
         index: number;
         eventresourcer: Resource[];//preassignede
-        eventresworkloads: number[];//preassignede resourcer workloads - dvs skal have så mange index som ovenstående
+        eventresworkloads: number[];//preassignede resourcer workloads - dvs skal have sÃ¥ mange index som ovenstÃ¥ende
         eventresmangler: ResMangel[];//hvis 3 mangler (mangel 1 er lokale) og duration er 4, 
-        //så vil resmangel [4],[5],[6],[7] være lokalemanglerne for de 4 durationindex
-        //NB! Hvis preassignedtime så vil der ikke være en mangel for hver duration!
+        //sÃ¥ vil resmangel [4],[5],[6],[7] vÃ¦re lokalemanglerne for de 4 durationindex
+        //NB! Hvis preassignedtime sÃ¥ vil der ikke vÃ¦re en mangel for hver duration!
         eventtidmangler: TidMangel[];
         eventresourcegrupper: ResourceGroup[];
         eventeventgrupper: EventGroup[];
@@ -538,7 +538,7 @@ module instans {
         index: number;
         constructor(public aevent: AEvent, public durationindex: number) {
             if (aevent === null || durationindex === null)
-                alert('fejl ved indlæsningh af tidmangel ');
+                alert('fejl ved indlÃ¦sningh af tidmangel ');
             this.index = tidmangler.length;
             tidmangler.push(this);
         }
@@ -549,7 +549,7 @@ module instans {
         constructor(public role: string, public resourcetype: ResourceType, public aevent: AEvent,
             public durationindex: number, public workload?: number) {
             if (role === null || resourcetype === null)
-                alert('fejl ved indlæsningh af mangel ' + role + ',' + resourcetype.name);
+                alert('fejl ved indlÃ¦sningh af mangel ' + role + ',' + resourcetype.name);
             this.index = resmangler.length;
             resmangler.push(this);
 
@@ -559,7 +559,7 @@ module instans {
               }*/
         }
     }
-    export function readinstance(nobj: Object) {//bør lave tjek på resgroup om array eller ej
+    export function readinstance(nobj: Object) {//bÃ¸r lave tjek pÃ¥ resgroup om array eller ej
         hardconstraints = [];
         softconstraints = [];
         timer = [];
@@ -635,7 +635,7 @@ module instans {
                 var tmpg = curtime["TimeGroups"]["TimeGroup"];
                 for (var key in tmpg) {
                     var k = tmpg[key];
-                    if (k["Reference"]) {//hvis der findes reference så er der flere og de bliver loopet
+                    if (k["Reference"]) {//hvis der findes reference sÃ¥ er der flere og de bliver loopet
                         //hvis ikke er tidsgruppen k
                         k = k["Reference"];
                     }
@@ -775,7 +775,7 @@ module instans {
                     evgr.events.push(nyev);
                 }
                 else
-                    alert('fejl ved indlæsning af event ' + curev["Name"]);
+                    alert('fejl ved indlÃ¦sning af event ' + curev["Name"]);
             }
             if (curev["EventGroups"]) {
                 evgru = curev["EventGroups"];
@@ -788,7 +788,7 @@ module instans {
                     if (kk == -1)
                         kk = evgruppeid.indexOf(k);
                     if (kk == -1)
-                        alert('fejl3 ved indlæsning af evengroups for event ' + curev["Name"]);
+                        alert('fejl3 ved indlÃ¦sning af evengroups for event ' + curev["Name"]);
                     else {
                         var evgr = eventgrupper[kk];
                         nyev.eventeventgrupper.push(evgr);
@@ -842,7 +842,7 @@ module instans {
             readinstance(XML2jsobj(xmlDoc.childNodes[bingo]));
         }
         else
-            assert(true, 'kunne ikke læse ' + url);
+            assert(true, 'kunne ikke lÃ¦se ' + url);
         /* else {
              for (var i = 0; i <2; i++)
                  assert(true, i + xmlDoc.childNodes[i].nodeName)
@@ -907,7 +907,7 @@ module instans {
                 nyev.eventresworkloads.push(wl);
             }
             else
-                alert('fejl5 ved indlæsning af resource for ');
+                alert('fejl5 ved indlÃ¦sning af resource for ');
         }
         else {
             if ("Role" in thisres && "ResourceType" in thisres) {
@@ -995,7 +995,7 @@ module instans {
 
             default:
 
-                // alert constraint ikke understøttet    var fddfdfsk = constraint["jk"]["jk"];
+                // alert constraint ikke understÃ¸ttet    var fddfdfsk = constraint["jk"]["jk"];
                 break;
 
         }
@@ -1066,7 +1066,7 @@ module instans {
                             (<SpreadEventsConstraint>nycon).timegroupminimum.push(tg[key]["Minimum"]);
                             (<SpreadEventsConstraint>nycon).timegroupmaximum.push(tg[key]["Maximum"]);
                         }
-                        if (nycon.timer)//nødvendig fordi spreadevents (o.a.) har timegroups men ikke timer
+                        if (nycon.timer)//nÃ¸dvendig fordi spreadevents (o.a.) har timegroups men ikke timer
                             for (var i = 0, len = tgr.timer.length; i < len; i++)
                                 if (nycon.timer.indexOf(tgr.timer[i]) == -1)
                                     nycon.timer.push(tgr.timer[i]);
@@ -1079,7 +1079,7 @@ module instans {
                     }
                     var tgr = tidsgrupper[tidgrupid.indexOf(tg["Reference"])];
                     nycon.timegroups.push(tgr);
-                    if (nycon.timer)//nødvendig fordi spreadevents har timegroups men ikke timer
+                    if (nycon.timer)//nÃ¸dvendig fordi spreadevents har timegroups men ikke timer
                         for (var i = 0, len = tgr.timer.length; i < len; i++)
                             if (nycon.timer.indexOf(tgr.timer[i]) == -1)
                                 nycon.timer.push(tgr.timer[i]);
