@@ -358,6 +358,9 @@
                                 assignedtider.push(ev.preasigntime); else {
                                 var durations = this.getdurations(ev);
                                 for (var k = 0; k < durations.length; k = k + 2) {
+                                    /* var tm = ev.eventtidmangler[durations[k]].index;
+                                    var tld = this.tidmangeltildelinger[tm];
+                                    var tid = timer[tld];*/
                                     assignedtider.push(timer[this.tidmangeltildelinger[ev.eventtidmangler[durations[k]].index]]);
                                 }
                             }
@@ -478,6 +481,7 @@
             var dur = con.duration;
             var startogslut = this.getdurations(thisevent);
             if (startogslut.length > 0) {
+                // var str = thisevent.name;
                 var antalmedrigtigduration = 0;
                 for (var i = 0; i < startogslut.length; i = i + 2)
                     if (startogslut[i + 1] - startogslut[i] + 1 == dur)
