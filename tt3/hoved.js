@@ -1,4 +1,15 @@
-﻿var timer;
+﻿/// <reference path="Scripts/typings/jquery/jquery.d.ts" />
+/// <reference path="solution.ts" />
+/// <reference path="instans.ts" />
+//Links http://www.utwente.nl/ctit/hstt/documentation/
+//http://sydney.edu.au/engineering/it/~jeff/hseval.cgi?op=spec
+/*TODO:
+test ved indsættelse af event i appliestoevent, som allerede findes i en gruppe i appliestogroup
+Lav resource angivelse og: test ved angivelse af resource i preferresource (ikke resourcegr)
+lav preassigned kolonne
+bør solutionevent pege på forældreevent
+*/
+var timer;
 var vistsol;
 var tidsgrupper;
 var resourcetyper;
@@ -19,6 +30,11 @@ var xmlinstans;
 window.onload = function () {
     "use strict";
 
+    //  obj1.x = 9; // throws a TypeError
+    /* if (typeof (Worker) !== "undefined")
+    alert('worker virker');
+    else
+    alert('not');*/
     var test = [];
     test[3] = [5];
     var filenames = [
@@ -49,8 +65,10 @@ window.onload = function () {
         }
     var filnavn = filenames[2];
 
+    // filnavn = "testmedworkloadlimitlig0";
     instans.readxml("XML/" + filnavn + ".xml");
     vistsol = new solution.Sol();
+    $('#filnavn').text(filenames.indexOf(filnavn) + ':' + filnavn);
     $('#content').html(lavtablerowhtml(vistsol));
 };
 function genberegn() {
@@ -75,6 +93,7 @@ function tildeltid0() {
             for (var j = 0; j < thisevent.duration; j++) {
                 var tildtid = timer[vistsol.tidmangeltildelinger[thisevent.eventtidmangler[j].index]];
                 if (!tildtid) {
+                    // vistsol.tidmangeltildelinger[i] = 0;
                     vistsol.tildeltidtilevent(thisevent.eventtidmangler[j].index, 0);
                     nyvisning = true;
                 }
@@ -88,11 +107,23 @@ function tildeltid0() {
     }
 }
 function lavxml() {
+    /* console.log('node ' + i.toString() + ':' + xmlDoc.childNodes[i].nodeName);
+    var thisnode = xmlDoc.childNodes[i];
+    for (var j = 0, len2 = thisnode.childNodes.length; j < len2; j++) {
+    var thisnode2 = thisnode.childNodes[j];
+    console.log('undernode ' + j.toString() + ':' + thisnode2.nodeName);
+    for (var k = 0, len3 = thisnode2.childNodes.length; k < len3; k++) {
+    console.log('undernode2 ' + k.toString() + ':' + thisnode2.childNodes[k].nodeName);
+    
+    }
+    }*/
     tildeltid0();
     var serializer = new XMLSerializer();
 
+    //slet mens test - går stærkere
     var y = xmlDoc.getElementsByTagName("Instances")[0];
 
+    //  xmlDoc.documentElement.removeChild(y);
     var solgroupndoe = xmlDoc.getElementsByTagName("SolutionGroups")[0];
     var solgroup = xmlDoc.createElement("SolutionGroup");
     solgroup.setAttribute("Id", "Runessol" + Math.random() * 1000);
@@ -167,8 +198,20 @@ function lavxml() {
     solgroup.appendChild(metadata);
     solgroup.appendChild(solref);
 
+    /*  var metadata_contr = xmlDoc.createElement("Contributor");
+    var metadata_contr_txt = xmlDoc.createTextNode("Contri");
+    
+    metadata_contr.appendChild(metadata_contr_txt);
+    metadata.appendChild(metadata_contr);
+    
+    x = metadata_contr.childNodes[0];
+    console.log(x.nodeName);
+    x.nodeValue = "contr";
+    console.log(x.nodeValue);*/
     solgroupndoe.appendChild(solgroup);
 
+    /*   var wind =  serializer.serializeToString(xmlDoc);
+    var fejl = wind.substr(102616);*/
     window.open('data:text/xml,' + serializer.serializeToString(xmlDoc));
 }
 function addnode(navn, parent, txt) {
@@ -179,6 +222,8 @@ function addnode(navn, parent, txt) {
         ch.appendChild(tx);
     }
 
+    /* else
+    tx = xmlDoc.createElement(navn);*/
     parent.appendChild(ch);
     return ch;
 }
@@ -191,6 +236,7 @@ function choicemade(tidangivet, mangelindex, dropdown) {
         if (isNaN(nyval))
             nyval = -1;
 
+        //var oldval = vistsol.tidmangeltildelinger[mangelindex];
         vistsol.tildeltidtilevent(mangelindex, nyval);
     } else {
         var nyval = Number(dropdown.options[dropdown.selectedIndex].value);
@@ -236,6 +282,7 @@ function assert(value, desc) {
 function lavtablerowhtml(solin) {
     var htmltxt = "<table><thead><tr><td>Event</td><td>Time</td></tr></thead>";
 
+    //  var solevents = solin.solevents;
     var roles = [];
     var restypedropdown = {};
     var antalevents = events.length;

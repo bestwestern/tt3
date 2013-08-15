@@ -1,6 +1,9 @@
 ﻿/// <reference path="Scripts/typings/jquery/jquery.d.ts" />
 /// <reference path="solution.ts" />
 /// <reference path="instans.ts" />
+//Links http://www.utwente.nl/ctit/hstt/documentation/
+//http://sydney.edu.au/engineering/it/~jeff/hseval.cgi?op=spec
+
 
 /*TODO: 
 test ved indsættelse af event i appliestoevent, som allerede findes i en gruppe i appliestogroup
@@ -41,21 +44,21 @@ window.onload = () => {
         "DenmarkSmallSchool",
         "test",
         "NetherlandsKottenpark2009",
-         "ArtificialORLibrary-hdtt6",
+        "ArtificialORLibrary-hdtt6",
         "ArtificialSudoku4x4",
-      "AustraliaBGHS98",
-      "AustraliaSAHS96",
-      "BrazilInstance1",
-      "BrazilInstance4",
-      "DenmarkHasserisGymnasium2012",
-      "EnglandStPaul",
-      "GreeceHighSchool1",
-      "FinlandCollege",
-      "FinlandSecondarySchool",
-    "NetherlandsGEPRO",
-    "SouthAfricaLewitt2009",
-    "SpainSchool",
-    "ItalyInstance1"
+        "AustraliaBGHS98",
+        "AustraliaSAHS96",
+        "BrazilInstance1",
+        "BrazilInstance4",
+        "DenmarkHasserisGymnasium2012",
+        "EnglandStPaul",
+        "GreeceHighSchool1",
+        "FinlandCollege",
+        "FinlandSecondarySchool",
+        "NetherlandsGEPRO",
+        "SouthAfricaLewitt2009",
+        "SpainSchool",
+        "ItalyInstance1"
     ];
     var alle = 0;
     if (alle)
@@ -68,9 +71,10 @@ window.onload = () => {
             assert(true, events.length.toString());*/
         }
     var filnavn = filenames[2];
-   // filnavn = "testmedworkloadlimitlig0";
+    // filnavn = "testmedworkloadlimitlig0";
     instans.readxml("XML/" + filnavn + ".xml");
     vistsol = new solution.Sol();
+    $('#filnavn').text(filenames.indexOf(filnavn) + ':' + filnavn);
     $('#content').html(lavtablerowhtml(vistsol));
     // vistsol.udregnhard();
     // lavxml();
@@ -221,7 +225,7 @@ function lavxml() {
        var fejl = wind.substr(102616);*/
     window.open('data:text/xml,' + serializer.serializeToString(xmlDoc));
 }
-function addnode(navn: string, parent: any, txt?: string ) {
+function addnode(navn: string, parent: any, txt?: string) {
     var ch = xmlDoc.createElement(navn);
     if (txt) {
         var tx = xmlDoc.createTextNode("ch");
@@ -375,7 +379,7 @@ function lavtablerowhtml(solin: solution.Sol) {
                 if (tidvalg > -2)
                     tiddropi = tiddropi.replace("'" + tidvalg + "'", "'" + tidvalg + "' selected");
                 htmltxt += navn + "</td><td>Time:<select  data-eventindex=" + ievent.index + "  data-durationindex=" + durationindex + "  data-tidmangelindex=" + ievent.eventtidmangler[durationindex].index + "   onchange='choicemade(true," +
-                    ievent.eventtidmangler[durationindex].index + ",this)'>" + tiddropi + "</td>";
+                ievent.eventtidmangler[durationindex].index + ",this)'>" + tiddropi + "</td>";
             }
             var fra = durationindex;
             var countplusser = ievent.duration;
@@ -386,7 +390,7 @@ function lavtablerowhtml(solin: solution.Sol) {
                 else
                     fra = antalmngler;
             }
-            for (var mnglindex = fra; mnglindex < antalmngler ; mnglindex = mnglindex + countplusser) {
+            for (var mnglindex = fra; mnglindex < antalmngler; mnglindex = mnglindex + countplusser) {
                 var colrole = ievent.eventresmangler[mnglindex].role;
                 var restype = ievent.eventresmangler[mnglindex].resourcetype.id;
                 if (restypedropdown[restype] === undefined) {
@@ -414,7 +418,7 @@ function lavtablerowhtml(solin: solution.Sol) {
                 else
                     var tidmangelindex = -(ievent.preasigntime.index + durationindex) - 1;//negativ såfremt preassignet tid
                 htmltxt += "<td> " + colrole + ":<select data-eventindex=" + ievent.index + "  data-durationindex=" + durationindex + "  data-tidmangelindex=" + tidmangelindex + " onchange='choicemade(false," +
-                   ievent.eventresmangler[mnglindex].index + ",this)'>>" + drop + "</td>"
+                ievent.eventresmangler[mnglindex].index + ",this)'>>" + drop + "</td>"
             }
         }
     }

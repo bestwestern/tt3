@@ -51,7 +51,8 @@
 
                 if (constr instanceof instans.AssignResourceConstraint) {
                     type = "AssignResourceConstraint";
-                    var constr = constr;
+
+                    //  var constr: instans.AssignResourceConstraint = <instans.AssignResourceConstraint> constr;
                     var resmngler = constr.appliestoresmangler;
                     for (var i = 0; i < resmngler.length; i++) {
                         if (this.resmangeltildelinger[resmngler[i].index] == null) {
@@ -63,7 +64,7 @@
                 }
                 if (constr instanceof instans.AssignTimeConstraint) {
                     type = "AssignTimeConstraint";
-                    var constr = constr;
+
                     for (var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
                         var eventafvigelse = 0;
                         var eventtidmngler = constr.appliestoev[i].eventtidmangler;
@@ -76,7 +77,8 @@
                 }
                 if (constr instanceof instans.AvoidSplitAssignmentsConstraint) {
                     type = "AvoidSplitAssignmentsConstraint";
-                    var constr = constr;
+
+                    //      var constr: instans.AvoidSplitAssignmentsConstraint = <instans.AvoidSplitAssignmentsConstraint> constr;
                     var arrmedarrmedmangler = (constr).arraymedarrayafresmangler;
                     for (var i = 0; i < arrmedarrmedmangler.length; i++) {
                         var mnglarr = arrmedarrmedmangler[i];
@@ -94,7 +96,7 @@
                     }
                 }
                 if (constr instanceof instans.AvoidClashesConstraint) {
-                    var constr = constr;
+                    //      var constr: instans.PreferTimesConstraint = <instans.AvoidClashesConstraint> constr;
                     type = "AvoidClashesConstraint";
                     for (var i = 0; i < constr.appliestores.length; i++) {
                         var resafvigelse = 0;
@@ -190,8 +192,12 @@
                                     thisresafv += (gridletimes - max);
                             }
                         }
-                        if (thisresafv)
+                        if (thisresafv) {
                             constrafvigelser.push(thisresafv);
+
+                            //fejlsøgning
+                            fejldetaljer[thisres.name + '_' + constr.name] = thisresafv;
+                        }
                     }
                 }
 
@@ -358,6 +364,9 @@
                                 assignedtider.push(ev.preasigntime); else {
                                 var durations = this.getdurations(ev);
                                 for (var k = 0; k < durations.length; k = k + 2) {
+                                    /* var tm = ev.eventtidmangler[durations[k]].index;
+                                    var tld = this.tidmangeltildelinger[tm];
+                                    var tid = timer[tld];*/
                                     assignedtider.push(timer[this.tidmangeltildelinger[ev.eventtidmangler[durations[k]].index]]);
                                 }
                             }
@@ -478,6 +487,7 @@
             var dur = con.duration;
             var startogslut = this.getdurations(thisevent);
             if (startogslut.length > 0) {
+                // var str = thisevent.name;
                 var antalmedrigtigduration = 0;
                 for (var i = 0; i < startogslut.length; i = i + 2)
                     if (startogslut[i + 1] - startogslut[i] + 1 == dur)

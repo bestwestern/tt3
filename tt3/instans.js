@@ -4,6 +4,8 @@
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+/// <reference path="solution.ts" />
+/// <reference path="hoved.ts" />
 var instans;
 (function (instans) {
     function sum(afvigelser) {
@@ -230,6 +232,39 @@ var instans;
     })();
     instans.SpreadEventsConstraint = SpreadEventsConstraint;
 
+    /*  export class SpreadEventsConstraint implements Constraint {
+    appliestoevgrou: EventGroup[];
+    appliestoev: AEvent[];
+    appliestoresgrou: ResourceGroup[];
+    appliestores: Resource[];
+    timegroups: TimeGroup[];
+    role: string;
+    costfunction: (afv: number[]) => number;
+    timer: Time[];
+    minimumduration: number;
+    maximumduration: number;
+    minimumamount: number;
+    maximumamount: number;
+    appliestoresmangler: ResMangel[];
+    duration: number;
+    minimum: number;
+    maximum: number;
+    
+    constructor(public id: string, public name: string, public weight: number, costfunction: string) {
+    this.appliestoevgrou = [];
+    this.timegroups = [];
+    this.timer = [];
+    this.appliestoev = [];
+    switch (costfunction.toLowerCase()) {
+    case "sum":
+    this.costfunction = sum;
+    break;
+    default:
+    alert('costfunction mangler!' + costfunction);
+    break;
+    }
+    }
+    }*/
     var Entity = (function () {
         function Entity(id, name) {
             this.id = id;
@@ -444,6 +479,7 @@ var instans;
                 for (var key in tmpg) {
                     var k = tmpg[key];
                     if (k["Reference"]) {
+                        //hvis ikke er tidsgruppen k
                         k = k["Reference"];
                     }
                     var tmg = tidsgrupper[tidgruppeid.indexOf(k)];
@@ -618,6 +654,8 @@ var instans;
         xmlhttp.send(null);
         xmlDoc = xmlhttp.responseXML;
 
+        /* console.log(url);
+        console.log(xmlDoc.childNodes[0].nodeName);*/
         var bingo = -1;
         for (var i = 0, len = xmlDoc.childNodes.length; i < len; i++)
             if (xmlDoc.childNodes[i].nodeName === 'HighSchoolTimetableArchive') {
@@ -630,9 +668,23 @@ var instans;
         } else
             assert(true, 'kunne ikke læse ' + url);
 
+        /* else {
+        for (var i = 0; i <2; i++)
+        assert(true, i + xmlDoc.childNodes[i].nodeName)
+        }*/
+        //alert(xmlDoc.childNodes[0].baseName);
+        /*     for (var i = 0; i < xmlDoc.childNodes.length; i++) {
+        if (xmlDoc.childNodes[i].baseName === 'HighSchoolTimetableArchive') {
+        data = XML2jsobj(xmlDoc.childNodes[i]);
+        readinstance(data);
+        i = xmlDoc.childNodes.length;
+        
+        }
+        }*/
         function XML2jsobj(node) {
             var data = {};
 
+            // append a value
             function Add(name, value) {
                 if (data[name]) {
                     if (data[name].constructor != Array) {
@@ -645,6 +697,7 @@ var instans;
             }
             ;
 
+            // element attributes
             var c, cn;
             for (c = 0; cn = node.attributes[c]; c++) {
                 Add(cn.name, cn.value);
@@ -653,8 +706,10 @@ var instans;
             for (c = 0; cn = node.childNodes[c]; c++) {
                 if (cn.nodeType == 1) {
                     if (cn.childNodes.length == 1 && cn.firstChild.nodeType == 3) {
+                        // text value
                         Add(cn.nodeName, cn.firstChild.nodeValue);
                     } else {
+                        // sub-object
                         Add(cn.nodeName, XML2jsobj(cn));
                     }
                 }
@@ -690,11 +745,13 @@ var instans;
                 } else
                     alert('fejlx v res event');
             } else {
+                //var fddfdfsk = nobj["jk"]["jk"];
                 alert('fejl v res event');
             }
         }
     }
     function lavcon(constraint, type, evgruppeid, evid, resid, resgrupid, tidid, tidgrupid) {
+        //var nycon: Constraint;
         var na = constraint["Name"];
         var id = constraint["Id"];
         var we = constraint["Weight"];

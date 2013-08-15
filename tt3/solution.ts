@@ -61,7 +61,7 @@ module solution {
 
                 if (constr instanceof instans.AssignResourceConstraint) {
                     type = "AssignResourceConstraint";
-                    var constr: instans.AssignResourceConstraint = <instans.AssignResourceConstraint> constr;
+                  //  var constr: instans.AssignResourceConstraint = <instans.AssignResourceConstraint> constr;
                     var resmngler = constr.appliestoresmangler;
                     for (var i = 0; i < resmngler.length; i++) {
                         if (this.resmangeltildelinger[resmngler[i].index] == null) {
@@ -74,7 +74,7 @@ module solution {
                 }
                 if (constr instanceof instans.AssignTimeConstraint) {
                     type = "AssignTimeConstraint";
-                    var constr: instans.AssignTimeConstraint = <instans.AssignTimeConstraint> constr;
+                 //   var constr: instans.AssignTimeConstraint = <instans.AssignTimeConstraint> constr;
                     for (var i = 0, antaleventsicon = constr.appliestoev.length; i < antaleventsicon; i++) {
                         var eventafvigelse = 0;
                         var eventtidmngler = constr.appliestoev[i].eventtidmangler;
@@ -87,7 +87,7 @@ module solution {
                 }
                 if (constr instanceof instans.AvoidSplitAssignmentsConstraint) {
                     type = "AvoidSplitAssignmentsConstraint";
-                    var constr: instans.AvoidSplitAssignmentsConstraint = <instans.AvoidSplitAssignmentsConstraint> constr;
+              //      var constr: instans.AvoidSplitAssignmentsConstraint = <instans.AvoidSplitAssignmentsConstraint> constr;
                     var arrmedarrmedmangler = (<instans.AvoidSplitAssignmentsConstraint>constr).arraymedarrayafresmangler;
                     for (var i = 0; i < arrmedarrmedmangler.length; i++) {
                         var mnglarr: instans.ResMangel[] = arrmedarrmedmangler[i];
@@ -107,7 +107,7 @@ module solution {
                     }
                 }
                 if (constr instanceof instans.AvoidClashesConstraint) {
-                    var constr: instans.PreferTimesConstraint = <instans.AvoidClashesConstraint> constr;
+              //      var constr: instans.PreferTimesConstraint = <instans.AvoidClashesConstraint> constr;
                     type = "AvoidClashesConstraint";
                     for (var i = 0; i < constr.appliestores.length; i++) {
                         var resafvigelse = 0;
@@ -167,6 +167,7 @@ module solution {
                             else
                                 if (tgload < min)
                                     constrafvigelser.push(min - tgload);
+                            
                         }
 
                     }
@@ -180,7 +181,7 @@ module solution {
                     var constr: instans.LimitBusyTimesConstraint = <instans.LimitIdleTimesConstraint >constr;
                     for (var i = 0; i < constr.appliestores.length; i++) {
                         var thisres = constr.appliestores[i];
-                        var thisresafv = 0;
+                         var thisresafv = 0;
                         var thisrestiltidtider = this.restiltid[thisres.index].tider;
                         for (var j = 0; j < ctimegroups.length; j++) {
                             var thistgtimer = ctimegroups[j].timer;
@@ -209,8 +210,13 @@ module solution {
                             }
 
                         }
-                        if (thisresafv)
+                        if (thisresafv) {
                             constrafvigelser.push(thisresafv);
+                            //fejlsøgning
+                            
+                            fejldetaljer[thisres.name + '_' + constr.name] = thisresafv;
+           
+                        }
                     }
                 }
 
@@ -275,13 +281,13 @@ module solution {
                             }
                         }
                         reswl = Math.ceil(reswl);
-if (reswl > max) {
+                        if (reswl > max) {
                             constrafvigelser.push(reswl - max)
                         }
                         else
                             if (reswl < min) {
                                 constrafvigelser.push(min - reswl);
-                             }
+                            }
 
 
 
@@ -454,7 +460,7 @@ if (reswl > max) {
             for (var prop in typeopsummering)
                 assert(true, prop + " " + typeopsummering[prop]);
             for (var prop in fejldetaljer)
-                assert(true, prop + " : " + fejldetaljer[prop]);
+                     assert(true, prop + " : " + fejldetaljer[prop]);
         }
         getdurations(thisevent: instans.AEvent) {
             var startogslut: number[] = [];
