@@ -1,3 +1,3 @@
 ﻿window.onload = () => {
-    alert('bingo');
+    //alert('bingo');
 }

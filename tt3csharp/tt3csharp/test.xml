@@ -2,7 +2,7 @@
 <TestClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <SomeString>foo</SomeString>
   <Settings>
-    <string>A</string>
+    <string>ggA</string>
     <string>B</string>
     <string>C</string>
   </Settings>

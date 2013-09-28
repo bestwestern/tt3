@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace tt3csharp
@@ -38,12 +39,18 @@ namespace tt3csharp
         }
         protected void Page_Load(object sender, EventArgs e)
         {
+            XDocument xdocument = XDocument.Load(Server.MapPath("~/test.xml"));
+            IEnumerable<XElement> employees = xdocument.Elements();
+            foreach (var employee in employees)
+            {
+                Console.WriteLine(employee);
+            }
             TestClass TestObj = new TestClass();
 
             // Set some dummy values
             TestObj.SomeString = "foo";
 
-            TestObj.Settings.Add("A");
+            TestObj.Settings.Add("ggA");
             TestObj.Settings.Add("B");
             TestObj.Settings.Add("C");
 
@@ -58,6 +65,18 @@ namespace tt3csharp
 
             // Cleanup
             WriteFileStream.Close();
+          /*  StreamWriter sw = File.AppendText(Server.MapPath("~/test.xml"));
+            XmlTextWriter xtw = new XmlTextWriter(sw);
+
+            xtw.WriteStartElement("event");
+            xtw.WriteElementString("ip", "192.168.0.1");
+            xtw.WriteElementString("http_method", "POST");
+            xtw.WriteElementString("file", "comments.aspx");
+            xtw.WriteElementString("date", "1999-05-05T19:25:13.238220-08:00");
+
+            xtw.Close();*/
+                 
+
         }
     }
 }

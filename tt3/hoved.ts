@@ -116,6 +116,9 @@ function tildeltid0() {
         vistsol.udregncon(false);
     }
 }
+function lavxmlserver() {
+    tildeltid0();
+}
 function lavxml() {
     /* console.log('node ' + i.toString() + ':' + xmlDoc.childNodes[i].nodeName);
      var thisnode = xmlDoc.childNodes[i];
