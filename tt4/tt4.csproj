@@ -57,7 +57,33 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="app.css" />
     <Content Include="Default.aspx" />
+    <Content Include="hoved.js">
+      <DependentUpon>hoved.ts</DependentUpon>
+    </Content>
+    <Content Include="hoved.min.js">
+      <DependentUpon>hoved.ts</DependentUpon>
+    </Content>
+    <Content Include="hoved.ts" />
+    <Content Include="instans.js">
+      <DependentUpon>instans.ts</DependentUpon>
+    </Content>
+    <Content Include="instans.min.js">
+      <DependentUpon>instans.ts</DependentUpon>
+    </Content>
+    <Content Include="instans.ts" />
+    <None Include="Scripts\jquery-2.0.3.intellisense.js" />
+    <Content Include="Scripts\jquery-2.0.3.js" />
+    <Content Include="Scripts\jquery-2.0.3.min.js" />
+    <Content Include="Scripts\typings\jquery\jquery.d.ts" />
+    <Content Include="solution.js">
+      <DependentUpon>solution.ts</DependentUpon>
+    </Content>
+    <Content Include="solution.min.js">
+      <DependentUpon>solution.ts</DependentUpon>
+    </Content>
+    <Content Include="solution.ts" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -71,6 +97,17 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="packages.config" />
+    <Content Include="hoved.js.map">
+      <DependentUpon>hoved.ts</DependentUpon>
+    </Content>
+    <Content Include="instans.js.map">
+      <DependentUpon>instans.ts</DependentUpon>
+    </Content>
+    <Content Include="solution.js.map">
+      <DependentUpon>solution.ts</DependentUpon>
+    </Content>
+    <Content Include="Scripts\jquery-2.0.3.min.map" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

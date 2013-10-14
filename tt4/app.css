@@ -1,0 +1,40 @@
+﻿
+html {
+}
+
+body {
+}
+
+#wrapper {
+    padding-bottom: 700px;
+}
+
+#footer {
+    background-color: #cdcdcd;
+    height: 200px;
+    text-align: center;
+    font-size: 10px;
+    font-family: Verdana;
+    padding-top: 5px;
+    width: 100%;
+    position: fixed;
+    left: 0px;
+    bottom: 0px;
+    overflow: auto;
+}
+
+ul#results {
+    border: 2px ridge maroon;
+    background-color: #ffffcc;
+    /*padding: 0.25em 1.5em;*/
+    margin-left: 0;
+}
+
+li.pass {
+    color: #006400;
+}
+
+li.fail {
+    color: #dc143c;
+    text-decoration: line-through;
+}
